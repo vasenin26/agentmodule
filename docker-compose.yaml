@@ -1,0 +1,10 @@
+services:
+  agentmodule:
+    build:
+      context: ./docker/agent
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./app:/app
+    working_dir: /app

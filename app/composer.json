@@ -1,0 +1,24 @@
+{
+    "name": "anymodule/agentmodule",
+    "description": "Agent module for super documenction module",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Anymodule\\Agentmodule\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "vasenin26"
+        }
+    ],
+    "require": {
+        "openai-php/laravel": "^0.16.0",
+        "czproject/git-php": "^4.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
