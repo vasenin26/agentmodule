@@ -1,7 +1,27 @@
 <?php
 
+use Anymodule\Agentmodule\Factory\ChatFactory;
+use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
+use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
+use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
+use Anymodule\Agentmodule\Services\ApiService\ApiClient;
+use Anymodule\Agentmodule\Services\Git\RepoProvider;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
-(new Runner())->run();
+$api = new ApiClient();
+
+$processorFactory = new TaskProcessorFactory(
+    new ToolServiceFactory(
+        new ToolsFactory(
+            new RepoProvider(),
+            new PageContextProviderFactory($api),
+        )
+    ),
+    new ChatFactory(),
+    $api
+);
+
+(new Runner($api, $processorFactory))->run();

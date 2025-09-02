@@ -6,6 +6,6 @@ use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 
 interface ToolServiceFactoryInterface
 {
-    public function withAllTools(): ToolsService;
-    public function withAllToolsForProject(int $projectId): ToolInterface;
+    public function withMainTools(): ToolsService;
+    public function withAllToolsForProject(int $projectId): ToolsService;
 }

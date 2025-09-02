@@ -2,7 +2,12 @@
 
 namespace Anymodule\Agentmodule\Entity;
 
-class Task
+readonly class Task
 {
-
+    public function __construct(
+        public int $id,
+        public array $messages,
+    )
+    {
+    }
 }

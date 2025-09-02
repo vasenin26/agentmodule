@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Interface;
 
-interface TaskProcessorFactory
+interface TaskProcessorFactoryInterface
 {
     public function createProcessorForTask(\Anymodule\Agentmodule\Entity\Task $task): TaskProcessor;
 }

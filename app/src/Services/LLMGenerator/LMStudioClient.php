@@ -3,32 +3,25 @@
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
 use Anymodule\Agentmodule\Entity\LLMResult;
-use Anymodule\Agentmodule\Interface\ToolServiceFactoryInterface;
-use Illuminate\Support\Facades\Log;
+use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
+use Anymodule\Agentmodule\Interface\LLMTools;
 use OpenAI;
 
-class LMStudioClient
+class LMStudioClient implements GPTProcessorInterface
 {
 
     public function __construct(
-        private ToolServiceFactoryInterface $toolsFactory
+        private LLMTools $tools
     )
     {
     }
 
-    public function processMessages(array $messages): LLMResult
+    public function process(array $messages): LLMResult
     {
-//        $client = OpenAI::factory()
-//            ->withApiKey('sk-proj-1234567890')
-//            ->withBaseUri('http://host.docker.internal:1234/v1')
-//            ->make();
         $client = OpenAI::factory()
             ->withApiKey(env('OPENAI_API_KEY'))
             ->make();
 
-        $tools = $this->toolsFactory->withAllTools();
-
-        // Извлекаем детализированную информацию о токенах
         $promptTokens = 0;
         $completionTokens = 0;
         $totalTokens = 0;
@@ -36,22 +29,18 @@ class LMStudioClient
         do {
             $answer = null;
 
-            Log::info('Ask LLM', ['message' => count($messages)]);
-
             try {
                 $result = $client->chat()->create([
                     'model' => 'gpt-5-mini',
                     'messages' => $messages,
-                    'tools' => $tools->getMeta()
+                    'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
                 var_dump($messages);
                 var_dump($exception);
-                Log::error($exception->getMessage());
+
                 throw $exception;
             }
-
-            Log::info('LLM OK', ['message' => count($messages)]);
 
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;
@@ -63,11 +52,7 @@ class LMStudioClient
             } else {
                 foreach ($toolCalls as $toolCall) {
 
-                    Log::info("LLM call tool: " . $toolCall->function->name . " with args " . $toolCall->function->arguments);
-
-                    $toolResult = $tools->callTool($toolCall->function->name, $toolCall->function->arguments);
-
-                    Log::info("Tool finished", ['result' => $toolResult]);
+                    $toolResult = $this->tools->callTool($toolCall->function->name, $toolCall->function->arguments);
 
                     if (is_null($toolResult)) {
                         $messages[] = [
@@ -85,7 +70,7 @@ class LMStudioClient
                         'content' => $toolResult
                     ];
 
-                    if ($tools->isResultFunction($toolCall->function->name)) {
+                    if ($this->tools->isResultFunction($toolCall->function->name)) {
                         $answer = $toolResult;
                     }
                 }

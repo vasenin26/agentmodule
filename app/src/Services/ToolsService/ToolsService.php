@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
+use Anymodule\Agentmodule\Interface\LLMTools;
 use Anymodule\Agentmodule\Interface\ToolInterface;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\SendResult;
 

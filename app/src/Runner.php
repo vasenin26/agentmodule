@@ -3,14 +3,13 @@
 namespace Anymodule\Agentmodule;
 
 use Anymodule\Agentmodule\Interface\TaskApi;
-use Anymodule\Agentmodule\Interface\TaskProcessor;
-use Anymodule\Agentmodule\Interface\TaskProcessorFactory;
+use Anymodule\Agentmodule\Interface\TaskProcessorFactoryInterface;
 
 final readonly class Runner
 {
     public function __construct(
-        private TaskApi $api,
-        private TaskProcessorFactory $processorFactory,
+        private TaskApi                       $api,
+        private TaskProcessorFactoryInterface $processorFactory,
     )
     {
     }

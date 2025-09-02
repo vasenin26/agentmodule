@@ -1,10 +1,11 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\ToolsService;
+namespace Anymodule\Agentmodule\Factory;
 
 
 use Anymodule\Agentmodule\Interface\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 
 class ToolServiceFactory implements ToolServiceFactoryInterface
 {
@@ -14,7 +15,7 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
     {
     }
 
-    public function withAllTools(): ToolsService
+    public function withMainTools(): ToolsService
     {
         return new ToolsService(
             $this->factory->sendResult(),
@@ -40,7 +41,7 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
     /**
      * Создать сервис со всеми утилитами включая Page утилиты для конкретного проекта
      */
-    public function withAllToolsForProject(int $projectId): LLMTools
+    public function withAllToolsForProject(int $projectId): ToolsService
     {
         return new ToolsService(
             $this->factory->sendResult(),
