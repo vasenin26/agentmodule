@@ -5,13 +5,13 @@ use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
-use Anymodule\Agentmodule\Services\ApiService\ApiClient;
+use Anymodule\Agentmodule\Services\ApiService\ApiService;
 use Anymodule\Agentmodule\Services\Git\RepoProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new ApiClient();
+$api = new ApiService();
 
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(

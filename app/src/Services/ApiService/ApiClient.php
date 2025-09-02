@@ -2,21 +2,26 @@
 
 namespace Anymodule\Agentmodule\Services\ApiService;
 
-use Anymodule\Agentmodule\Entity\LLMResult;
-use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\PageApi;
-use Anymodule\Agentmodule\Interface\TaskApi;
+use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 
-class ApiClient implements TaskApi, PageApi
+class ApiClient
 {
-
-    public function getTask(): ?Task
+    public function __construct(
+        private string $host,
+    )
     {
-        return null;
     }
 
-    public function sendResult(int $id, LLMResult $result)
+    public function call(RequestInterface $request): Response
     {
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request($request->getMethod(), $this->getURI($request));
 
+        return new Response($response->getBody());
+    }
+
+    private function getURI(RequestInterface $request): string
+    {
+        return $this->host . '/' . $request->getUrl();
     }
 }
