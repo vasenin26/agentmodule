@@ -5,33 +5,31 @@ namespace Anymodule\Agentmodule\Services\ApiService\Request\Tasks;
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
-use Anymodule\Agentmodule\Services\ApiService\Response\Tasks\TaskSimpleDTO;
+use Anymodule\Agentmodule\Services\ApiService\Response\Tasks\TaskDTO;
 
-/**
- * @deprecated Используйте GetAgentTask вместо этого класса
- * Оставлен для обратной совместимости
- */
-final readonly class GetTask implements RequestInterface
+final readonly class GetAgentTask implements RequestInterface
 {
     public function __construct(
-        private int $taskId
+        private string $agentId
     )
     {
     }
 
     public function getMethod(): string
     {
-        return 'GET';
+        return 'POST';
     }
 
     public function getUrl(): string
     {
-        return "task/{$this->taskId}";
+        return 'agent/task';
     }
 
     public function getPayload(): array
     {
-        return [];
+        return [
+            'agent_id' => $this->agentId
+        ];
     }
 
     public function getToken(): ?string
@@ -42,9 +40,14 @@ final readonly class GetTask implements RequestInterface
     public function exec(ApiClient $client): ResponseInterface
     {
         $response = $client->call($this);
+        $data = $response->getData();
 
-        return new TaskSimpleDTO(
-            taskData: $response->getData()
+        return new TaskDTO(
+            task_id: $data['task_id'] ?? null,
+            status: $data['status'] ?? null,
+            assigned_at: $data['assigned_at'] ?? null,
+            message: $data['message'] ?? null,
+            error: $data['error'] ?? null
         );
     }
 }

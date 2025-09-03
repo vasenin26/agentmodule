@@ -15,7 +15,20 @@ class ApiClient
     public function call(RequestInterface $request): Response
     {
         $client = new \GuzzleHttp\Client();
-        $response = $client->request($request->getMethod(), $this->getURI($request));
+        
+        $options = [];
+        
+        // Добавляем payload для POST/PUT запросов
+        if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'])) {
+            $options['json'] = $request->getPayload();
+        }
+        
+        // Добавляем токен авторизации если есть
+        if ($request->getToken()) {
+            $options['headers']['Authorization'] = 'Bearer ' . $request->getToken();
+        }
+        
+        $response = $client->request($request->getMethod(), $this->getURI($request), $options);
 
         return new Response($response->getBody());
     }

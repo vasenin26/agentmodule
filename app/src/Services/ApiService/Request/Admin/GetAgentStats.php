@@ -1,16 +1,16 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\ApiService\Request\Pages;
+namespace Anymodule\Agentmodule\Services\ApiService\Request\Admin;
 
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageDTO;
+use Anymodule\Agentmodule\Services\ApiService\Response\Admin\AgentStatsDTO;
 
-final readonly class GetPage implements RequestInterface
+final readonly class GetAgentStats implements RequestInterface
 {
     public function __construct(
-        private int $pageId
+        private string $authToken
     )
     {
     }
@@ -22,7 +22,7 @@ final readonly class GetPage implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}";
+        return 'admin/agent/stats';
     }
 
     public function getPayload(): array
@@ -32,15 +32,19 @@ final readonly class GetPage implements RequestInterface
 
     public function getToken(): ?string
     {
-        return null;
+        return $this->authToken;
     }
 
     public function exec(ApiClient $client): ResponseInterface
     {
         $response = $client->call($this);
-
-        return new PageDTO(
-            content: $response->getBody()
+        $data = $response->getData();
+        
+        return new AgentStatsDTO(
+            waiting: $data['waiting'] ?? 0,
+            processing: $data['processing'] ?? 0,
+            completed: $data['completed'] ?? 0,
+            failed: $data['failed'] ?? 0
         );
     }
 }

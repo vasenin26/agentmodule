@@ -1,28 +1,28 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\ApiService\Request\Pages;
+namespace Anymodule\Agentmodule\Services\ApiService\Request\Admin;
 
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageDTO;
+use Anymodule\Agentmodule\Services\ApiService\Response\Admin\ResetStuckTasksDTO;
 
-final readonly class GetPage implements RequestInterface
+final readonly class ResetStuckTasks implements RequestInterface
 {
     public function __construct(
-        private int $pageId
+        private string $authToken
     )
     {
     }
 
     public function getMethod(): string
     {
-        return 'GET';
+        return 'POST';
     }
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}";
+        return 'admin/agent/reset-stuck';
     }
 
     public function getPayload(): array
@@ -32,15 +32,16 @@ final readonly class GetPage implements RequestInterface
 
     public function getToken(): ?string
     {
-        return null;
+        return $this->authToken;
     }
 
     public function exec(ApiClient $client): ResponseInterface
     {
         $response = $client->call($this);
-
-        return new PageDTO(
-            content: $response->getBody()
+        $data = $response->getData();
+        
+        return new ResetStuckTasksDTO(
+            resetCount: $data['reset_count'] ?? 0
         );
     }
 }

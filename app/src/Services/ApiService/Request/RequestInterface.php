@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ApiService\Request;
 
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
+use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
 
 interface RequestInterface
 {
@@ -14,5 +15,5 @@ interface RequestInterface
 
     public function getToken(): ?string;
 
-    public function exec(ApiClient $client): mixed;
+    public function exec(ApiClient $client): ResponseInterface;
 }
