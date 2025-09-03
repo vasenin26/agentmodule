@@ -22,6 +22,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
+            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
             ->make();
 
         $promptTokens = 0;
@@ -37,7 +38,7 @@ class LMStudioClient implements GPTProcessorInterface
 
             try {
                 $result = $client->chat()->create([
-                    'model' => 'gpt-5-mini',
+                    'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
                 ]);

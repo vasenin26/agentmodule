@@ -13,11 +13,7 @@ readonly class LLMResult
     )
     {
     }
-    
-    /**
-     * Legacy метод для обратной совместимости
-     * @deprecated Используйте total_tokens напрямую
-     */
+
     public function getTokens(): ?int
     {
         return $this->total_tokens;

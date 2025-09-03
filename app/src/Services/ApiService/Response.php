@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ApiService;
 class Response
 {
     public function __construct(
+        readonly public int $code,
         private string $body
     )
     {

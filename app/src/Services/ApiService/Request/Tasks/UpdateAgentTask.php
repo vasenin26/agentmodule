@@ -50,8 +50,8 @@ final readonly class UpdateAgentTask implements RequestInterface
         $response = $client->call($this);
         $data = $response->getData();
         
-        if (isset($data['error'])) {
-            throw new \RuntimeException($data['error']);
+        if ($response->code !== 200) {
+            throw new \RuntimeException($response->getBody());
         }
         
         return new UpdateTaskDTO(

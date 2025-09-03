@@ -23,17 +23,17 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
                 // Базовые утилиты
                 'time' => $this->factory->time(),
                 
-                // Существующие Git утилиты
-                'git-readFile' => $this->factory->gitReadFile(),
-                'git-searchFileByName' => $this->factory->gitSearchFileByName(),
-                'git-readDir' => $this->factory->gitReadDir(),
-                
-                // Новые Git утилиты
-                'git-analyze-structure' => $this->factory->gitAnalyzeStructure(),
-                'git-get-dependencies' => $this->factory->gitGetDependencies(),
-                'git-search-pattern' => $this->factory->gitSearchPattern(),
-                'git-find-config-files' => $this->factory->gitFindConfigFiles(),
-                'git-analyze-classes' => $this->factory->gitAnalyzeClasses(),
+//                // Существующие Git утилиты
+//                'git-readFile' => $this->factory->gitReadFile(),
+//                'git-searchFileByName' => $this->factory->gitSearchFileByName(),
+//                'git-readDir' => $this->factory->gitReadDir(),
+//
+//                // Новые Git утилиты
+//                'git-analyze-structure' => $this->factory->gitAnalyzeStructure(),
+//                'git-get-dependencies' => $this->factory->gitGetDependencies(),
+//                'git-search-pattern' => $this->factory->gitSearchPattern(),
+//                'git-find-config-files' => $this->factory->gitFindConfigFiles(),
+//                'git-analyze-classes' => $this->factory->gitAnalyzeClasses(),
             ]
         );
     }

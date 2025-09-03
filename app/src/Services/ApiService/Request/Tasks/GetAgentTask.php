@@ -43,14 +43,17 @@ final readonly class GetAgentTask implements RequestInterface
     {
         try {
             $response = $client->call($this);
+
+            if($response->code !== 200){
+                return null;
+            }
+
             $data = $response->getData();
 
             return new TaskDTO(
-                task_id: $data['task_id'] ?? null,
-                status: $data['status'] ?? null,
-                assigned_at: $data['assigned_at'] ?? null,
-                message: $data['message'] ?? null,
-                error: $data['error'] ?? null
+                task_id: $data['id'],
+                project_id: $data['project_id'],
+                messages: $data['chat']['messages'] ?? [],
             );
         } catch (ClientException $exception) {
             if($exception->getResponse()->getStatusCode() !== 404) {

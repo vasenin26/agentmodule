@@ -14,7 +14,7 @@ class ApiClient
 
     public function call(RequestInterface $request): Response
     {
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client( ['http_errors' => false]);
         
         $options = [];
         
@@ -22,6 +22,9 @@ class ApiClient
         if (in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'])) {
             $options['json'] = $request->getPayload();
         }
+
+        $options['headers']['Content-Type'] = 'application/json';
+        $options['headers']['Accept'] = 'application/json';
         
         // Добавляем токен авторизации если есть
         if ($request->getToken()) {
@@ -30,7 +33,7 @@ class ApiClient
         
         $response = $client->request($request->getMethod(), $this->getURI($request), $options);
 
-        return new Response($response->getBody());
+        return new Response($response->getStatusCode(), $response->getBody());
     }
 
     private function getURI(RequestInterface $request): string

@@ -18,7 +18,7 @@ final readonly class Runner
 
     public function run(): void
     {
-        $agentId = Uuid::uuid4();
+        $agentId = Uuid::fromString("9d00a734-865c-4032-9915-0ad86d2204d7");// Uuid::uuid4();
 
         Log::info("Running agent $agentId module...");
 
@@ -37,7 +37,11 @@ final readonly class Runner
             $result = $this->processorFactory->createProcessorForTask($task)
                 ->process($task);
 
-            $this->api->sendResult($agentId, $task->id, $result);
+            try {
+                $this->api->sendResult($agentId, $task->id, $result);
+            } catch (\Throwable $e) {
+                Log::warning($e->getMessage());
+            }
         }
     }
 }
