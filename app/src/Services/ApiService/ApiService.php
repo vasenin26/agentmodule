@@ -6,7 +6,10 @@ use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\PageApi;
 use Anymodule\Agentmodule\Interface\TaskApi;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTask;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class ApiService implements TaskApi, PageApi
 {
@@ -17,15 +20,22 @@ class ApiService implements TaskApi, PageApi
         $this->api = new ApiClient($host);
     }
 
-    public function getTask(): ?Task
+    public function getTask(UuidInterface $agentId): ?Task
     {
-        $request = new GetTask();
+        $request = new GetAgentTask($agentId->toString());
         $taskData = $request->exec($this->api);
 
-        return null;
+        if(is_null($taskData)) {
+            return null;
+        }
+
+        return new Task(
+            $taskData->task_id,
+            []
+        );
     }
 
-    public function sendResult(int $id, LLMResult $result)
+    public function sendResult(UuidInterface $agentId, int $id, LLMResult $result)
     {
 
     }

@@ -16,22 +16,27 @@ class Log
         static::$logger = new Logger('main_logger');
         static::$logger->pushHandler(new StreamHandler('php://stdout', Level::Debug));
     }
-    private static function log(Level $level, string $message): void
+    private static function log(Level $level, string $message, ...$args): void
     {
         if(static::$logger === null) {
             static::init();
         }
 
-        static::$logger->log($level, $message);
+        static::$logger->log($level, $message, $args);
     }
 
-    public static function info(string $message): void
+    public static function info(string $message, ...$args): void
     {
-        self::log(Level::Info, $message);
+        self::log(Level::Info, $message, $args);
     }
 
     public static function notice(string $message): void
     {
         self::log(Level::Notice, $message);
+    }
+
+    public static function warning(string $getMessage): void
+    {
+        self::log(Level::Warning, $getMessage);
     }
 }

@@ -15,5 +15,5 @@ interface RequestInterface
 
     public function getToken(): ?string;
 
-    public function exec(ApiClient $client): ResponseInterface;
+    public function exec(ApiClient $client): ?ResponseInterface;
 }

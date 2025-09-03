@@ -5,13 +5,14 @@ use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
-use Anymodule\Agentmodule\Services\ApiService\ApiService;
 use Anymodule\Agentmodule\Services\Git\RepoProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
+use Anymodule\Agentmodule\Utils\FakeApi;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new ApiService("http://docmodule");
+//$api = new ApiService("http://docmodule-development-1:8000/api");
+$api = new FakeApi();
 
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(
@@ -20,8 +21,7 @@ $processorFactory = new TaskProcessorFactory(
             new PageContextProviderFactory($api),
         )
     ),
-    new ChatFactory(),
-    $api
+    new ChatFactory()
 );
 
 (new Runner($api, $processorFactory))->run();

@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\Tasks\TaskDTO;
+use Anymodule\Agentmodule\Utils\Log;
+use GuzzleHttp\Exception\ClientException;
 
 final readonly class GetAgentTask implements RequestInterface
 {
@@ -37,17 +39,25 @@ final readonly class GetAgentTask implements RequestInterface
         return null;
     }
 
-    public function exec(ApiClient $client): ResponseInterface
+    public function exec(ApiClient $client): ?TaskDTO
     {
-        $response = $client->call($this);
-        $data = $response->getData();
+        try {
+            $response = $client->call($this);
+            $data = $response->getData();
 
-        return new TaskDTO(
-            task_id: $data['task_id'] ?? null,
-            status: $data['status'] ?? null,
-            assigned_at: $data['assigned_at'] ?? null,
-            message: $data['message'] ?? null,
-            error: $data['error'] ?? null
-        );
+            return new TaskDTO(
+                task_id: $data['task_id'] ?? null,
+                status: $data['status'] ?? null,
+                assigned_at: $data['assigned_at'] ?? null,
+                message: $data['message'] ?? null,
+                error: $data['error'] ?? null
+            );
+        } catch (ClientException $exception) {
+            if($exception->getResponse()->getStatusCode() !== 404) {
+                Log::warning($exception->getMessage());
+            }
+            return null;
+        }
+
     }
 }

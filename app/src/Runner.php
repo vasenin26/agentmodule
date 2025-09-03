@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule;
 use Anymodule\Agentmodule\Interface\TaskApi;
 use Anymodule\Agentmodule\Interface\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Utils\Log;
+use Ramsey\Uuid\Uuid;
 
 final readonly class Runner
 {
@@ -17,11 +18,13 @@ final readonly class Runner
 
     public function run(): void
     {
-        Log::info("Running agent module...");
+        $agentId = Uuid::uuid4();
+
+        Log::info("Running agent $agentId module...");
 
         while (true) {
             Log::info("Getting task..");
-            $task = $this->api->getTask();
+            $task = $this->api->getTask($agentId);
 
             if(is_null($task)) {
                 Log::info("Not found task, sleeping 5 seconds...");
@@ -31,8 +34,10 @@ final readonly class Runner
 
             Log::info("Processing task: {$task->id}");
 
-            $this->processorFactory->createProcessorForTask($task)
+            $result = $this->processorFactory->createProcessorForTask($task)
                 ->process($task);
+
+            $this->api->sendResult($agentId, $task->id, $result);
         }
     }
 }

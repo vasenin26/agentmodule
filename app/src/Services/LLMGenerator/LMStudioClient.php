@@ -5,12 +5,14 @@ namespace Anymodule\Agentmodule\Services\LLMGenerator;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\LLMTools;
+use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
 
 class LMStudioClient implements GPTProcessorInterface
 {
 
     public function __construct(
+        private string   $apiKey,
         private LLMTools $tools
     )
     {
@@ -19,15 +21,19 @@ class LMStudioClient implements GPTProcessorInterface
     public function process(array $messages): LLMResult
     {
         $client = OpenAI::factory()
-            ->withApiKey(env('OPENAI_API_KEY'))
+            ->withApiKey($this->apiKey)
             ->make();
 
         $promptTokens = 0;
         $completionTokens = 0;
         $totalTokens = 0;
 
+        Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools->getMeta()));
+
         do {
             $answer = null;
+
+            Log::info("LLM ask");
 
             try {
                 $result = $client->chat()->create([
@@ -47,14 +53,23 @@ class LMStudioClient implements GPTProcessorInterface
 
             $messages[] = $this->prepareMessage($lastMessage);
 
+            Log::info("LLM Say:" . $lastMessage->content);
+
             if (empty($toolCalls)) {
                 $messages[] = ['role' => 'user', 'content' => 'Store answer with tools for finish'];
             } else {
                 foreach ($toolCalls as $toolCall) {
 
+                    Log::info("LLM call tool " . $toolCall->function->name);
+
                     $toolResult = $this->tools->callTool($toolCall->function->name, $toolCall->function->arguments);
 
+                    Log::info("Tool OK");
+
                     if (is_null($toolResult)) {
+
+                        Log::info("Tool Failed");
+
                         $messages[] = [
                             'role' => 'tool',
                             'tool_call_id' => $toolCall->id,
@@ -63,6 +78,8 @@ class LMStudioClient implements GPTProcessorInterface
 
                         continue;
                     }
+
+                    Log::info("Tool OK");
 
                     $messages[] = [
                         'role' => 'tool',

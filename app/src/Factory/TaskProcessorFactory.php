@@ -3,7 +3,6 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Interface\ChatFactoryInterface;
-use Anymodule\Agentmodule\Interface\TaskApi;
 use Anymodule\Agentmodule\Interface\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ToolServiceFactoryInterface;
@@ -13,7 +12,6 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
     public function __construct(
         private ToolServiceFactoryInterface $toolsFactory,
         private ChatFactoryInterface $chatFactory,
-        private TaskApi $api,
     )
     {
     }
@@ -23,7 +21,6 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         return new \Anymodule\Agentmodule\Services\TaskProcessor\TaskProcessor(
             $this->toolsFactory,
             $this->chatFactory,
-            $this->api,
         );
     }
 }
