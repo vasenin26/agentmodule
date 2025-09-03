@@ -11,7 +11,7 @@ use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new ApiService();
+$api = new ApiService("http://docmodule");
 
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(

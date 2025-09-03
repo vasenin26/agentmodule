@@ -3,6 +3,7 @@ services:
     build:
       context: ./docker/agent
       dockerfile: Dockerfile
+      target: develop
     ports:
       - "50051:50051"
     volumes:

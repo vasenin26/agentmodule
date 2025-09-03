@@ -5,8 +5,13 @@ namespace Anymodule\Agentmodule\Services\ApiService\Request\Tasks;
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 
-class GetTask implements RequestInterface
+final readonly class GetTask implements RequestInterface
 {
+    public function __construct(
+        private int $taskId
+    )
+    {
+    }
 
     public function getMethod(): string
     {
@@ -15,7 +20,7 @@ class GetTask implements RequestInterface
 
     public function getUrl(): string
     {
-        return "task/{$this->pageId}";
+        return "task/{$this->taskId}";
     }
 
     public function getPayload(): array

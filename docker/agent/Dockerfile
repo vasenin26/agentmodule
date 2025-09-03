@@ -1,4 +1,4 @@
-FROM php:8.3-cli
+FROM php:8.3-cli AS base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,3 +14,7 @@ RUN groupadd -g 1000 local && useradd -m -u 1000 -g 1000 local
 
 
 WORKDIR /app
+
+FROM base AS develop
+
+RUN apt-get update && apt-get install -y inotify-tools make

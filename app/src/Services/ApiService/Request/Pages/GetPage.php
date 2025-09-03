@@ -5,8 +5,13 @@ namespace Anymodule\Agentmodule\Services\ApiService\Request\Pages;
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 
-class GetPage implements RequestInterface
+final readonly class GetPage implements RequestInterface
 {
+    public function __construct(
+        private int $pageId
+    )
+    {
+    }
 
     public function getMethod(): string
     {
