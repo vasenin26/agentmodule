@@ -38,8 +38,8 @@ class LMStudioClient implements GPTProcessorInterface
 
             try {
                 $result = $client->chat()->create([
-//                    'model' => 'gpt-5-mini',
-                    'model' => 'gpt-4.1-nano',
+                    'model' => 'gpt-5-mini',
+//                    'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
                 ]);

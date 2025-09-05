@@ -86,11 +86,8 @@ class FindRelatedPages implements ToolInterface
                     'relation_types' => $relationTypes,
                     'relation_strength' => $this->calculateRelationStrength($relationTypes),
                     'files_count' => count($page->files ?? []),
-                    'creator' => [
-                        'id' => $page->creator->id,
-                        'name' => $page->creator->name
-                    ],
-                    'created_at' => $page->created_at->toISOString(),
+                    'creator' => $this->getCreatorInfo($page),
+                    'created_at' => $this->getCreatedAt($page),
                     'common_files' => $this->findCommonFiles($sourcePage, $page),
                     'hierarchical_relation' => $this->getHierarchicalRelation($sourcePage, $page)
                 ];
@@ -120,13 +117,12 @@ class FindRelatedPages implements ToolInterface
         }
 
         // Проверяем общего создателя
-        if ($sourcePage->creator->id === $targetPage->creator->id) {
+        if ($this->haveSameCreator($sourcePage, $targetPage)) {
             $relationTypes[] = 'same_creator';
         }
 
         // Проверяем близость по времени создания (в пределах недели)
-        $timeDiff = abs($sourcePage->created_at->diffInDays($targetPage->created_at));
-        if ($timeDiff <= 7) {
+        if ($this->haveTemporalProximity($sourcePage, $targetPage)) {
             $relationTypes[] = 'temporal_proximity';
         }
 
@@ -146,13 +142,15 @@ class FindRelatedPages implements ToolInterface
     private function areInSameHierarchy($sourcePage, $targetPage): bool
     {
         // Проверяем, являются ли страницы родителем/ребенком
-        if ($sourcePage->parent_id === $targetPage->id || $targetPage->parent_id === $sourcePage->id) {
+        $sourceParentId = $this->getParentId($sourcePage);
+        $targetParentId = $this->getParentId($targetPage);
+        
+        if ($sourceParentId === $targetPage->id || $targetParentId === $sourcePage->id) {
             return true;
         }
 
         // Проверяем, имеют ли общего родителя
-        if ($sourcePage->parent_id && $targetPage->parent_id && 
-            $sourcePage->parent_id === $targetPage->parent_id) {
+        if ($sourceParentId && $targetParentId && $sourceParentId === $targetParentId) {
             return true;
         }
 
@@ -242,20 +240,55 @@ class FindRelatedPages implements ToolInterface
 
     private function getHierarchicalRelation($sourcePage, $targetPage): ?string
     {
-        if ($sourcePage->parent_id === $targetPage->id) {
+        $sourceParentId = $this->getParentId($sourcePage);
+        $targetParentId = $this->getParentId($targetPage);
+        
+        if ($sourceParentId === $targetPage->id) {
             return 'target_is_parent';
         }
 
-        if ($targetPage->parent_id === $sourcePage->id) {
+        if ($targetParentId === $sourcePage->id) {
             return 'target_is_child';
         }
 
-        if ($sourcePage->parent_id && $targetPage->parent_id && 
-            $sourcePage->parent_id === $targetPage->parent_id) {
+        if ($sourceParentId && $targetParentId && $sourceParentId === $targetParentId) {
             return 'siblings';
         }
 
         return null;
+    }
+
+    private function getCreatorInfo($page): array
+    {
+        // Creator information is not available in current Page entity
+        return [
+            'id' => null,
+            'name' => 'Unknown'
+        ];
+    }
+
+    private function getCreatedAt($page): string
+    {
+        // Created at information is not available in current Page entity
+        return 'Unknown';
+    }
+
+    private function getParentId($page): ?int
+    {
+        // Parent ID is not available in current Page entity
+        return null;
+    }
+
+    private function haveSameCreator($sourcePage, $targetPage): bool
+    {
+        // Creator information is not available in current Page entity
+        return false;
+    }
+
+    private function haveTemporalProximity($sourcePage, $targetPage): bool
+    {
+        // Created at information is not available in current Page entity
+        return false;
     }
 
     public function getProps($name): array

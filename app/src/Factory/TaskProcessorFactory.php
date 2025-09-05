@@ -11,7 +11,6 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
     public function __construct(
-        private GitTokenProviderInterface $gitTokenProvider,
         private ToolServiceFactoryInterface $toolsFactory,
         private ChatFactoryInterface $chatFactory,
     )
@@ -22,7 +21,6 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
     {
         return new \Anymodule\Agentmodule\Services\TaskProcessor\TaskProcessor(
             $this->toolsFactory,
-            $this->gitTokenProvider,
             $this->chatFactory,
         );
     }

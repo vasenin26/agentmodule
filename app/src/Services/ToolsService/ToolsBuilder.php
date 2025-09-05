@@ -30,19 +30,17 @@ class ToolsBuilder
         return $this;
     }
 
-    public function withGit($gitToken, string $prefix = 'git'): ToolsBuilder
+    public function withGit(string $prefix = 'git'): ToolsBuilder
     {
-        $repositoryClient = new GitRepositoryClient($gitToken);
-
         $this->tools = array_merge($this->tools, [
-                $prefix . '-readFile' => $this->toolsFactory->gitReadFile($repositoryClient),
-                $prefix . '-searchFileByName' => $this->toolsFactory->gitSearchFileByName($repositoryClient),
-                $prefix . '-readDir' => $this->toolsFactory->gitReadDir($repositoryClient),
-                $prefix . '-analyze-structure' => $this->toolsFactory->gitAnalyzeStructure($repositoryClient),
-                $prefix . '-get-dependencies' => $this->toolsFactory->gitGetDependencies($repositoryClient),
-                $prefix . '-search-pattern' => $this->toolsFactory->gitSearchPattern($repositoryClient),
-                $prefix . '-find-config-files' => $this->toolsFactory->gitFindConfigFiles($repositoryClient),
-                $prefix . '-analyze-classes' => $this->toolsFactory->gitAnalyzeClasses($repositoryClient),
+                $prefix . '-readFile' => $this->toolsFactory->gitReadFile(),
+                $prefix . '-searchFileByName' => $this->toolsFactory->gitSearchFileByName(),
+                $prefix . '-readDir' => $this->toolsFactory->gitReadDir(),
+                $prefix . '-analyze-structure' => $this->toolsFactory->gitAnalyzeStructure(),
+                $prefix . '-get-dependencies' => $this->toolsFactory->gitGetDependencies(),
+                $prefix . '-search-pattern' => $this->toolsFactory->gitSearchPattern(),
+                $prefix . '-find-config-files' => $this->toolsFactory->gitFindConfigFiles(),
+                $prefix . '-analyze-classes' => $this->toolsFactory->gitAnalyzeClasses(),
         ]);
 
         return $this;

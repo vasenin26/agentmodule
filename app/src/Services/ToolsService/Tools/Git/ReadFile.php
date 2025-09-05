@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ToolsService\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Utils\Log;
 
 class ReadFile implements ToolInterface
 {
@@ -19,6 +20,9 @@ class ReadFile implements ToolInterface
     public function execute(array $args): ?string
     {
         list('url' => $url, 'path' => $path) = $args;
+
+        Log::info('Read path: ' . $path);
+        Log::info('Read url: ' . $url);
 
         $repo = $this->repoProvider->getRepo($url);
         $fullPath = $repo->getRepositoryPath() . '/' . trim($path, '/');
