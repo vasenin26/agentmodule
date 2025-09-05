@@ -24,7 +24,7 @@ final readonly class GetPageParent implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}/parent";
+        return "agent/page/{$this->pageId}/parent";
     }
 
     public function getPayload(): array

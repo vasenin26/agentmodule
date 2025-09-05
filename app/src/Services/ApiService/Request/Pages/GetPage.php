@@ -22,7 +22,7 @@ final readonly class GetPage implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}";
+        return "agent/page/{$this->pageId}";
     }
 
     public function getPayload(): array

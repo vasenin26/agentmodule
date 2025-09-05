@@ -17,18 +17,7 @@ class GetHierarchyTree implements ToolInterface
     {
         try {
             $pageId = isset($args['page_id']) ? (int)$args['page_id'] : null;
-            $projectId = isset($args['project_id']) ? (int)$args['project_id'] : null;
             $maxDepth = isset($args['max_depth']) ? (int)$args['max_depth'] : 10;
-
-            // Проверяем контекст проекта
-            if ($projectId && $projectId !== $this->pageContextService->getProjectId()) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Project ID does not match current context',
-                    'code' => 'PROJECT_CONTEXT_MISMATCH',
-                    'timestamp' => now()->toISOString()
-                ]);
-            }
 
             // Проверяем доступ к странице, если указана
             if ($pageId && !$this->pageContextService->validatePageAccess($pageId)) {
@@ -36,7 +25,6 @@ class GetHierarchyTree implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found or not accessible in current project context',
                     'code' => 'PAGE_ACCESS_DENIED',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -53,7 +41,6 @@ class GetHierarchyTree implements ToolInterface
                     'tree' => $tree
                 ],
                 'message' => 'Page hierarchy retrieved successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -61,7 +48,6 @@ class GetHierarchyTree implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to retrieve page hierarchy: ' . $e->getMessage(),
                 'code' => 'GET_HIERARCHY_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }
@@ -79,22 +65,12 @@ class GetHierarchyTree implements ToolInterface
                 'id' => $page->id,
                 'title' => $page->title,
                 'depth' => $currentDepth,
-                'has_content' => !empty(trim($page->content)),
-                'content_length' => strlen($page->content ?? ''),
-                'files_count' => count($page->files ?? []),
-                'has_files' => !empty($page->files),
-                'creator' => [
-                    'id' => $page->creator->id,
-                    'name' => $page->creator->name
-                ],
-                'created_at' => $page->created_at->toISOString(),
-                'updated_at' => $page->updated_at->toISOString(),
-                'children_count' => $page->children->count(),
+                'children_count' => count($page->children),
                 'children' => []
             ];
 
             // Рекурсивно строим дочерние элементы
-            if ($page->children->isNotEmpty()) {
+            if (!empty($page->children)) {
                 $pageData['children'] = $this->buildDetailedTree(
                     $page->children, 
                     $maxDepth, 
@@ -134,10 +110,6 @@ class GetHierarchyTree implements ToolInterface
                         'page_id' => [
                             'type' => 'integer',
                             'description' => 'ID of the root page to start hierarchy from (optional, null means all root pages)',
-                        ],
-                        'project_id' => [
-                            'type' => 'integer',
-                            'description' => 'ID of the project (optional, must match current context if provided)',
                         ],
                         'max_depth' => [
                             'type' => 'integer',

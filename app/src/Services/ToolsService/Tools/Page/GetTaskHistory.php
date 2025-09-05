@@ -23,7 +23,6 @@ class GetTaskHistory implements ToolInterface
                     'success' => false,
                     'error' => 'Invalid page ID provided',
                     'code' => 'INVALID_PAGE_ID',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -32,7 +31,6 @@ class GetTaskHistory implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found or not accessible in current project context',
                     'code' => 'PAGE_ACCESS_DENIED',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -42,7 +40,6 @@ class GetTaskHistory implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found',
                     'code' => 'PAGE_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -53,7 +50,6 @@ class GetTaskHistory implements ToolInterface
                 'success' => true,
                 'data' => $historyData,
                 'message' => 'Task history retrieved successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -61,7 +57,6 @@ class GetTaskHistory implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to retrieve task history: ' . $e->getMessage(),
                 'code' => 'GET_TASK_HISTORY_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

@@ -23,7 +23,7 @@ final readonly class GetPageWithActualization implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}/actualization";
+        return "agent/page/{$this->pageId}/actualization";
     }
 
     public function getPayload(): array

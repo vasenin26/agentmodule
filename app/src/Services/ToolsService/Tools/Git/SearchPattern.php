@@ -31,7 +31,6 @@ class SearchPattern implements ToolInterface
                     'success' => false,
                     'error' => 'Repository not found',
                     'code' => 'REPO_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -46,7 +45,6 @@ class SearchPattern implements ToolInterface
                     'matches' => array_slice($results, 0, 100) // Ограничиваем до 100 результатов
                 ],
                 'message' => 'Pattern search completed successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -54,7 +52,6 @@ class SearchPattern implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to search pattern: ' . $e->getMessage(),
                 'code' => 'SEARCH_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

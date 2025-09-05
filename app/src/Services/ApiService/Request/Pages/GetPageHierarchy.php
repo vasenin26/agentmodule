@@ -46,10 +46,18 @@ final readonly class GetPageHierarchy implements RequestInterface
         $response = $client->call($this);
         $data = $response->getData();
 
+        // Ensure data is an array
+        if (!is_array($data)) {
+            return new PageHierarchyResponse([]);
+        }
+
         $hierarchy = array_map(
-            fn($page) => $this->buildHierarchyDTO($page),
+            fn($page) => is_array($page) ? $this->buildHierarchyDTO($page) : null,
             $data
         );
+
+        // Filter out null values (non-array items)
+        $hierarchy = array_filter($hierarchy, fn($item) => $item !== null);
 
         return new PageHierarchyResponse($hierarchy);
     }

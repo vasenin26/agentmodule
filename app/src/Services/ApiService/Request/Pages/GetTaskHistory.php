@@ -26,7 +26,7 @@ final readonly class GetTaskHistory implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}/tasks";
+        return "agent/page/{$this->pageId}/tasks";
     }
 
     public function getPayload(): array

@@ -81,6 +81,6 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
 
     public function createToolsBuilder(): ToolsBuilder
     {
-        return new ToolsBuilder($this);
+        return new ToolsBuilder($this, $this->factory);
     }
 }

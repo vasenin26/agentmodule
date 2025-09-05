@@ -26,7 +26,6 @@ class AnalyzeClasses implements ToolInterface
                     'success' => false,
                     'error' => 'Repository not found',
                     'code' => 'REPO_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -36,7 +35,6 @@ class AnalyzeClasses implements ToolInterface
                 'success' => true,
                 'data' => $analysis,
                 'message' => 'Class analysis completed successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -44,7 +42,6 @@ class AnalyzeClasses implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to analyze classes: ' . $e->getMessage(),
                 'code' => 'CLASS_ANALYSIS_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

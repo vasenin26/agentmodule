@@ -22,7 +22,6 @@ class FindRelatedPages implements ToolInterface
                     'success' => false,
                     'error' => 'Invalid page ID provided',
                     'code' => 'INVALID_PAGE_ID',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -31,7 +30,6 @@ class FindRelatedPages implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found or not accessible in current project context',
                     'code' => 'PAGE_ACCESS_DENIED',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -41,7 +39,6 @@ class FindRelatedPages implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found',
                     'code' => 'PAGE_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -59,7 +56,6 @@ class FindRelatedPages implements ToolInterface
                     'related_pages' => $relatedPages
                 ],
                 'message' => 'Related pages found successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -67,7 +63,6 @@ class FindRelatedPages implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to find related pages: ' . $e->getMessage(),
                 'code' => 'FIND_RELATED_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

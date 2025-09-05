@@ -23,7 +23,7 @@ final readonly class GetPageFiles implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}/files";
+        return "agent/page/{$this->pageId}/files";
     }
 
     public function getPayload(): array

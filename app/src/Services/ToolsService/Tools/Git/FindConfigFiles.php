@@ -27,7 +27,6 @@ class FindConfigFiles implements ToolInterface
                     'success' => false,
                     'error' => 'Repository not found',
                     'code' => 'REPO_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -41,7 +40,6 @@ class FindConfigFiles implements ToolInterface
                     'search_patterns' => array_merge($this->getDefaultPatterns(), $patterns)
                 ],
                 'message' => 'Configuration files found successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -49,7 +47,6 @@ class FindConfigFiles implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to find configuration files: ' . $e->getMessage(),
                 'code' => 'CONFIG_SEARCH_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

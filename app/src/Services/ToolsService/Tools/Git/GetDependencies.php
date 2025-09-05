@@ -26,7 +26,6 @@ class GetDependencies implements ToolInterface
                     'success' => false,
                     'error' => 'Repository not found',
                     'code' => 'REPO_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -44,7 +43,6 @@ class GetDependencies implements ToolInterface
                 'success' => true,
                 'data' => $dependencies,
                 'message' => 'Dependencies analyzed successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -52,7 +50,6 @@ class GetDependencies implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to analyze dependencies: ' . $e->getMessage(),
                 'code' => 'DEPENDENCIES_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

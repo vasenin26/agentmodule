@@ -24,7 +24,7 @@ final readonly class FindRelatedPages implements RequestInterface
 
     public function getUrl(): string
     {
-        return "page/{$this->pageId}/related";
+        return "agent/page/{$this->pageId}/related";
     }
 
     public function getPayload(): array

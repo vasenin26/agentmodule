@@ -26,7 +26,6 @@ class AnalyzeStructure implements ToolInterface
                     'success' => false,
                     'error' => 'Repository not found',
                     'code' => 'REPO_NOT_FOUND',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -41,7 +40,6 @@ class AnalyzeStructure implements ToolInterface
                 'success' => true,
                 'data' => $analysis,
                 'message' => 'Repository structure analyzed successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -49,7 +47,6 @@ class AnalyzeStructure implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to analyze repository structure: ' . $e->getMessage(),
                 'code' => 'ANALYSIS_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

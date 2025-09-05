@@ -26,7 +26,6 @@ class GetAttachedFiles implements ToolInterface
                     'success' => false,
                     'error' => 'Invalid page ID provided',
                     'code' => 'INVALID_PAGE_ID',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -35,7 +34,6 @@ class GetAttachedFiles implements ToolInterface
                     'success' => false,
                     'error' => 'Page not found or not accessible in current project context',
                     'code' => 'PAGE_ACCESS_DENIED',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -50,7 +48,6 @@ class GetAttachedFiles implements ToolInterface
                         'files' => []
                     ],
                     'message' => 'No files attached to this page',
-                    'timestamp' => now()->toISOString()
                 ]);
             }
 
@@ -82,7 +79,6 @@ class GetAttachedFiles implements ToolInterface
                     'content_loaded' => $loadContent
                 ],
                 'message' => 'Page files retrieved successfully',
-                'timestamp' => now()->toISOString()
             ]);
 
         } catch (\Exception $e) {
@@ -90,7 +86,6 @@ class GetAttachedFiles implements ToolInterface
                 'success' => false,
                 'error' => 'Failed to retrieve page files: ' . $e->getMessage(),
                 'code' => 'GET_PAGE_FILES_ERROR',
-                'timestamp' => now()->toISOString()
             ]);
         }
     }

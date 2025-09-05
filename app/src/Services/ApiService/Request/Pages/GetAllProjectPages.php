@@ -23,7 +23,7 @@ final readonly class GetAllProjectPages implements RequestInterface
 
     public function getUrl(): string
     {
-        return 'pages';
+        return 'agent/pages';
     }
 
     public function getPayload(): array
