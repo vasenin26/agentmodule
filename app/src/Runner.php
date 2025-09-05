@@ -23,21 +23,21 @@ final readonly class Runner
         Log::info("Running agent $agentId module...");
 
         while (true) {
-            Log::info("Getting task..");
-            $task = $this->api->getTask($agentId);
-
-            if(is_null($task)) {
-                Log::info("Not found task, sleeping 5 seconds...");
-                sleep(5);
-                continue;
-            }
-
-            Log::info("Processing task: {$task->id}");
-
-            $result = $this->processorFactory->createProcessorForTask($task)
-                ->process($task);
-
             try {
+                Log::info("Getting task..");
+                $task = $this->api->getTask($agentId);
+
+                if (is_null($task)) {
+                    Log::info("Not found task, sleeping 5 seconds...");
+                    sleep(5);
+                    continue;
+                }
+
+                Log::info("Processing task: {$task->id}");
+
+                $result = $this->processorFactory->createProcessorForTask($task)
+                    ->process($task);
+
                 $this->api->sendResult($agentId, $task->id, $result);
             } catch (\Throwable $e) {
                 Log::warning($e->getMessage());

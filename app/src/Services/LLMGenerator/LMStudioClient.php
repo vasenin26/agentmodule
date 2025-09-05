@@ -38,6 +38,7 @@ class LMStudioClient implements GPTProcessorInterface
 
             try {
                 $result = $client->chat()->create([
+//                    'model' => 'gpt-5-mini',
                     'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
@@ -82,15 +83,16 @@ class LMStudioClient implements GPTProcessorInterface
 
                     Log::info("Tool OK");
 
+                    if ($this->tools->isResultFunction($toolCall->function->name)) {
+                        $answer = $toolResult;
+                        $toolResult = 'Данные сохранены.';
+                    }
+
                     $messages[] = [
                         'role' => 'tool',
                         'tool_call_id' => $toolCall->id,
                         'content' => $toolResult
                     ];
-
-                    if ($this->tools->isResultFunction($toolCall->function->name)) {
-                        $answer = $toolResult;
-                    }
                 }
             }
 

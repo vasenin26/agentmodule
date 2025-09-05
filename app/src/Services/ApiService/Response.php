@@ -2,6 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ApiService;
 
+use PHPUnit\Event\Code\Throwable;
+
 class Response
 {
     public function __construct(
@@ -19,5 +21,13 @@ class Response
     public function getData(): array
     {
         return json_decode($this->body, true);
+    }
+
+    public function getError(): string
+    {
+        $data = $this->getData();
+        $message = $data["message"];
+
+        return $message;
     }
 }

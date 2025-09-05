@@ -8,12 +8,13 @@ use Anymodule\Agentmodule\Runner;
 use Anymodule\Agentmodule\Services\ApiService\ApiService;
 use Anymodule\Agentmodule\Services\Git\RepoProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
-use Anymodule\Agentmodule\Utils\FakeApi;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new ApiService("http://docmodule-development-1:8000/api");
-//$api = new FakeApi();
+$api = new ApiService(
+    host: getenv('API_HOST'),
+    token: getenv('AGENT_TOKEN'),
+);
 
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(

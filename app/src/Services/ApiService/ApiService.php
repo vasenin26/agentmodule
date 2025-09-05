@@ -14,14 +14,17 @@ class ApiService implements TaskApi, PageApi
 {
     private ApiClient $api;
 
-    public function __construct(string $host)
+    public function __construct(
+        string         $host,
+        private string $token,
+    )
     {
         $this->api = new ApiClient($host);
     }
 
     public function getTask(UuidInterface $agentId): ?Task
     {
-        $request = new GetAgentTask($agentId->toString());
+        $request = new GetAgentTask($this->token, $agentId->toString());
         $taskData = $request->exec($this->api);
 
         if (is_null($taskData)) {
@@ -37,6 +40,7 @@ class ApiService implements TaskApi, PageApi
     public function sendResult(UuidInterface $agentId, int $taskId, LLMResult $result): void
     {
         $request = new UpdateAgentTask(
+            token: $this->token,
             taskId: $taskId,
             agentId: $agentId->toString(),
             chatMessages: $result->messages,
@@ -48,8 +52,6 @@ class ApiService implements TaskApi, PageApi
             result: $result->answer,
         );
 
-        $response = $request->exec($this->api);
-
-        var_dump($response);
+        $request->exec($this->api);
     }
 }

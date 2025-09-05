@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ApiService\Request\Tasks;
 
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
+use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\Tasks\UpdateTaskDTO;
@@ -11,6 +12,7 @@ use Anymodule\Agentmodule\Services\ApiService\Request\Validator\AgentApiValidato
 final readonly class UpdateAgentTask implements RequestInterface
 {
     public function __construct(
+        private string $token,
         private int $taskId,
         private string $agentId,
         private array $chatMessages,
@@ -33,7 +35,7 @@ final readonly class UpdateAgentTask implements RequestInterface
     public function getPayload(): array
     {
         return [
-            'agent_id' => $this->agentId,
+            'agent_uuid' => $this->agentId,
             'chat' => $this->chatMessages,
             'stats' => $this->tokenStats,
             'result' => $this->result
@@ -42,7 +44,7 @@ final readonly class UpdateAgentTask implements RequestInterface
 
     public function getToken(): ?string
     {
-        return null;
+        return $this->token;
     }
 
     public function exec(ApiClient $client): ResponseInterface
@@ -51,7 +53,11 @@ final readonly class UpdateAgentTask implements RequestInterface
         $data = $response->getData();
         
         if ($response->code !== 200) {
-            throw new \RuntimeException($response->getBody());
+            throw new RequestException(
+                $this->getMethod(),
+                $this->getUrl(),
+                $response->getError()
+            );
         }
         
         return new UpdateTaskDTO(
