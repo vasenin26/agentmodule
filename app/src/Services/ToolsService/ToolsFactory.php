@@ -3,9 +3,9 @@
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
 
-use Anymodule\Agentmodule\Interface\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\PageContextServiceFactoryInterface;
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\CurrentTime;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\AnalyzeClasses;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\AnalyzeStructure;

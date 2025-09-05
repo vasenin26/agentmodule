@@ -7,6 +7,7 @@ readonly class Task
     public function __construct(
         public int $id,
         public array $messages,
+        public int $projectId,
     )
     {
     }

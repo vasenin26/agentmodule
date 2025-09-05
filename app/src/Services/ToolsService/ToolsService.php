@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
-use Anymodule\Agentmodule\Interface\LLMTools;
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\SendResult;
 
 class ToolsService implements LLMTools

@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService\Tools\Page;
 
-use Anymodule\Agentmodule\Interface\PageContextServiceInterface;
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetActualizationInfo implements ToolInterface
 {

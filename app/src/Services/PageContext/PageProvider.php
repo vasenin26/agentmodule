@@ -2,80 +2,121 @@
 
 namespace Anymodule\Agentmodule\Services\PageContext;
 
-use Anymodule\Agentmodule\Interface\PageApi;
-use Anymodule\Agentmodule\Interface\PageContextServiceInterface;
+use Anymodule\Agentmodule\Entity\Page;
+use Anymodule\Agentmodule\Interface\Page\PageApi;
+use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 class PageProvider implements PageContextServiceInterface
 {
     public function __construct(
-        PageApi $api,
+        private PageApi $api,
+        private int     $projectId
     )
     {
     }
 
     public function getProjectId(): int
     {
-        // TODO: Implement getProjectId() method.
+        return $this->projectId;
     }
 
     public function getPageById(int $pageId): ?Page
     {
-        // TODO: Implement getPageById() method.
+        try {
+            return $this->api->getPageById($pageId);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
-    public function getCurrentPages(): Collection
+    public function getAllProjectPages(): array
     {
-        // TODO: Implement getCurrentPages() method.
+        try {
+            return $this->api->getAllProjectPages($this->projectId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
-    public function getAllProjectPages(): Collection
+    public function getPageHierarchy(?int $rootPageId = null): array
     {
-        // TODO: Implement getAllProjectPages() method.
+        try {
+            return $this->api->getPageHierarchy($this->projectId, $rootPageId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
-    public function getPageHierarchy(?int $rootPageId = null): Collection
+    public function getPageChildren(int $pageId): array
     {
-        // TODO: Implement getPageHierarchy() method.
-    }
-
-    public function getPageChildren(int $pageId): Collection
-    {
-        // TODO: Implement getPageChildren() method.
+        try {
+            return $this->api->getPageChildren($pageId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
     public function getPageParent(int $pageId): ?Page
     {
-        // TODO: Implement getPageParent() method.
+        try {
+            return $this->api->getPageParent($pageId);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
-    public function findRelatedPages(int $pageId): Collection
+    public function findRelatedPages(int $pageId): array
     {
-        // TODO: Implement findRelatedPages() method.
+        try {
+            return $this->api->findRelatedPages($pageId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
     public function getPageWithActualization(int $pageId): ?Page
     {
-        // TODO: Implement getPageWithActualization() method.
+        try {
+            return $this->api->getPageWithActualization($pageId);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     public function getPageFiles(int $pageId): array
     {
-        // TODO: Implement getPageFiles() method.
+        try {
+            return $this->api->getPageFiles($pageId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
-    public function getTaskHistory(int $pageId): Collection
+    public function getTaskHistory(int $pageId): array
     {
-        // TODO: Implement getTaskHistory() method.
+        try {
+            return $this->api->getTaskHistory($pageId);
+        } catch (\Exception $exception) {
+            return [];
+        }
     }
 
     public function validatePageAccess(int $pageId): bool
     {
-        // TODO: Implement validatePageAccess() method.
+        try {
+            return $this->api->validatePageAccess($pageId, $this->projectId);
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 
     public function isPageInProject(int $pageId): bool
     {
-        // TODO: Implement isPageInProject() method.
+        try {
+            return $this->api->isPageInProject($pageId, $this->projectId);
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 }

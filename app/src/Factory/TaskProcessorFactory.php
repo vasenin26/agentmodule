@@ -3,13 +3,15 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Interface\ChatFactoryInterface;
-use Anymodule\Agentmodule\Interface\TaskProcessor;
-use Anymodule\Agentmodule\Interface\TaskProcessorFactoryInterface;
-use Anymodule\Agentmodule\Interface\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
+use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
+use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
     public function __construct(
+        private GitTokenProviderInterface $gitTokenProvider,
         private ToolServiceFactoryInterface $toolsFactory,
         private ChatFactoryInterface $chatFactory,
     )
@@ -20,6 +22,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
     {
         return new \Anymodule\Agentmodule\Services\TaskProcessor\TaskProcessor(
             $this->toolsFactory,
+            $this->gitTokenProvider,
             $this->chatFactory,
         );
     }

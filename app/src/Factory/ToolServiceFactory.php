@@ -3,7 +3,8 @@
 namespace Anymodule\Agentmodule\Factory;
 
 
-use Anymodule\Agentmodule\Interface\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 
@@ -13,6 +14,11 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
         private ToolsFactory $factory
     )
     {
+    }
+
+    public function withTools(array $tools): ToolsService
+    {
+        return new ToolsService($this->factory->sendResult(), $tools);
     }
 
     public function withMainTools(): ToolsService
@@ -71,5 +77,10 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
                 'page-get-task-history' => $this->factory->pageGetTaskHistory($projectId),
             ]
         );
+    }
+
+    public function createToolsBuilder(): ToolsBuilder
+    {
+        return new ToolsBuilder($this);
     }
 }

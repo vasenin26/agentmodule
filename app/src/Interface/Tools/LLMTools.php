@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Tools;
 
 interface LLMTools
 {

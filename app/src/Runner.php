@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule;
 
-use Anymodule\Agentmodule\Interface\TaskApi;
-use Anymodule\Agentmodule\Interface\TaskProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\Uuid;
 

@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ToolsService;
 
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Mockery;
 use PHPUnit\Framework\TestCase;

@@ -1,9 +1,8 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Page;
 
-use App\Models\Page;
-use Illuminate\Database\Eloquent\Collection;
+use Anymodule\Agentmodule\Entity\Page;
 
 interface PageContextServiceInterface
 {
@@ -16,23 +15,26 @@ interface PageContextServiceInterface
      * Основные методы работы со страницами проекта
      */
     public function getPageById(int $pageId): ?Page;
-    public function getCurrentPages(): Collection;
-    public function getAllProjectPages(): Collection;
+
+    /**
+     * @return string[] - название + ID
+     */
+    public function getAllProjectPages(): array;
     
     /**
      * Иерархия и связи
      */
-    public function getPageHierarchy(?int $rootPageId = null): Collection;
-    public function getPageChildren(int $pageId): Collection;
+    public function getPageHierarchy(?int $rootPageId = null): array;
+    public function getPageChildren(int $pageId): array;
     public function getPageParent(int $pageId): ?Page;
-    public function findRelatedPages(int $pageId): Collection;
+    public function findRelatedPages(int $pageId): array;
     
     /**
      * Специализированные методы
      */
     public function getPageWithActualization(int $pageId): ?Page;
     public function getPageFiles(int $pageId): array;
-    public function getTaskHistory(int $pageId): Collection;
+    public function getTaskHistory(int $pageId): array;
     
     /**
      * Валидация и проверки

@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ToolsService\Tools;
 
 
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class CurrentTime implements ToolInterface
 {

@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\Git;
 
-use Anymodule\Agentmodule\Interface\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use CzProject\GitPhp\GitRepository;
 
 class RepoProvider implements GitRepoProviderInterface

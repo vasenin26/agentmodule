@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
-use Anymodule\Agentmodule\Interface\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
 

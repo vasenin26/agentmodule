@@ -4,8 +4,8 @@ namespace Anymodule\Agentmodule\Utils;
 
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\PageApi;
-use Anymodule\Agentmodule\Interface\TaskApi;
+use Anymodule\Agentmodule\Interface\Page\PageApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApi;
 use Ramsey\Uuid\UuidInterface;
 
 class FakeApi implements TaskApi, PageApi

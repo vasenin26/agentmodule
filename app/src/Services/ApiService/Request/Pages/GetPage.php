@@ -38,9 +38,13 @@ final readonly class GetPage implements RequestInterface
     public function exec(ApiClient $client): ResponseInterface
     {
         $response = $client->call($this);
+        $data = $response->getData();
 
         return new PageDTO(
-            content: $response->getBody()
+            id: $data['id'] ?? 0,
+            title: $data['title'] ?? '',
+            content: $data['content'] ?? '',
+            files: $data['files'] ?? []
         );
     }
 }

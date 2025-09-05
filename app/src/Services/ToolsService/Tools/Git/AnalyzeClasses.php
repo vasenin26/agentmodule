@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService\Tools\Git;
 
-use Anymodule\Agentmodule\Interface\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\ToolInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class AnalyzeClasses implements ToolInterface
 {
