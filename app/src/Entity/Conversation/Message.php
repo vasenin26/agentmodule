@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Entity\Conversation;
 
-class Message
+interface Message
 {
-
+    public function getContent(): array;
 }

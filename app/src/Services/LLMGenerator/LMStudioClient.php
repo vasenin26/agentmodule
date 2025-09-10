@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
+use Anymodule\Agentmodule\Entity\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
@@ -10,15 +11,15 @@ use OpenAI;
 
 class LMStudioClient implements GPTProcessorInterface
 {
-
     public function __construct(
-        private string   $apiKey,
-        private LLMTools $tools
+        private string        $apiKey,
+        private LLMTools      $tools,
+        private MessageMapper $messageMapper,
     )
     {
     }
 
-    public function process(array $messages): LLMResult
+    public function process(Chat $messages): LLMResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -37,14 +38,15 @@ class LMStudioClient implements GPTProcessorInterface
             Log::info("LLM ask");
 
             try {
+                $messagess = $this->messageMapper->mapChat($messages);
                 $result = $client->chat()->create([
                     'model' => 'gpt-5-mini',
 //                    'model' => 'gpt-4.1-nano',
-                    'messages' => $messages,
+                    'messages' => $messagess,
                     'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
-                var_dump($messages);
+                var_dump($messagess);
                 var_dump($exception);
 
                 throw $exception;
@@ -53,12 +55,12 @@ class LMStudioClient implements GPTProcessorInterface
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;
 
-            $messages[] = $this->prepareMessage($lastMessage);
+            $messages->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
 
             Log::info("LLM Say:" . $lastMessage->content);
 
             if (empty($toolCalls)) {
-                $messages[] = ['role' => 'user', 'content' => 'Store answer with tools for finish'];
+                $messages->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
             } else {
                 foreach ($toolCalls as $toolCall) {
 
@@ -72,11 +74,11 @@ class LMStudioClient implements GPTProcessorInterface
 
                         Log::info("Tool Failed");
 
-                        $messages[] = [
-                            'role' => 'tool',
-                            'tool_call_id' => $toolCall->id,
-                            'content' => 'Tools was call with wrong parameters'
-                        ];
+                        $messages->addMessage($this->messageMapper->mapToToolMessage(
+                            $toolCall->id,
+                            $toolCall->function->name,
+                            'Tools was call with wrong parameters',
+                        ));
 
                         continue;
                     }
@@ -88,11 +90,11 @@ class LMStudioClient implements GPTProcessorInterface
                         $toolResult = 'Данные сохранены.';
                     }
 
-                    $messages[] = [
-                        'role' => 'tool',
-                        'tool_call_id' => $toolCall->id,
-                        'content' => $toolResult
-                    ];
+                    $messages->addMessage($this->messageMapper->mapToToolMessage(
+                        $toolCall->id,
+                        $toolCall->function->name,
+                        $toolResult,
+                    ));
                 }
             }
 
@@ -106,33 +108,10 @@ class LMStudioClient implements GPTProcessorInterface
 
         return new LLMResult(
             $answer,
-            $messages,
+            $messages->serialize(),
             $promptTokens,
             $completionTokens,
             $totalTokens
         );
-    }
-
-    private function prepareMessage(OpenAI\Responses\Chat\CreateResponseMessage $lastMessage): array
-    {
-        $toolCalls = $lastMessage->toolCalls;
-
-        $toolCallsArray = [];
-        foreach ($toolCalls as $tc) {
-            $toolCallsArray[] = [
-                'id' => $tc->id,
-                'type' => 'function',
-                'function' => [
-                    'name' => $tc->function->name,
-                    'arguments' => $tc->function->arguments,
-                ],
-            ];
-        }
-
-        return [
-            'role' => $lastMessage->role,
-            'content' => $lastMessage->content,
-            'tool_calls' => $toolCallsArray ?: null
-        ];
     }
 }

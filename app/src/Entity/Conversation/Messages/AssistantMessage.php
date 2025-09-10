@@ -4,14 +4,20 @@ namespace Anymodule\Agentmodule\Entity\Conversation\Messages;
 
 use Anymodule\Agentmodule\Entity\Conversation\Message;
 
-class SystemMessage implements Message
+readonly class AssistantMessage implements Message
 {
-    public function __construct(private string $content)
+    public function __construct(
+        public string $content,
+        public array $toolCallsArray
+    )
     {
     }
 
-    public function getContent(): string
+    public function getContent(): array
     {
-        return $this->content;
+        return [
+            'content' => $this->content,
+            'tool_calls' => $this->toolCallsArray
+        ];
     }
 }

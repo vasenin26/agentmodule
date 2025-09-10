@@ -2,7 +2,18 @@
 
 namespace Anymodule\Agentmodule\Entity\Conversation\Messages;
 
-class UserMessage
-{
+use Anymodule\Agentmodule\Entity\Conversation\Message;
 
+readonly class UserMessage implements Message
+{
+    public function __construct(public string $content)
+    {
+    }
+
+    public function getContent(): array
+    {
+        return [
+            'content' => $this->content
+        ];
+    }
 }

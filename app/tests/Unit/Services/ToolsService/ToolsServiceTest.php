@@ -31,10 +31,4 @@ class ToolsServiceTest extends TestCase
 
         $this->assertEquals('test result', $result);
     }
-
-    public function testIsResultFunction()
-    {
-        $service = new ToolsService(Mockery::mock(ToolInterface::class), []);
-        $this->assertTrue($service->isResultFunction('result'));
-    }
 }

@@ -3,22 +3,26 @@
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
 use Anymodule\Agentmodule\Entity\Conversation\Message;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\UserMessage;
+use Anymodule\Agentmodule\Entity\Conversation\Messages\SystemMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 
-class UserMapper implements MessageMapperInterface
+class SystemMapper implements MessageMapperInterface
 {
 
-    public function can(Message $message): bool
+    public function supports(Message $message): bool
     {
-        return $message instanceof UserMessage;
+        return $message instanceof SystemMessage;
     }
 
     public function map(Message $message): array
     {
-        return [
-            'role' => 'user',
-            'content' => $message->getContent(),
-        ];
+        if($message instanceof SystemMessage) {
+            return [
+                'role' => 'system',
+                'content' => $message->content,
+            ];
+        }
+
+        throw new \Exception("Unsupported message type");
     }
 }

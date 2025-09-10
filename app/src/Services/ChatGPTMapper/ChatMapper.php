@@ -2,7 +2,76 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
-class ChatMapper
-{
+use Anymodule\Agentmodule\Entity\Conversation\Chat;
+use Anymodule\Agentmodule\Entity\Conversation\Message;
+use Anymodule\Agentmodule\Entity\Conversation\Messages\AssistantMessage;
+use Anymodule\Agentmodule\Entity\Conversation\Messages\ToolMessage;
+use Anymodule\Agentmodule\Entity\Conversation\Messages\UserMessage;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
+use Anymodule\Agentmodule\Services\LLMGenerator\MessageMapper;
+use OpenAI\Responses\Chat\CreateResponseMessage;
 
+class ChatMapper implements MessageMapper
+{
+    private $mappers = [];
+
+    public function __construct()
+    {
+        $this->mappers = [
+            new UserMapper(),
+            new AssistantMapper(),
+            new SystemMapper()
+        ];
+    }
+
+    public function mapChat(Chat $chat): array
+    {
+        $messages = [];
+
+        foreach ($chat->getMessages() as $message) {
+            foreach ($this->mappers as $mapper) {
+                if ($mapper->supports($message)) {
+                    $messages[] = $mapper->map($message);
+                    break;
+                }
+            }
+        }
+
+        return $messages;
+    }
+
+
+    public function prepareAssistantMessage(CreateResponseMessage $message): Message
+    {
+        $toolCalls = $message->toolCalls;
+
+        $toolCallsArray = [];
+        foreach ($toolCalls as $tc) {
+            $toolCallsArray[] = [
+                'id' => $tc->id,
+                'type' => 'function',
+                'function' => [
+                    'name' => $tc->function->name,
+                    'arguments' => $tc->function->arguments,
+                ],
+            ];
+        }
+
+        return new AssistantMessage(
+            content: $message->content,
+            toolCallsArray: $toolCallsArray ?: []
+        );
+    }
+
+    public function mapToUserMessage(string $string): Message
+    {
+        return new UserMessage($string);
+    }
+
+    public function mapToToolMessage(string $id, string $toolName, string $result): Message
+    {
+        return new ToolMessage($id, $toolName, $result);
+    }
 }
