@@ -20,11 +20,6 @@ class Chat
         return $this->messages;
     }
 
-    public static function fromArray(array $array): self
-    {
-        return new self([]);
-    }
-
     public function serialize(): array
     {
         $messages = [];
