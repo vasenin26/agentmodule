@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Interface\ChatFactoryInterface;
+use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
@@ -12,7 +12,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
     public function __construct(
         private ToolServiceFactoryInterface $toolsFactory,
-        private ChatFactoryInterface $chatFactory,
+        private LLMFactoryInterface         $chatFactory,
     )
     {
     }

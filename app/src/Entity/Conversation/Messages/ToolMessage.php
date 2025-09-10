@@ -22,4 +22,18 @@ readonly class ToolMessage implements Message
             'result' => $this->result
         ];
     }
+
+    public function getType(): string
+    {
+        return 'tool';
+    }
+    
+    public static function createFromData(array $content): self
+    {
+        return new self(
+            $content['id'],
+            $content['name'],
+            $content['result']
+        );
+    }
 }

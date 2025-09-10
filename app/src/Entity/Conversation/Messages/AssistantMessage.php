@@ -20,4 +20,17 @@ readonly class AssistantMessage implements Message
             'tool_calls' => $this->toolCallsArray
         ];
     }
+
+    public function getType(): string
+    {
+        return 'assistant';
+    }
+    
+    public static function createFromData(array $content): self
+    {
+        return new self(
+            $content['content'],
+            $content['tool_calls'] ?? []
+        );
+    }
 }

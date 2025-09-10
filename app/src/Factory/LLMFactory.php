@@ -2,13 +2,13 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Interface\ChatFactoryInterface;
+use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
 use Anymodule\Agentmodule\Services\LLMGenerator\LMStudioClient;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 
-class ChatFactory implements ChatFactoryInterface
+class LLMFactory implements LLMFactoryInterface
 {
 
     public function createChat(ToolsService $toolsService): GPTProcessorInterface

@@ -2,7 +2,7 @@
 
 use Anymodule\Agentmodule\Entity\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\Conversation\Messages\UserMessage;
-use Anymodule\Agentmodule\Factory\ChatFactory;
+use Anymodule\Agentmodule\Factory\LLMFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;

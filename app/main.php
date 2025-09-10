@@ -1,6 +1,6 @@
 <?php
 
-use Anymodule\Agentmodule\Factory\ChatFactory;
+use Anymodule\Agentmodule\Factory\LLMFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
@@ -23,7 +23,7 @@ $processorFactory = new TaskProcessorFactory(
             new PageContextProviderFactory($api),
         )
     ),
-    new ChatFactory()
+    new LLMFactory()
 );
 
 (new Runner($api, $processorFactory))->run();

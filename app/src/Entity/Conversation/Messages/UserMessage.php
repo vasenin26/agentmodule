@@ -16,4 +16,14 @@ readonly class UserMessage implements Message
             'content' => $this->content
         ];
     }
+
+    public function getType(): string
+    {
+        return 'user';
+    }
+    
+    public static function createFromData(array $content): self
+    {
+        return new self($content['content']);
+    }
 }
