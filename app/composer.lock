@@ -1725,11 +1725,11 @@
         },
         {
             "name": "vasenin26/conversation",
-            "version": "v0.1.1",
+            "version": "v0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vasenin26/conversation.git",
-                "reference": "b51bd0ed2f6bf75f202d98057f671111d1f67a26"
+                "reference": "b931eb3b0978f0b4c8546de1dd31944361aa2f3d"
             },
             "require": {
                 "php": ">=8.2"
@@ -1747,7 +1747,7 @@
                 }
             ],
             "description": "Conversation package",
-            "time": "2025-09-11T08:51:41+00:00"
+            "time": "2025-09-11T19:00:06+00:00"
         }
     ],
     "packages-dev": [
@@ -2457,16 +2457,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.3.9",
+            "version": "12.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "bcaadc492e1424a6ebdd997259b7b3e788e895c0"
+                "reference": "0d401d0df2e3c1703be425ecdc2d04f5c095938d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/bcaadc492e1424a6ebdd997259b7b3e788e895c0",
-                "reference": "bcaadc492e1424a6ebdd997259b7b3e788e895c0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0d401d0df2e3c1703be425ecdc2d04f5c095938d",
+                "reference": "0d401d0df2e3c1703be425ecdc2d04f5c095938d",
                 "shasum": ""
             },
             "require": {
@@ -2534,7 +2534,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.3.9"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.3.10"
             },
             "funding": [
                 {
@@ -2558,7 +2558,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-11T06:22:47+00:00"
+            "time": "2025-09-11T10:35:19+00:00"
         },
         {
             "name": "sebastian/cli-parser",
