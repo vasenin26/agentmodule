@@ -8,6 +8,7 @@ readonly class Task
         public int $id,
         public array $messages,
         public int $projectId,
+        public bool $resultRequired,
     )
     {
     }

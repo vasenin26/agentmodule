@@ -30,6 +30,6 @@ class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);
         $chat = $this->conversationFactory->fromMessages($task->messages);
-        return $llm->process($chat);
+        return $llm->process($chat, $task->resultRequired);
     }
 }

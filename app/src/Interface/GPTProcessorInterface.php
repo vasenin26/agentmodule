@@ -7,5 +7,5 @@ use Anymodule\Agentmodule\Entity\LLMResult;
 
 interface GPTProcessorInterface
 {
-    public function process(Chat $chat): LLMResult;
+    public function process(Chat $chat, bool $resultRequired = false): LLMResult;
 }

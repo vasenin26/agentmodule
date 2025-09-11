@@ -19,7 +19,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Chat $chat): LLMResult
+    public function process(Chat $chat, bool $resultRequired = false): LLMResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -32,15 +32,16 @@ class LMStudioClient implements GPTProcessorInterface
 
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools->getMeta()));
 
-        do {
-            $answer = null;
+        $answer = null;
+        $finished = false;
 
+        do {
             Log::info("LLM ask");
 
             try {
                 $messages = $this->messageMapper->mapChat($chat);
 
-                if(empty($messages)) {
+                if (empty($messages)) {
                     return new LLMResult(
                         'Empty chat',
                         $chat->serialize(),
@@ -68,7 +69,11 @@ class LMStudioClient implements GPTProcessorInterface
             Log::info("LLM Say:" . $lastMessage->content);
 
             if (empty($toolCalls)) {
-                $chat->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
+                if ($resultRequired) {
+                    $chat->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
+                } else {
+                    $finished = true;
+                }
             } else {
                 foreach ($toolCalls as $toolCall) {
 
@@ -95,6 +100,7 @@ class LMStudioClient implements GPTProcessorInterface
 
                     if ($this->tools->isResultFunction($toolCall->function->name)) {
                         $answer = $toolResult;
+                        $finished = true;
                         $toolResult = 'Данные сохранены.';
                     }
 
@@ -112,7 +118,7 @@ class LMStudioClient implements GPTProcessorInterface
                 $totalTokens += $result->usage->totalTokens ?? 0;
             }
 
-        } while (is_null($answer));
+        } while (!$finished);
 
         return new LLMResult(
             $answer,
