@@ -60,7 +60,7 @@ class ChatMapper implements MessageMapper
         }
 
         return new AssistantMessage(
-            content: $message->content,
+            content: $message->content ?? '',
             toolCallsArray: $toolCallsArray ?: []
         );
     }

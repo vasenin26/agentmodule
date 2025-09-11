@@ -2,12 +2,11 @@
 
 namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
-use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
 class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
