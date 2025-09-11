@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Entity\Conversation\Message;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\AssistantMessage;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\SystemMessage;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\ToolMessage;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\UserMessage;
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Messages\SystemMessage;
+use Vasenin26\Conversation\Messages\ToolMessage;
+use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Interface\MessageFactoryInterface;
 
 class MessageFactory implements MessageFactoryInterface

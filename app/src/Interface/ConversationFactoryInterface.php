@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Interface;
 
-use Anymodule\Agentmodule\Entity\Conversation\Chat;
+use Vasenin26\Conversation\Chat;
 
 interface ConversationFactoryInterface
 {

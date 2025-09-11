@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
-use Anymodule\Agentmodule\Entity\Conversation\Message;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\AssistantMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 
 class AssistantMapper implements MessageMapperInterface

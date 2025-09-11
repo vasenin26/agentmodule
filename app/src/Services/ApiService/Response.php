@@ -26,7 +26,7 @@ class Response
     public function getError(): string
     {
         $data = $this->getData();
-        $message = $data["message"];
+        $message = $data["message"] ?? 'Unknown error';
 
         return $message;
     }

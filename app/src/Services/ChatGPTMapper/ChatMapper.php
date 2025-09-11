@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
-use Anymodule\Agentmodule\Entity\Conversation\Chat;
-use Anymodule\Agentmodule\Entity\Conversation\Message;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\AssistantMessage;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\ToolMessage;
-use Anymodule\Agentmodule\Entity\Conversation\Messages\UserMessage;
+use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Messages\ToolMessage;
+use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;

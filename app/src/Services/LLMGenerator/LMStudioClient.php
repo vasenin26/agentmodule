@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
-use Anymodule\Agentmodule\Entity\Conversation\Chat;
+use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
@@ -19,7 +19,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Chat $messages): LLMResult
+    public function process(Chat $chat): LLMResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -38,29 +38,37 @@ class LMStudioClient implements GPTProcessorInterface
             Log::info("LLM ask");
 
             try {
-                $messagess = $this->messageMapper->mapChat($messages);
+                $messages = $this->messageMapper->mapChat($chat);
+
+                if(empty($messages)) {
+                    return new LLMResult(
+                        'Empty chat',
+                        $chat->serialize(),
+                        $promptTokens,
+                        $completionTokens,
+                        $totalTokens
+                    );
+                }
+
                 $result = $client->chat()->create([
                     'model' => 'gpt-5-mini',
 //                    'model' => 'gpt-4.1-nano',
-                    'messages' => $messagess,
+                    'messages' => $messages,
                     'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
-                var_dump($messagess);
-                var_dump($exception);
-
                 throw $exception;
             }
 
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;
 
-            $messages->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
+            $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
 
             Log::info("LLM Say:" . $lastMessage->content);
 
             if (empty($toolCalls)) {
-                $messages->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
+                $chat->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
             } else {
                 foreach ($toolCalls as $toolCall) {
 
@@ -74,7 +82,7 @@ class LMStudioClient implements GPTProcessorInterface
 
                         Log::info("Tool Failed");
 
-                        $messages->addMessage($this->messageMapper->mapToToolMessage(
+                        $chat->addMessage($this->messageMapper->mapToToolMessage(
                             $toolCall->id,
                             $toolCall->function->name,
                             'Tools was call with wrong parameters',
@@ -90,7 +98,7 @@ class LMStudioClient implements GPTProcessorInterface
                         $toolResult = 'Данные сохранены.';
                     }
 
-                    $messages->addMessage($this->messageMapper->mapToToolMessage(
+                    $chat->addMessage($this->messageMapper->mapToToolMessage(
                         $toolCall->id,
                         $toolCall->function->name,
                         $toolResult,
@@ -108,7 +116,7 @@ class LMStudioClient implements GPTProcessorInterface
 
         return new LLMResult(
             $answer,
-            $messages->serialize(),
+            $chat->serialize(),
             $promptTokens,
             $completionTokens,
             $totalTokens

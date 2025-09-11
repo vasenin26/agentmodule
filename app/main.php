@@ -23,7 +23,8 @@ $processorFactory = new TaskProcessorFactory(
             new PageContextProviderFactory($api),
         )
     ),
-    new LLMFactory()
+    new LLMFactory(),
+    new \Anymodule\Agentmodule\Factory\ConversationFactory(),
 );
 
 (new Runner($api, $processorFactory))->run();

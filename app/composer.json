@@ -2,6 +2,16 @@
     "name": "anymodule/agentmodule",
     "description": "Agent module for super documentation module",
     "type": "project",
+    "repositories": {
+        "vasenin26/conversation": {
+            "type": "git",
+            "url": "https://github.com/vasenin26/conversation.git"
+        },
+        "0": {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    },
     "autoload": {
         "psr-4": {
             "Anymodule\\Agentmodule\\": "src/"
@@ -24,7 +34,8 @@
         "symfony/http-client": "^7.3",
         "nyholm/psr7": "^1.8",
         "guzzlehttp/guzzle": "^7.10",
-        "ramsey/uuid": "^4.9"
+        "ramsey/uuid": "^4.9",
+        "vasenin26/conversation": "^0.1"
     },
     "config": {
         "allow-plugins": {

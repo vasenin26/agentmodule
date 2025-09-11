@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
-use Anymodule\Agentmodule\Entity\Conversation\Chat;
+use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;

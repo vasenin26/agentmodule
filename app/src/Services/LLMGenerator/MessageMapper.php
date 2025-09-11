@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
-use Anymodule\Agentmodule\Entity\Conversation\Chat;
-use Anymodule\Agentmodule\Entity\Conversation\Message;
+use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Message;
 use OpenAI\Responses\Chat\CreateResponseMessage;
 
 interface MessageMapper

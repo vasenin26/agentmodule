@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Interface;
 
-use Anymodule\Agentmodule\Entity\Conversation\Message;
+use Vasenin26\Conversation\Message;
 
 interface MessageMapperInterface
 {
