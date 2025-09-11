@@ -52,7 +52,7 @@ class Service implements TaskApi, PageApi
             id: $taskData->task_id,
             messages: $taskData->messages,
             projectId: $taskData->project_id,
-            resultRequired: true
+            resultRequired: $taskData->resulRequired
         );
     }
 

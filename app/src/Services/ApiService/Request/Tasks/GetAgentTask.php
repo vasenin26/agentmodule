@@ -64,7 +64,7 @@ final readonly class GetAgentTask implements RequestInterface
             task_id: $data['id'],
             project_id: $data['project_id'],
             messages: $data['chat']['messages'] ?? [],
-            resulRequired: $data['resulRequired'] ?? true,
+            resulRequired: $data['result_required'] ?? true,
         );
 
     }
