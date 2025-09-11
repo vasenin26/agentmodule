@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
@@ -22,7 +23,8 @@ class ChatMapper implements MessageMapper
         $this->mappers = [
             new UserMapper(),
             new AssistantMapper(),
-            new SystemMapper()
+            new SystemMapper(),
+            new ToolMapper(),
         ];
     }
 
