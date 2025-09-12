@@ -14,6 +14,7 @@ use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\GetDependencies;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadDir;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadFileLines;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\GrepFile;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\SearchFileByName;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\SearchPattern;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Page\FindRelatedPages;
@@ -56,6 +57,11 @@ class ToolsFactory
     public function gitReadFileLines(): ToolInterface
     {
         return new ReadFileLines($this->gitRepoProvider);
+    }
+
+    public function gitGrepFile(): ToolInterface
+    {
+        return new GrepFile($this->gitRepoProvider);
     }
 
     public function gitSearchFileByName(): ToolInterface

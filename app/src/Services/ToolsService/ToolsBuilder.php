@@ -34,6 +34,8 @@ class ToolsBuilder
     {
         $this->tools = array_merge($this->tools, [
                 $prefix . '-readFile' => $this->toolsFactory->gitReadFile(),
+                $prefix . '-read-file-lines' => $this->toolsFactory->gitReadFileLines(),
+                $prefix . '-grep-file' => $this->toolsFactory->gitGrepFile(),
                 $prefix . '-searchFileByName' => $this->toolsFactory->gitSearchFileByName(),
                 $prefix . '-readDir' => $this->toolsFactory->gitReadDir(),
                 $prefix . '-analyze-structure' => $this->toolsFactory->gitAnalyzeStructure(),
@@ -41,6 +43,17 @@ class ToolsBuilder
                 $prefix . '-search-pattern' => $this->toolsFactory->gitSearchPattern(),
                 $prefix . '-find-config-files' => $this->toolsFactory->gitFindConfigFiles(),
                 $prefix . '-analyze-classes' => $this->toolsFactory->gitAnalyzeClasses(),
+        ]);
+
+        return $this;
+    }
+
+    public function withEditor(string $prefix = 'editor'): ToolsBuilder
+    {
+        $this->tools = array_merge($this->tools, [
+            $prefix . '-edit-file' => $this->toolsFactory->editorEditFile(),
+            $prefix . '-replace-in-file' => $this->toolsFactory->editorReplaceInFile(),
+            $prefix . '-insert-or-replace' => $this->toolsFactory->editorInsertOrReplace(),
         ]);
 
         return $this;

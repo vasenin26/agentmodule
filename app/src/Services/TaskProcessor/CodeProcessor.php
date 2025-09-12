@@ -33,6 +33,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
             $toolsBuilder->withGit();
+            $toolsBuilder->withEditor();
         }
 
         $tools = $toolsBuilder->build();
