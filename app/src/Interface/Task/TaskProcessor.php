@@ -8,5 +8,5 @@ use Anymodule\Agentmodule\Entity\Task;
 interface TaskProcessor
 {
 
-    public function process(Task $task): LLMResult;
+    public function process(Task $task, $processHandler): LLMResult;
 }

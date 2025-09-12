@@ -69,6 +69,7 @@ class Service implements TaskApi, PageApi
                 totalTokens: $result->total_tokens
             ),
             result: $result->answer,
+            completed: $result->completed
         );
 
         $request->exec($this->api);

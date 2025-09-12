@@ -36,7 +36,9 @@ final readonly class Runner
                 Log::info("Processing task: {$task->id}");
 
                 $result = $this->processorFactory->createProcessorForTask($task)
-                    ->process($task);
+                    ->process($task, function ($result) use ($agentId, $task) {
+                        $this->api->sendResult($agentId, $task->id, $result);
+                    });
 
                 $this->api->sendResult($agentId, $task->id, $result);
             } catch (\Throwable $e) {

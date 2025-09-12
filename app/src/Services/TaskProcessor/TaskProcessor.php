@@ -18,7 +18,7 @@ class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
     {
     }
 
-    public function process(Task $task): LLMResult
+    public function process(Task $task, $processHandler): LLMResult
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
@@ -30,6 +30,7 @@ class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);
         $chat = $this->conversationFactory->fromMessages($task->messages);
-        return $llm->process($chat, $task->resultRequired);
+
+        return $llm->process($chat, $processHandler, $task->resultRequired);
     }
 }

@@ -17,7 +17,8 @@ final readonly class UpdateAgentTask implements RequestInterface
         private string $agentId,
         private array $chatMessages,
         private array $tokenStats,
-        private ?string $result = null
+        private ?string $result = null,
+        private bool $completed,
     )
     {
     }
@@ -38,7 +39,8 @@ final readonly class UpdateAgentTask implements RequestInterface
             'agent_uuid' => $this->agentId,
             'chat' => $this->chatMessages,
             'stats' => $this->tokenStats,
-            'result' => $this->result
+            'result' => $this->result,
+            'completed' => $this->completed,
         ];
     }
 

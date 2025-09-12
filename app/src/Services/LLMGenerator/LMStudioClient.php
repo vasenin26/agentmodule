@@ -19,7 +19,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Chat $chat, bool $resultRequired = false): LLMResult
+    public function process(Chat $chat, $processHandler, bool $resultRequired = false): LLMResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -43,6 +43,7 @@ class LMStudioClient implements GPTProcessorInterface
 
                 if (empty($messages)) {
                     return new LLMResult(
+                        true,
                         'Empty chat',
                         $chat->serialize(),
                         $promptTokens,
@@ -65,6 +66,17 @@ class LMStudioClient implements GPTProcessorInterface
             $toolCalls = $lastMessage->toolCalls;
 
             $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
+
+            if($processHandler) {
+                $processHandler(new LLMResult(
+                    false,
+                    $answer,
+                    $chat->serialize(),
+                    $promptTokens,
+                    $completionTokens,
+                    $totalTokens
+                ));
+            }
 
             Log::info("LLM Say:" . $lastMessage->content);
 
@@ -118,9 +130,21 @@ class LMStudioClient implements GPTProcessorInterface
                 $totalTokens += $result->usage->totalTokens ?? 0;
             }
 
+            if($processHandler && !$finished) {
+                $processHandler(new LLMResult(
+                    false,
+                    $answer,
+                    $chat->serialize(),
+                    $promptTokens,
+                    $completionTokens,
+                    $totalTokens
+                ));
+            }
+
         } while (!$finished);
 
         return new LLMResult(
+            true,
             $answer,
             $chat->serialize(),
             $promptTokens,
