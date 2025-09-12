@@ -3,13 +3,19 @@
 namespace Anymodule\Agentmodule\Services\RepositoryService;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Utils\Log;
 use CzProject\GitPhp\Git;
 use CzProject\GitPhp\GitRepository;
 
 class RepositoryProvider implements GitRepoProviderInterface
 {
     private array $repos = [];
+
+    public function __construct(
+        private string  $reposFolder = 'default',
+        private ?string $branch,
+    )
+    {
+    }
 
     public function getRepo(string $url): GitRepository
     {
@@ -18,43 +24,11 @@ class RepositoryProvider implements GitRepoProviderInterface
             $url = $this->convertHttpsToSsh($url);
         }
 
-        $domain = '';
-        $path = '';
+        $fullPath = $this->defineRepositoryFolder($url);
 
-        // Парсинг URL в зависимости от формата
-        if (str_starts_with($url, 'https://')) {
-            // HTTPS формат
-            $parsed_url = parse_url($url);
-            $domain = $parsed_url['host'];
-            $path = trim($parsed_url['path'], '/');
-        }
-
-        // SSH формат: git@github.com:username/repository.git
-        $parts = explode(':', $url);
-        if (count($parts) === 2) {
-            $domainPart = $parts[0]; // git@github.com
-            $pathPart = $parts[1];   // username/repository.git
-
-            // Извлекаем домен из git@domain
-            $domainParts = explode('@', $domainPart);
-            if (count($domainParts) === 2) {
-                $domain = $domainParts[1]; // github.com
-            }
-
-            $path = $pathPart;
-        }
-
-        // Убираем .git из пути если есть
-        $path = preg_replace('/\.git$/', '', $path);
-
-        $fullPath = '/home/local/repos/' . $domain . '/' . $path;
-
-        if(array_key_exists($fullPath, $this->repos)) {
-            Log::info('Repository already exists: ' . $fullPath);
+        if (array_key_exists($fullPath, $this->repos)) {
             return $this->repos[$fullPath];
         }
-
-        Log::info('Repository path: ' . $fullPath);
 
         $git = new Git();
 
@@ -64,7 +38,19 @@ class RepositoryProvider implements GitRepoProviderInterface
             $repo = $git->cloneRepository($url, $fullPath);
         }
 
+        if ($this->branch) {
+            $repo->checkout($this->branch);
+        }
+
         return $this->repos[$fullPath] = $repo;
+    }
+
+    /**
+     * @return GitRepository[]
+     */
+    public function getProvidedRepositories(): array
+    {
+        return $this->repos;
     }
 
     /**
@@ -104,5 +90,39 @@ class RepositoryProvider implements GitRepoProviderInterface
 
         // Формируем SSH ссылку
         return "git@{$domain}:{$username}/{$repo}.git";
+    }
+
+    private function defineRepositoryFolder(string $url): string
+    {
+        $domain = '';
+        $path = '';
+
+        // Парсинг URL в зависимости от формата
+        if (str_starts_with($url, 'https://')) {
+            // HTTPS формат
+            $parsed_url = parse_url($url);
+            $domain = $parsed_url['host'];
+            $path = trim($parsed_url['path'], '/');
+        }
+
+        // SSH формат: git@github.com:username/repository.git
+        $parts = explode(':', $url);
+        if (count($parts) === 2) {
+            $domainPart = $parts[0]; // git@github.com
+            $pathPart = $parts[1];   // username/repository.git
+
+            // Извлекаем домен из git@domain
+            $domainParts = explode('@', $domainPart);
+            if (count($domainParts) === 2) {
+                $domain = $domainParts[1]; // github.com
+            }
+
+            $path = $pathPart;
+        }
+
+        // Убираем .git из пути если есть
+        $path = preg_replace('/\.git$/', '', $path);
+
+        return '/home/local/repos/' . $this->reposFolder . '/'. $domain . '/' . $path;
     }
 }
