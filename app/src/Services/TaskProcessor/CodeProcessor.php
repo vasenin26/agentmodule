@@ -42,6 +42,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         $result = $llm->process($chat, $processHandler, $task->resultRequired);
 
         foreach ($repositoryProvider->getProvidedRepositories() as $repo) {
+            $repo->addAllChanges();
             $repo->commit($result->answer);
             $repo->push();
         }

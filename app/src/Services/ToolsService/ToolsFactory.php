@@ -13,6 +13,7 @@ use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\FindConfigFiles;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\GetDependencies;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadDir;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadFile;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\ReadFileLines;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\SearchFileByName;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Git\SearchPattern;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Page\FindRelatedPages;
@@ -23,6 +24,9 @@ use Anymodule\Agentmodule\Services\ToolsService\Tools\Page\GetInfo;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Page\GetProjectPages;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Page\GetTaskHistory;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\SendResult;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\EditFile;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\ReplaceInFile;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\InsertOrReplace;
 
 class ToolsFactory
 {
@@ -47,6 +51,11 @@ class ToolsFactory
     public function gitReadFile(): ToolInterface
     {
         return new ReadFile($this->gitRepoProvider);
+    }
+
+    public function gitReadFileLines(): ToolInterface
+    {
+        return new ReadFileLines($this->gitRepoProvider);
     }
 
     public function gitSearchFileByName(): ToolInterface
@@ -126,5 +135,21 @@ class ToolsFactory
     {
         $pageContextService = $this->pageContextServiceFactory->createForProject($projectId);
         return new GetTaskHistory($pageContextService);
+    }
+
+    // Editor утилиты
+    public function editorEditFile(): ToolInterface
+    {
+        return new EditFile($this->gitRepoProvider);
+    }
+
+    public function editorReplaceInFile(): ToolInterface
+    {
+        return new ReplaceInFile($this->gitRepoProvider);
+    }
+
+    public function editorInsertOrReplace(): ToolInterface
+    {
+        return new InsertOrReplace($this->gitRepoProvider);
     }
 }
