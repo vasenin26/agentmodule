@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
 class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -23,9 +24,11 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
     public function process(Task $task, $processHandler): LLMResult
     {
+        $workBranch = $this->getTaskBranch($task);
+
         $repositoryProvider = new RepositoryProvider(
             $this->getTmpTaskFolder($task),
-            $this->getTaskBranch($task)
+            $workBranch,
         );
 
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
@@ -43,9 +46,15 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         $result = $llm->process($chat, $processHandler, $task->resultRequired);
 
         foreach ($repositoryProvider->getProvidedRepositories() as $repo) {
-            $repo->addAllChanges();
-            $repo->commit($result->answer);
-            $repo->push();
+            try {
+                if ($repo->hasChanges()) {
+                    $repo->addAllChanges();
+                    $repo->commit($result->answer);
+                    $repo->push('origin');
+                }
+            } catch (\Throwable $exception) {
+                Log::warning($exception->getMessage());
+            }
         }
 
         return $result;

@@ -59,7 +59,14 @@ class LMStudioClient implements GPTProcessorInterface
                     'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
-                throw $exception;
+                return new LLMResult(
+                    true,
+                    'Broken chat',
+                    $chat->serialize(),
+                    $promptTokens,
+                    $completionTokens,
+                    $totalTokens
+                );
             }
 
             $lastMessage = $result->choices[0]->message;
@@ -91,7 +98,17 @@ class LMStudioClient implements GPTProcessorInterface
 
                     Log::info("LLM call tool " . $toolCall->function->name);
 
-                    $toolResult = $this->tools->callTool($toolCall->function->name, $toolCall->function->arguments);
+                    try {
+                        $toolResult = $this->tools->callTool($toolCall->function->name, $toolCall->function->arguments);
+                    } catch (\Throwable $exception) {
+                        Log::info("Tool Broken");
+
+                        $chat->addMessage($this->messageMapper->mapToToolMessage(
+                            $toolCall->id,
+                            $toolCall->function->name,
+                            'This tool has broken',
+                        ));
+                    }
 
                     Log::info("Tool OK");
 

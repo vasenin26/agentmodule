@@ -18,7 +18,7 @@ $api = new Service(
 
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(
-        new RepositoryProvider(branch: 'main'),
+        new RepositoryProvider(reposFolder: 'default', branch: 'main'),
         new PageContextProviderFactory($api),
     ),
     new LLMFactory(),

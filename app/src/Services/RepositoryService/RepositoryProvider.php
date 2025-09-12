@@ -39,7 +39,7 @@ class RepositoryProvider implements GitRepoProviderInterface
         }
 
         if ($this->branch) {
-            $repo->checkout($this->branch);
+            $repo->createBranch($this->branch, true);
         }
 
         return $this->repos[$fullPath] = $repo;
