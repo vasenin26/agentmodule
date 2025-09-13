@@ -15,7 +15,7 @@ class ReplaceInFile implements ToolInterface
     public function execute(array $args): ?string
     {
         try {
-            ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement] = $args;
+            ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
 
             $repo = $this->repoProvider->getRepo($url);
             $repoPath = $repo->getRepositoryPath();
@@ -32,11 +32,34 @@ class ReplaceInFile implements ToolInterface
 
             // Проверяем, что файл существует
             if (!file_exists($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File not found: ' . $path,
-                    'code' => 'FILE_NOT_FOUND',
-                ]);
+                if ($createIfNotExists) {
+                    // Создаем директорию если она не существует
+                    $dir = dirname($fullFilePath);
+                    if (!is_dir($dir)) {
+                        if (!mkdir($dir, 0755, true)) {
+                            return json_encode([
+                                'success' => false,
+                                'error' => 'Failed to create directory: ' . dirname($path),
+                                'code' => 'DIRECTORY_CREATE_FAILED',
+                            ]);
+                        }
+                    }
+                    
+                    // Создаем пустой файл
+                    if (!touch($fullFilePath)) {
+                        return json_encode([
+                            'success' => false,
+                            'error' => 'Failed to create file: ' . $path,
+                            'code' => 'FILE_CREATE_FAILED',
+                        ]);
+                    }
+                } else {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'File not found: ' . $path,
+                        'code' => 'FILE_NOT_FOUND',
+                    ]);
+                }
             }
 
             // Проверяем, что файл доступен для записи
@@ -58,14 +81,20 @@ class ReplaceInFile implements ToolInterface
                 ]);
             }
 
-            // Создаем резервную копию файла
-            $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
-            if (!copy($fullFilePath, $backupPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to create backup of file: ' . $path,
-                    'code' => 'BACKUP_FAILED',
-                ]);
+            // Если файл был создан только что, content будет пустым
+            $isNewFile = $createIfNotExists && $content === '';
+
+            // Создаем резервную копию файла только если это не новый файл
+            $backupPath = null;
+            if (!$isNewFile) {
+                $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
+                if (!copy($fullFilePath, $backupPath)) {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'Failed to create backup of file: ' . $path,
+                        'code' => 'BACKUP_FAILED',
+                    ]);
+                }
             }
 
             // Выполняем замену
@@ -75,7 +104,9 @@ class ReplaceInFile implements ToolInterface
             // Проверяем, была ли выполнена замена
             if ($originalContent === $newContent) {
                 // Удаляем резервную копию, так как изменений не было
-                unlink($backupPath);
+                if ($backupPath) {
+                    unlink($backupPath);
+                }
                 
                 return json_encode([
                     'success' => true,
@@ -83,7 +114,8 @@ class ReplaceInFile implements ToolInterface
                     'data' => [
                         'file_path' => $path,
                         'pattern' => $pattern,
-                        'replacements_made' => 0
+                        'replacements_made' => 0,
+                        'file_created' => $isNewFile
                     ]
                 ]);
             }
@@ -93,8 +125,13 @@ class ReplaceInFile implements ToolInterface
 
             if ($result === false) {
                 // Восстанавливаем файл из резервной копии в случае ошибки
-                copy($backupPath, $fullFilePath);
-                unlink($backupPath);
+                if ($backupPath) {
+                    copy($backupPath, $fullFilePath);
+                    unlink($backupPath);
+                } else {
+                    // Если это был новый файл, удаляем его
+                    unlink($fullFilePath);
+                }
                 
                 return json_encode([
                     'success' => false,
@@ -107,16 +144,19 @@ class ReplaceInFile implements ToolInterface
             $replacementsCount = preg_match_all($pattern, $originalContent);
 
             // Удаляем резервную копию после успешной записи
-            unlink($backupPath);
+            if ($backupPath) {
+                unlink($backupPath);
+            }
 
             return json_encode([
                 'success' => true,
-                'message' => 'File updated successfully',
+                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
                 'data' => [
                     'file_path' => $path,
                     'pattern' => $pattern,
                     'replacement' => $replacement,
                     'replacements_made' => $replacementsCount,
+                    'file_created' => $isNewFile,
                     'bytes_written' => $result,
                     'content_length' => strlen($newContent)
                 ]
@@ -156,6 +196,11 @@ class ReplaceInFile implements ToolInterface
                         'replacement' => [
                             'type' => 'string',
                             'description' => 'Replacement text',
+                        ],
+                        'create_if_not_exists' => [
+                            'type' => 'boolean',
+                            'description' => 'Create file if it does not exist. If true, creates the file and any necessary directories.',
+                            'default' => false
                         ]
                     ],
                     'required' => ['url', 'path', 'pattern', 'replacement'],

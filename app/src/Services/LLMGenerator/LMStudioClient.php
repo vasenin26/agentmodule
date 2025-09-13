@@ -59,6 +59,11 @@ class LMStudioClient implements GPTProcessorInterface
                     'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
+
+                var_dump($messages);
+
+                Log::warning($exception->getMessage());
+
                 return new LLMResult(
                     true,
                     'Broken chat',
@@ -108,6 +113,8 @@ class LMStudioClient implements GPTProcessorInterface
                             $toolCall->function->name,
                             'This tool has broken',
                         ));
+
+                        continue;
                     }
 
                     Log::info("Tool OK");

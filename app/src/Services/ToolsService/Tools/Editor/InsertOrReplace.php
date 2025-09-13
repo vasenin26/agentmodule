@@ -15,7 +15,7 @@ class InsertOrReplace implements ToolInterface
     public function execute(array $args): ?string
     {
         try {
-            ['url' => $url, 'path' => $path, 'content' => $content, 'mode' => $mode] = $args;
+            ['url' => $url, 'path' => $path, 'content' => $content, 'mode' => $mode, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
 
             $repo = $this->repoProvider->getRepo($url);
             $repoPath = $repo->getRepositoryPath();
@@ -32,11 +32,34 @@ class InsertOrReplace implements ToolInterface
 
             // Проверяем, что файл существует
             if (!file_exists($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File not found: ' . $path,
-                    'code' => 'FILE_NOT_FOUND',
-                ]);
+                if ($createIfNotExists) {
+                    // Создаем директорию если она не существует
+                    $dir = dirname($fullFilePath);
+                    if (!is_dir($dir)) {
+                        if (!mkdir($dir, 0755, true)) {
+                            return json_encode([
+                                'success' => false,
+                                'error' => 'Failed to create directory: ' . dirname($path),
+                                'code' => 'DIRECTORY_CREATE_FAILED',
+                            ]);
+                        }
+                    }
+                    
+                    // Создаем пустой файл
+                    if (!touch($fullFilePath)) {
+                        return json_encode([
+                            'success' => false,
+                            'error' => 'Failed to create file: ' . $path,
+                            'code' => 'FILE_CREATE_FAILED',
+                        ]);
+                    }
+                } else {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'File not found: ' . $path,
+                        'code' => 'FILE_NOT_FOUND',
+                    ]);
+                }
             }
 
             // Проверяем, что файл доступен для записи
@@ -58,14 +81,20 @@ class InsertOrReplace implements ToolInterface
                 ]);
             }
 
-            // Создаем резервную копию файла
-            $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
-            if (!copy($fullFilePath, $backupPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to create backup of file: ' . $path,
-                    'code' => 'BACKUP_FAILED',
-                ]);
+            // Если файл был создан только что, originalContent будет пустым
+            $isNewFile = $createIfNotExists && $originalContent === '';
+
+            // Создаем резервную копию файла только если это не новый файл
+            $backupPath = null;
+            if (!$isNewFile) {
+                $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
+                if (!copy($fullFilePath, $backupPath)) {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'Failed to create backup of file: ' . $path,
+                        'code' => 'BACKUP_FAILED',
+                    ]);
+                }
             }
 
             // Обрабатываем содержимое в зависимости от режима
@@ -74,7 +103,9 @@ class InsertOrReplace implements ToolInterface
             // Проверяем, были ли изменения
             if ($originalContent === $newContent) {
                 // Удаляем резервную копию, так как изменений не было
-                unlink($backupPath);
+                if ($backupPath) {
+                    unlink($backupPath);
+                }
                 
                 return json_encode([
                     'success' => true,
@@ -82,7 +113,8 @@ class InsertOrReplace implements ToolInterface
                     'data' => [
                         'file_path' => $path,
                         'mode' => $mode,
-                        'changes_made' => false
+                        'changes_made' => false,
+                        'file_created' => $isNewFile
                     ]
                 ]);
             }
@@ -92,8 +124,13 @@ class InsertOrReplace implements ToolInterface
 
             if ($result === false) {
                 // Восстанавливаем файл из резервной копии в случае ошибки
-                copy($backupPath, $fullFilePath);
-                unlink($backupPath);
+                if ($backupPath) {
+                    copy($backupPath, $fullFilePath);
+                    unlink($backupPath);
+                } else {
+                    // Если это был новый файл, удаляем его
+                    unlink($fullFilePath);
+                }
                 
                 return json_encode([
                     'success' => false,
@@ -103,15 +140,18 @@ class InsertOrReplace implements ToolInterface
             }
 
             // Удаляем резервную копию после успешной записи
-            unlink($backupPath);
+            if ($backupPath) {
+                unlink($backupPath);
+            }
 
             return json_encode([
                 'success' => true,
-                'message' => 'File updated successfully',
+                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
                 'data' => [
                     'file_path' => $path,
                     'mode' => $mode,
                     'changes_made' => true,
+                    'file_created' => $isNewFile,
                     'bytes_written' => $result,
                     'original_length' => strlen($originalContent),
                     'new_length' => strlen($newContent)
@@ -243,6 +283,11 @@ class InsertOrReplace implements ToolInterface
                             'type' => 'string',
                             'description' => 'Mode of operation: prepend (add content to beginning of file), append (add content to end of file), replace_all (replace entire file content), replace_start (replace first lines of file), replace_end (replace last lines of file), insert_at_line (insert content at specific line number)',
                             'enum' => ['prepend', 'append', 'replace_all', 'replace_start', 'replace_end', 'insert_at_line']
+                        ],
+                        'create_if_not_exists' => [
+                            'type' => 'boolean',
+                            'description' => 'Create file if it does not exist. If true, creates the file and any necessary directories.',
+                            'default' => false
                         ]
                     ],
                     'required' => ['url', 'path', 'content', 'mode'],

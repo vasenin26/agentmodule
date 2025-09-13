@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\RepositoryService;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Utils\Log;
 use CzProject\GitPhp\Git;
 use CzProject\GitPhp\GitRepository;
 
@@ -19,27 +20,40 @@ class RepositoryProvider implements GitRepoProviderInterface
 
     public function getRepo(string $url): GitRepository
     {
-        // Преобразуем HTTPS ссылку в SSH
-        if (str_starts_with($url, 'https://')) {
-            $url = $this->convertHttpsToSsh($url);
-        }
+        try {
+            // Преобразуем HTTPS ссылку в SSH
+            if (str_starts_with($url, 'https://')) {
+                Log::info("Git Repository URL starts with https:// => " . $url);
+                $url = $this->convertHttpsToSsh($url);
+            }
 
-        $fullPath = $this->defineRepositoryFolder($url);
+            $fullPath = $this->defineRepositoryFolder($url);
 
-        if (array_key_exists($fullPath, $this->repos)) {
-            return $this->repos[$fullPath];
-        }
+            if (array_key_exists($fullPath, $this->repos)) {
+                return $this->repos[$fullPath];
+            }
 
-        $git = new Git();
+            $git = new Git();
 
-        if (is_dir($fullPath)) {
-            $repo = $git->open($fullPath);
-        } else {
-            $repo = $git->cloneRepository($url, $fullPath);
-        }
+            if (is_dir($fullPath)) {
+                $repo = $git->open($fullPath);
+            } else {
+                $repo = $git->cloneRepository($url, $fullPath);
+            }
 
-        if ($this->branch) {
-            $repo->createBranch($this->branch, true);
+            if ($this->branch) {
+                if ($repo->getCurrentBranchName() === $this->branch) {
+                    $repo->pull();
+                } else {
+                    $repo->createBranch($this->branch, true);
+                }
+            } else {
+                $repo->pull();
+            }
+        } catch (\Exception $exception) {
+            Log::warning($url);
+            Log::warning($exception->getMessage());
+            throw $exception;
         }
 
         return $this->repos[$fullPath] = $repo;
@@ -88,8 +102,13 @@ class RepositoryProvider implements GitRepoProviderInterface
         $username = $pathParts[0];
         $repo = $pathParts[1];
 
+        //проверить чтобы $repo оканчивалось на git
+        if (!str_ends_with($repo, '.git')) {
+            $repo .= '.git';
+        }
+
         // Формируем SSH ссылку
-        return "git@{$domain}:{$username}/{$repo}.git";
+        return "git@{$domain}:{$username}/{$repo}";
     }
 
     private function defineRepositoryFolder(string $url): string
@@ -123,6 +142,6 @@ class RepositoryProvider implements GitRepoProviderInterface
         // Убираем .git из пути если есть
         $path = preg_replace('/\.git$/', '', $path);
 
-        return '/home/local/repos/' . $this->reposFolder . '/'. $domain . '/' . $path;
+        return '/home/local/repos/' . $this->reposFolder . '/' . $domain . '/' . $path;
     }
 }

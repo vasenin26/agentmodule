@@ -15,7 +15,7 @@ class EditFile implements ToolInterface
     public function execute(array $args): ?string
     {
         try {
-            ['url' => $url, 'path' => $path, 'content' => $content] = $args;
+            ['url' => $url, 'path' => $path, 'content' => $content, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
 
             $repo = $this->repoProvider->getRepo($url);
             $repoPath = $repo->getRepositoryPath();
@@ -32,11 +32,34 @@ class EditFile implements ToolInterface
 
             // Проверяем, что файл существует
             if (!file_exists($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File not found: ' . $path,
-                    'code' => 'FILE_NOT_FOUND',
-                ]);
+                if ($createIfNotExists) {
+                    // Создаем директорию если она не существует
+                    $dir = dirname($fullFilePath);
+                    if (!is_dir($dir)) {
+                        if (!mkdir($dir, 0755, true)) {
+                            return json_encode([
+                                'success' => false,
+                                'error' => 'Failed to create directory: ' . dirname($path),
+                                'code' => 'DIRECTORY_CREATE_FAILED',
+                            ]);
+                        }
+                    }
+                    
+                    // Создаем пустой файл
+                    if (!touch($fullFilePath)) {
+                        return json_encode([
+                            'success' => false,
+                            'error' => 'Failed to create file: ' . $path,
+                            'code' => 'FILE_CREATE_FAILED',
+                        ]);
+                    }
+                } else {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'File not found: ' . $path,
+                        'code' => 'FILE_NOT_FOUND',
+                    ]);
+                }
             }
 
             // Проверяем, что файл доступен для записи
@@ -48,14 +71,20 @@ class EditFile implements ToolInterface
                 ]);
             }
 
-            // Создаем резервную копию файла
-            $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
-            if (!copy($fullFilePath, $backupPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to create backup of file: ' . $path,
-                    'code' => 'BACKUP_FAILED',
-                ]);
+            // Определяем, был ли файл создан только что
+            $isNewFile = $createIfNotExists && file_exists($fullFilePath) && filesize($fullFilePath) === 0;
+
+            // Создаем резервную копию файла только если это не новый файл
+            $backupPath = null;
+            if (!$isNewFile) {
+                $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
+                if (!copy($fullFilePath, $backupPath)) {
+                    return json_encode([
+                        'success' => false,
+                        'error' => 'Failed to create backup of file: ' . $path,
+                        'code' => 'BACKUP_FAILED',
+                    ]);
+                }
             }
 
             // Записываем новое содержимое в файл
@@ -63,8 +92,13 @@ class EditFile implements ToolInterface
 
             if ($result === false) {
                 // Восстанавливаем файл из резервной копии в случае ошибки
-                copy($backupPath, $fullFilePath);
-                unlink($backupPath);
+                if ($backupPath) {
+                    copy($backupPath, $fullFilePath);
+                    unlink($backupPath);
+                } else {
+                    // Если это был новый файл, удаляем его
+                    unlink($fullFilePath);
+                }
                 
                 return json_encode([
                     'success' => false,
@@ -74,13 +108,16 @@ class EditFile implements ToolInterface
             }
 
             // Удаляем резервную копию после успешной записи
-            unlink($backupPath);
+            if ($backupPath) {
+                unlink($backupPath);
+            }
 
             return json_encode([
                 'success' => true,
-                'message' => 'File updated successfully',
+                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
                 'data' => [
                     'file_path' => $path,
+                    'file_created' => $isNewFile,
                     'bytes_written' => $result,
                     'content_length' => strlen($content)
                 ]
@@ -117,6 +154,11 @@ class EditFile implements ToolInterface
                         'content' => [
                             'type' => 'string',
                             'description' => 'New content to write to the file',
+                        ],
+                        'create_if_not_exists' => [
+                            'type' => 'boolean',
+                            'description' => 'Create file if it does not exist. If true, creates the file and any necessary directories.',
+                            'default' => false
                         ]
                     ],
                     'required' => ['url', 'path', 'content'],
