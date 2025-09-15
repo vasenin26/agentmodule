@@ -53,7 +53,7 @@ class LMStudioClient implements GPTProcessorInterface
                 }
 
                 $result = $client->chat()->create([
-                    'model' => 'gpt-5-mini',
+                    'model' => 'gpt-5',
 //                    'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
@@ -73,6 +73,8 @@ class LMStudioClient implements GPTProcessorInterface
                     $totalTokens
                 );
             }
+
+            var_dump($result);
 
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;
