@@ -1,0 +1,74 @@
+<?php
+
+namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
+
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\GitFileMessage;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
+use Anymodule\Agentmodule\Utils\Log;
+use CzProject\GitPhp\GitRepository;
+
+class GitFileMapper implements MessageMapperInterface
+{
+    private GitRepoProviderInterface $repositoryProvider;
+    private UrlParserInterface $urlParser;
+
+    public function __construct(
+        GitRepoProviderInterface $repositoryProvider,
+        UrlParserInterface $urlParser
+    )
+    {
+        $this->repositoryProvider = $repositoryProvider;
+        $this->urlParser = $urlParser;
+    }
+
+    public function supports(Message $message): bool
+    {
+        return $message instanceof GitFileMessage;
+    }
+
+    public function map(Message $message): array
+    {
+        if($message instanceof GitFileMessage) {
+            $repoUrl = $this->urlParser->extractRepoUrl($message->url);
+            $filePath = $this->urlParser->extractFilePath($message->url);
+            
+            $fileContent = $this->getFileContent($repoUrl, $filePath);
+            
+            $content = "Git file: {$filePath}\n\nContent:\n{$fileContent}";
+            
+            return [
+                'role' => 'user',
+                'content' => $content
+            ];
+        }
+
+        throw new \Exception("Unsupported message type");
+    }
+
+    private function getFileContent(string $repoUrl, string $filePath): string
+    {
+        try {
+            Log::info('GitFileMapper - Read path: ' . $filePath);
+            Log::info('GitFileMapper - Read url: ' . $repoUrl);
+            
+            $repo = $this->repositoryProvider->getRepo($repoUrl);
+            
+            $fullPath = $repo->getRepositoryPath() . '/' . trim($filePath, '/');
+            
+            $content = file_get_contents($fullPath);
+            
+            if ($content === false) {
+                return "File not found";
+            }
+            
+            return $content;
+        } catch (\Exception $e) {
+            Log::warning('GitFileMapper error: ' . $e->getMessage());
+            return "Error retrieving file content: " . $e->getMessage();
+        }
+    }
+
+}

@@ -12,8 +12,8 @@ class RepositoryProvider implements GitRepoProviderInterface
     private array $repos = [];
 
     public function __construct(
-        private string  $reposFolder = 'default',
         private ?string $branch,
+        private string  $reposFolder = 'default',
     )
     {
     }

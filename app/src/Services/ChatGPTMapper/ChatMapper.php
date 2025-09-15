@@ -2,15 +2,20 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
+use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
+use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
+use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use Anymodule\Agentmodule\Services\LLMGenerator\MessageMapper;
 use OpenAI\Responses\Chat\CreateResponseMessage;
 
@@ -18,13 +23,19 @@ class ChatMapper implements MessageMapper
 {
     private $mappers = [];
 
-    public function __construct()
+    public function __construct(
+        GitRepoProviderInterface $repositoryProvider,
+        UrlParserInterface $urlParser = null
+    )
     {
+        $urlParser = $urlParser ?? new ExtractRepoUrl();
+        
         $this->mappers = [
             new UserMapper(),
             new AssistantMapper(),
             new SystemMapper(),
             new ToolMapper(),
+            new GitFileMapper($repositoryProvider, $urlParser),
         ];
     }
 

@@ -16,12 +16,14 @@ $api = new Service(
     token: getenv('AGENT_TOKEN'),
 );
 
+$repoProvider = new RepositoryProvider(reposFolder: 'default', branch: 'main');
+
 $processorFactory = new TaskProcessorFactory(
     new ToolServiceFactory(
-        new RepositoryProvider(reposFolder: 'default', branch: 'main'),
+        $repoProvider,
         new PageContextProviderFactory($api),
     ),
-    new LLMFactory(),
+    new LLMFactory($repoProvider),
     new ConversationFactory(),
 );
 
