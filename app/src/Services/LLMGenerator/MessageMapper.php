@@ -14,5 +14,11 @@ interface MessageMapper
 
     public function mapToUserMessage(string $string): Message;
 
-    public function mapToToolMessage(string $id, string $toolName, string $result): Message;
+    public function mapToToolMessage(
+        bool $success,
+        string $id,
+        string $toolName,
+        string $props,
+        string $result
+    ): Message;
 }

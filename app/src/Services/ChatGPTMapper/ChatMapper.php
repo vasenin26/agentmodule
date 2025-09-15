@@ -25,11 +25,11 @@ class ChatMapper implements MessageMapper
 
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
-        UrlParserInterface $urlParser = null
+        UrlParserInterface       $urlParser = null
     )
     {
         $urlParser = $urlParser ?? new ExtractRepoUrl();
-        
+
         $this->mappers = [
             new UserMapper(),
             new AssistantMapper(),
@@ -83,8 +83,13 @@ class ChatMapper implements MessageMapper
         return new UserMessage($string);
     }
 
-    public function mapToToolMessage(string $id, string $toolName, string $result): Message
+    public function mapToToolMessage(
+        bool   $success,
+        string $id,
+        string $toolName,
+        string $props,
+        string $result): Message
     {
-        return new ToolMessage($id, $toolName, $result);
+        return new ToolMessage($success, $id, $toolName, $props, $result);
     }
 }

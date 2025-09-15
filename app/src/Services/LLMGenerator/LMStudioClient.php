@@ -109,8 +109,10 @@ class LMStudioClient implements GPTProcessorInterface
                         Log::info("Tool Broken");
 
                         $chat->addMessage($this->messageMapper->mapToToolMessage(
+                            false,
                             $toolCall->id,
                             $toolCall->function->name,
+                            $toolCall->function->arguments,
                             'This tool has broken',
                         ));
 
@@ -124,8 +126,10 @@ class LMStudioClient implements GPTProcessorInterface
                         Log::info("Tool Failed");
 
                         $chat->addMessage($this->messageMapper->mapToToolMessage(
+                            false,
                             $toolCall->id,
                             $toolCall->function->name,
+                            $toolCall->function->arguments,
                             'Tools was call with wrong parameters',
                         ));
 
@@ -141,8 +145,10 @@ class LMStudioClient implements GPTProcessorInterface
                     }
 
                     $chat->addMessage($this->messageMapper->mapToToolMessage(
+                        true,
                         $toolCall->id,
                         $toolCall->function->name,
+                        $toolCall->function->arguments,
                         $toolResult,
                     ));
                 }
