@@ -17,8 +17,8 @@ final readonly class UpdateAgentTask implements RequestInterface
         private string $agentId,
         private array $chatMessages,
         private array $tokenStats,
-        private ?string $result = null,
         private bool $completed,
+        private ?string $result = null,
     )
     {
     }
