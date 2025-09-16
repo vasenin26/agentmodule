@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
@@ -91,5 +92,10 @@ class ChatMapper implements MessageMapper
         string $result): Message
     {
         return new ToolMessage($success, $id, $toolName, $props, $result);
+    }
+
+    public function mapToHelpInstructionMessage(string $content): Message
+    {
+        return new DisappearingMessage($content);
     }
 }

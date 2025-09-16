@@ -21,4 +21,6 @@ interface MessageMapper
         string $props,
         string $result
     ): Message;
+
+    public function mapToHelpInstructionMessage(string $content): Message;
 }

@@ -81,7 +81,7 @@ class LMStudioClient implements GPTProcessorInterface
 
             $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
 
-            if($processHandler) {
+            if ($processHandler) {
                 $processHandler(new LLMResult(
                     false,
                     $answer,
@@ -96,7 +96,7 @@ class LMStudioClient implements GPTProcessorInterface
 
             if (empty($toolCalls)) {
                 if ($resultRequired) {
-                    $chat->addMessage($this->messageMapper->mapToUserMessage('Store answer with tools for finish'));
+                    $chat->addMessage($this->messageMapper->mapToHelpInstructionMessage('Store answer with tools for finish'));
                 } else {
                     $finished = true;
                 }
@@ -162,7 +162,7 @@ class LMStudioClient implements GPTProcessorInterface
                 $totalTokens += $result->usage->totalTokens ?? 0;
             }
 
-            if($processHandler && !$finished) {
+            if ($processHandler && !$finished) {
                 $processHandler(new LLMResult(
                     false,
                     $answer,
