@@ -4,6 +4,9 @@ namespace Anymodule\Agentmodule\Services\ApiService;
 
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Page;
+use Anymodule\Agentmodule\Entity\PageVersion;
+use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
+use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
@@ -69,8 +72,8 @@ class Service implements TaskApi, PageApi
                 completionTokens: $result->completion_tokens,
                 totalTokens: $result->total_tokens
             ),
-            result: $result->answer,
-            completed: $result->completed
+            completed: $result->completed,
+            result: $result->answer
         );
 
         $request->exec($this->api);
@@ -185,5 +188,33 @@ class Service implements TaskApi, PageApi
     public function isPageInProject(int $pageId, int $projectId): bool
     {
         return $this->validatePageAccess($pageId, $projectId);
+    }
+
+    /**
+     * Получение версии страницы по идентификатору версии.
+     * Декларируем ожидаемый HTTP-запрос:
+     * GET /api/projects/{projectId}/pages/versions/{versionId}
+     * Ожидаемый ответ:
+     * {
+     *   "title": "string",
+     *   "content": "string",
+     *   "pageId": 123,
+     *   "versionId": "string",
+     *   "previousVersionId": "string|null"
+     * }
+     */
+    public function getPageVersion(int $projectId, string $versionId): PageVersion
+    {
+        $request = new GetPageVersion($this->token, $versionId);
+        /** @var PageVersionDTO $data */
+        $data = $request->exec($this->api);
+
+        return new PageVersion(
+            title: $data->title,
+            content: $data->content,
+            pageId: $data->pageId,
+            versionId: $data->versionId,
+            previousVersionId: $data->previousVersionId,
+        );
     }
 }

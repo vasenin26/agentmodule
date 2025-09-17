@@ -3,9 +3,9 @@
 namespace Anymodule\Agentmodule\Services\PageContext;
 
 use Anymodule\Agentmodule\Entity\Page;
+use Anymodule\Agentmodule\Entity\PageVersion;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
-use Illuminate\Database\Eloquent\Collection;
 
 class PageProvider implements PageContextServiceInterface
 {
@@ -99,6 +99,24 @@ class PageProvider implements PageContextServiceInterface
             return $this->api->getTaskHistory($pageId);
         } catch (\Exception $exception) {
             return [];
+        }
+    }
+
+    public function getPageVersion(string $versionId): ?PageVersion
+    {
+        try {
+            $data = $this->api->getPageVersion($this->projectId, $versionId);
+
+            // Нормализация и минимальная валидация
+            return new PageVersion(
+                title: (string)($data['title'] ?? ''),
+                content: (string)($data['content'] ?? ''),
+                pageId: (int)($data['pageId'] ?? 0),
+                versionId: (string)($data['versionId'] ?? $versionId),
+                previousVersionId: isset($data['previousVersionId']) ? (string)$data['previousVersionId'] : null,
+            );
+        } catch (\Throwable $exception) {
+            return null;
         }
     }
 

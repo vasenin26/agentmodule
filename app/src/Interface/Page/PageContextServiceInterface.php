@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Interface\Page;
 
 use Anymodule\Agentmodule\Entity\Page;
+use Anymodule\Agentmodule\Entity\PageVersion;
 
 interface PageContextServiceInterface
 {
@@ -35,6 +36,11 @@ interface PageContextServiceInterface
     public function getPageWithActualization(int $pageId): ?Page;
     public function getPageFiles(int $pageId): array;
     public function getTaskHistory(int $pageId): array;
+    
+    /**
+     * Получение данных версии страницы по её идентификатору.
+     */
+    public function getPageVersion(string $versionId): ?PageVersion;
     
     /**
      * Валидация и проверки

@@ -60,8 +60,6 @@ class LMStudioClient implements GPTProcessorInterface
                 ]);
             } catch (\Throwable $exception) {
 
-                var_dump($messages);
-
                 Log::warning($exception->getMessage());
 
                 $chat->addMessage($this->messageMapper->mapToInfoMessage($exception->getMessage()));
@@ -75,8 +73,6 @@ class LMStudioClient implements GPTProcessorInterface
                     $totalTokens
                 );
             }
-
-            var_dump($result);
 
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;

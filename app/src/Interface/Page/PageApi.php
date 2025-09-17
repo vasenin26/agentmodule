@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Interface\Page;
 
 use Anymodule\Agentmodule\Entity\Page;
+use Anymodule\Agentmodule\Entity\PageVersion;
 
 interface PageApi
 {
@@ -67,4 +68,9 @@ interface PageApi
      * Проверка принадлежности страницы проекту
      */
     public function isPageInProject(int $pageId, int $projectId): bool;
+
+    /**
+     * Получение версии страницы по идентификатору версии в рамках проекта
+     */
+    public function getPageVersion(int $projectId, string $versionId): PageVersion;
 }
