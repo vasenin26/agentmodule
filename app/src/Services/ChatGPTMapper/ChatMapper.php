@@ -4,11 +4,11 @@ namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
-use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
+use Vasenin26\Conversation\Messages\InfoMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
@@ -97,5 +97,10 @@ class ChatMapper implements MessageMapper
     public function mapToHelpInstructionMessage(string $content): Message
     {
         return new DisappearingMessage($content);
+    }
+
+    public function mapToInfoMessage(string $content): Message
+    {
+        return new InfoMessage($content);
     }
 }

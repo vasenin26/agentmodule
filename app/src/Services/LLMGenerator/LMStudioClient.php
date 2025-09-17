@@ -64,9 +64,11 @@ class LMStudioClient implements GPTProcessorInterface
 
                 Log::warning($exception->getMessage());
 
+                $chat->addMessage($this->messageMapper->mapToInfoMessage($exception->getMessage()));
+
                 return new LLMResult(
                     true,
-                    'Broken chat',
+                    null,
                     $chat->serialize(),
                     $promptTokens,
                     $completionTokens,

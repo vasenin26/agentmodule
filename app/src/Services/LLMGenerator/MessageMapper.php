@@ -23,4 +23,6 @@ interface MessageMapper
     ): Message;
 
     public function mapToHelpInstructionMessage(string $content): Message;
+
+    public function mapToInfoMessage(string $content): Message;
 }
