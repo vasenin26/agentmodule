@@ -27,8 +27,8 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         $workBranch = $this->getTaskBranch($task);
 
         $repositoryProvider = new RepositoryProvider(
-            $this->getTmpTaskFolder($task),
-            $workBranch,
+            branch: $workBranch,
+            reposFolder: $this->getTmpTaskFolder($task),
         );
 
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
@@ -48,9 +48,10 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         foreach ($repositoryProvider->getProvidedRepositories() as $repo) {
             try {
                 if ($repo->hasChanges()) {
+                    $branch = $repo->getCurrentBranchName();
                     $repo->addAllChanges();
                     $repo->commit($result->answer);
-                    $repo->push('origin');
+                    $repo->push($branch, ['--set-upstream', 'origin']);
                 }
             } catch (\Throwable $exception) {
                 Log::warning($exception->getMessage());
