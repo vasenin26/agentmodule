@@ -10,17 +10,19 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
 
 class ToolServiceFactory implements ToolServiceFactoryInterface
 {
     private ToolsFactory $factory;
+    private TasksStorage $tasksStorage;
 
     public function __construct(
         GitRepoProviderInterface $gitRepoProvider,
         private PageContextServiceFactoryInterface $pageContextServiceFactory,
     )
     {
-        $this->factory = new ToolsFactory($gitRepoProvider, $pageContextServiceFactory);
+        $this->factory = new ToolsFactory($gitRepoProvider, $pageContextServiceFactory, new TasksStorage());
     }
 
     public function withTools(array $tools): ToolsService
@@ -35,6 +37,10 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
             [
                 // Базовые утилиты
                 'time' => $this->factory->time(),
+                // Tasks utils
+                'tasks-list' => $this->factory->tasksList(),
+                'tasks-add' => $this->factory->tasksAdd(),
+                'tasks-complete' => $this->factory->tasksComplete(),
             ]
         );
     }
@@ -46,6 +52,6 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
 
     public function createToolsBuilderWithRepository(RepositoryProvider $repositoryProvider): ToolsBuilder
     {
-        return new ToolsBuilder($this, new ToolsFactory($repositoryProvider, $this->pageContextServiceFactory));
+        return new ToolsBuilder($this, new ToolsFactory($repositoryProvider, $this->pageContextServiceFactory, $this->tasksStorage));
     }
 }

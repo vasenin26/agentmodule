@@ -28,15 +28,19 @@ use Anymodule\Agentmodule\Services\ToolsService\Tools\SendResult;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\EditFile;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\ReplaceInFile;
 use Anymodule\Agentmodule\Services\ToolsService\Tools\Editor\InsertOrReplace;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\AddTasks;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\CompleteTask;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\ListTasks;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
 
 class ToolsFactory
 {
     public function __construct(
         private GitRepoProviderInterface $gitRepoProvider,
         private PageContextServiceFactoryInterface $pageContextServiceFactory,
+        private TasksStorage $tasksStorage,
     )
     {
-
     }
 
     public function sendResult(): ToolInterface
@@ -157,5 +161,20 @@ class ToolsFactory
     public function editorInsertOrReplace(): ToolInterface
     {
         return new InsertOrReplace($this->gitRepoProvider);
+    }
+
+    public function tasksList(): ToolInterface
+    {
+        return new ListTasks($this->tasksStorage);
+    }
+
+    public function tasksAdd(): ToolInterface
+    {
+        return new AddTasks($this->tasksStorage);
+    }
+
+    public function tasksComplete(): ToolInterface
+    {
+        return new CompleteTask($this->tasksStorage);
     }
 }

@@ -55,4 +55,30 @@ class ToolsService implements LLMTools
     {
         return $name === self::RESULT_TOOL;
     }
+
+    public function getTaskTool(): ?ToolInterface
+    {
+        return $this->map['tasks-list'] ?? null;
+    }
+
+    public function getTodo(): ?string
+    {
+        $taskTool = $this->getTaskTool();
+
+        if($taskTool) {
+            $tasks = $taskTool->execute([]);
+
+            if($tasks) {
+                $items = json_decode($tasks, true);
+
+                if(empty($items)) {
+                    return null;
+                }
+
+                return $tasks;
+            }
+        }
+
+        return null;
+    }
 }

@@ -59,6 +59,17 @@ class ToolsBuilder
         return $this;
     }
 
+    public function withTasks(): ToolsBuilder
+    {
+        $this->tools = array_merge($this->tools, [
+            'tasks-list' => $this->toolsFactory->tasksList(),
+            'tasks-add' => $this->toolsFactory->tasksAdd(),
+            'tasks-complete' => $this->toolsFactory->tasksComplete(),
+        ]);
+
+        return $this;
+    }
+
     public function build(): ToolsService
     {
         return $this->toolServiceFactory->withTools($this->tools);

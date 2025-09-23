@@ -263,30 +263,30 @@ class InsertOrReplace implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $name,
-                'description' => 'Insert or replace content in file using various modes. Supports: prepend (add to beginning), append (add to end), replace_all (replace entire file), replace_start (replace first lines), replace_end (replace last lines), insert_at_line (insert at specific line)',
+                'description' => 'Insert or replace content in a file using clear modes. Modes: prepend (add to beginning), append (add to end), replace_all (replace entire file), replace_start (replace first lines), replace_end (replace last lines), insert_at_line (insert at specific 1-based line). Newlines are preserved as-is. For insert_at_line, prefix content with "LINE:<number>\\n".',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'url' => [
                             'type' => 'string',
-                            'description' => 'Git repository url',
+                            'description' => 'Git repository URL',
                         ],
                         'path' => [
                             'type' => 'string',
-                            'description' => 'Path to file',
+                            'description' => 'Path to the target file within the repository',
                         ],
                         'content' => [
                             'type' => 'string',
-                            'description' => 'Content to insert or replace. For insert_at_line mode, prefix with "LINE:number\n" where number is the line position (1-based). Example: "LINE:5\n// New comment"',
+                            'description' => 'Content to insert or replace. For insert_at_line mode, prefix with "LINE:<number>\\n" where <number> is the 1-based line. Example: "LINE:5\\n// New comment". For prepend/append, content is added verbatim. For replace_start/replace_end, provide exactly the lines to overwrite at the beginning or end, respectively. For replace_all, the entire file becomes this content.',
                         ],
                         'mode' => [
                             'type' => 'string',
-                            'description' => 'Mode of operation: prepend (add content to beginning of file), append (add content to end of file), replace_all (replace entire file content), replace_start (replace first lines of file), replace_end (replace last lines of file), insert_at_line (insert content at specific line number)',
+                            'description' => 'Operation mode. prepend: add to beginning; append: add to end; replace_all: replace entire file; replace_start: overwrite first N lines (N is the number of lines in content); replace_end: overwrite last N lines; insert_at_line: insert content before the specified 1-based line using the "LINE:<number>" prefix.',
                             'enum' => ['prepend', 'append', 'replace_all', 'replace_start', 'replace_end', 'insert_at_line']
                         ],
                         'create_if_not_exists' => [
                             'type' => 'boolean',
-                            'description' => 'Create file if it does not exist. If true, creates the file and any necessary directories.',
+                            'description' => 'Create the file (and any necessary directories) if it does not exist. When created, empty original content is assumed.',
                             'default' => false
                         ]
                     ],

@@ -35,9 +35,11 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
-            $toolsBuilder->withGit();
-            $toolsBuilder->withEditor();
         }
+
+        $toolsBuilder->withGit();
+        $toolsBuilder->withEditor();
+        $toolsBuilder->withTasks();
 
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);

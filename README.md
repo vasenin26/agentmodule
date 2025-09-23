@@ -25,6 +25,12 @@
    docker-compose up --build
    ```
 
+### Запуск тестов
+
+```
+docker compose run --rm agentmodule php vendor/bin/phpunit
+```
+
 ### Подробная документация
 
 Подробные инструкции по настройке SSH ключей доступны в [docs/ssh-setup.md](docs/ssh-setup.md).

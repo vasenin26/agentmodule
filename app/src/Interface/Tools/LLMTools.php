@@ -9,4 +9,6 @@ interface LLMTools
     public function getMeta(): array;
 
     public function callTool(string $toolName, string $args): ?string;
+
+    public function getTaskTool(): ?ToolInterface;
 }

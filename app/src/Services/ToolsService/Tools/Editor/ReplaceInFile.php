@@ -7,6 +7,26 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class ReplaceInFile implements ToolInterface
 {
+    /**
+     * Normalize a user-provided regex pattern.
+     * - If the pattern already contains valid delimiters with optional modifiers at the end, return as-is.
+     * - Otherwise, wrap with '~' delimiters and add default 'su' modifiers for multiline + unicode.
+     * The function does not escape the body, assuming caller wants a regex (not a literal text).
+     */
+    private function normalizePattern(string $pattern): string
+    {
+        // Detect if pattern is already delimited: ^(delimiter).*\1(modifiers)?$
+        // Allowed delimiters here: ~ # / @ % ! ; ` \|
+        // Use a conservative check to avoid false positives.
+        $isDelimited = (bool) preg_match('/^([~#\/@%!;`\|]).*\1[imsxuADSUXJ]*$/', $pattern);
+
+        if ($isDelimited) {
+            return $pattern;
+        }
+
+        // Default: wrap as ~...~su so dot matches newlines and unicode is enabled
+        return '~' . $pattern . '~su';
+    }
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -16,6 +36,28 @@ class ReplaceInFile implements ToolInterface
     {
         try {
             ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
+
+            // Basic input validation and normalization
+            if (!is_string($url) || $url === '' || !is_string($path) || $path === '') {
+                return json_encode([
+                    'success' => false,
+                    'error' => 'Invalid arguments: url and path must be non-empty strings',
+                    'code' => 'ARGUMENTS_INVALID',
+                ]);
+            }
+
+            if (!is_string($pattern) || $pattern === '') {
+                return json_encode([
+                    'success' => false,
+                    'error' => 'Invalid arguments: pattern must be a non-empty string',
+                    'code' => 'PATTERN_INVALID',
+                ]);
+            }
+
+            if (!is_string($replacement)) {
+                // Normalize non-string replacements to string to avoid deprecations/warnings
+                $replacement = (string) $replacement;
+            }
 
             $repo = $this->repoProvider->getRepo($url);
             $repoPath = $repo->getRepositoryPath();
@@ -97,9 +139,32 @@ class ReplaceInFile implements ToolInterface
                 }
             }
 
+            // Normalize/prepare regex pattern: accept either fully-delimited regex or raw body
+            $finalPattern = $this->normalizePattern($pattern);
+
             // Выполняем замену
             $originalContent = $content;
-            $newContent = preg_replace($pattern, $replacement, $content);
+            $replacementCount = 0;
+            $newContent = preg_replace($finalPattern, $replacement, $content, -1, $replacementCount);
+
+            // Handle regex errors (e.g., invalid delimiter, compilation failure)
+            if ($newContent === null) {
+                if ($backupPath) {
+                    // roll back backup if we created it earlier (we haven't written yet, but stay consistent)
+                    unlink($backupPath);
+                }
+
+                $regexError = function_exists('preg_last_error_msg') ? preg_last_error_msg() : 'Regex error';
+                return json_encode([
+                    'success' => false,
+                    'error' => 'Failed to apply regex: ' . $regexError,
+                    'code' => 'REGEX_ERROR',
+                    'data' => [
+                        'pattern_provided' => $pattern,
+                        'pattern_final' => $finalPattern,
+                    ],
+                ]);
+            }
 
             // Проверяем, была ли выполнена замена
             if ($originalContent === $newContent) {
@@ -113,7 +178,7 @@ class ReplaceInFile implements ToolInterface
                     'message' => 'No matches found for pattern',
                     'data' => [
                         'file_path' => $path,
-                        'pattern' => $pattern,
+                        'pattern' => $finalPattern,
                         'replacements_made' => 0,
                         'file_created' => $isNewFile
                     ]
@@ -140,8 +205,8 @@ class ReplaceInFile implements ToolInterface
                 ]);
             }
 
-            // Подсчитываем количество замен
-            $replacementsCount = preg_match_all($pattern, $originalContent);
+            // Количество замен вычислено через preg_replace(..., -1, $replacementCount)
+            $replacementsCount = $replacementCount;
 
             // Удаляем резервную копию после успешной записи
             if ($backupPath) {
@@ -153,16 +218,16 @@ class ReplaceInFile implements ToolInterface
                 'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
                 'data' => [
                     'file_path' => $path,
-                    'pattern' => $pattern,
+                    'pattern' => $finalPattern,
                     'replacement' => $replacement,
                     'replacements_made' => $replacementsCount,
                     'file_created' => $isNewFile,
                     'bytes_written' => $result,
-                    'content_length' => strlen($newContent)
+                    'content_length' => strlen((string) $newContent)
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return json_encode([
                 'success' => false,
                 'error' => 'Failed to replace in file: ' . $e->getMessage(),
@@ -177,7 +242,7 @@ class ReplaceInFile implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $name,
-                'description' => 'Replace text in file using regex pattern',
+                'description' => 'Replace text in file using a regex pattern or a raw text pattern. If the pattern does not include delimiters, it will be wrapped automatically with ~...~ and modifiers su for multiline Unicode support.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -191,7 +256,7 @@ class ReplaceInFile implements ToolInterface
                         ],
                         'pattern' => [
                             'type' => 'string',
-                            'description' => 'Regex pattern to search for',
+                            'description' => 'Regex pattern to search for. Accepts either a fully-delimited regex (e.g. ~...~su) or a raw pattern body without delimiters, which will be wrapped automatically as ~...~su.',
                         ],
                         'replacement' => [
                             'type' => 'string',

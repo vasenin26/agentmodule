@@ -47,8 +47,17 @@ class ReadFileLines implements ToolInterface
             $lines = explode("\n", $content);
             $totalLines = count($lines);
 
-            // Валидируем номера строк
-            if ($startLine < 1 || $startLine > $totalLines) {
+            // Валидируем и нормализуем номера строк
+            if ($startLine < 1) {
+                return json_encode([
+                    'success' => false,
+                    'error' => 'Start line out of range. Must be >= 1',
+                    'code' => 'START_LINE_OUT_OF_RANGE',
+                ]);
+            }
+
+            // Если стартовая строка за пределами файла — сообщаем об ошибке
+            if ($startLine > $totalLines) {
                 return json_encode([
                     'success' => false,
                     'error' => 'Start line out of range. File has ' . $totalLines . ' lines',
@@ -56,16 +65,19 @@ class ReadFileLines implements ToolInterface
                 ]);
             }
 
-            if ($endLine < $startLine || $endLine > $totalLines) {
+            if ($endLine < $startLine) {
                 return json_encode([
                     'success' => false,
-                    'error' => 'End line out of range. Must be between ' . $startLine . ' and ' . $totalLines,
+                    'error' => 'End line out of range. Must be >= start line (' . $startLine . ')',
                     'code' => 'END_LINE_OUT_OF_RANGE',
                 ]);
             }
 
+            // Ограничиваем конечную строку длиной файла
+            $effectiveEndLine = min($endLine, $totalLines);
+
             // Извлекаем нужные строки (индексы начинаются с 0)
-            $selectedLines = array_slice($lines, $startLine - 1, $endLine - $startLine + 1);
+            $selectedLines = array_slice($lines, $startLine - 1, $effectiveEndLine - $startLine + 1);
             $content = implode("\n", $selectedLines);
 
             return json_encode([
@@ -73,7 +85,7 @@ class ReadFileLines implements ToolInterface
                 'data' => [
                     'file_path' => $path,
                     'start_line' => $startLine,
-                    'end_line' => $endLine,
+                    'end_line' => $effectiveEndLine,
                     'total_lines' => $totalLines,
                     'lines_count' => count($selectedLines),
                     'content' => $content

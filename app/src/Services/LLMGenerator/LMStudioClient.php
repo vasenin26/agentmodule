@@ -35,6 +35,8 @@ class LMStudioClient implements GPTProcessorInterface
         $answer = null;
         $finished = false;
 
+        $chat->addMessage( $this->messageMapper->mapToHelpInstructionMessage( "Create an execution plan using task management utilities."));
+
         do {
             Log::info("LLM ask");
 
@@ -53,7 +55,7 @@ class LMStudioClient implements GPTProcessorInterface
                 }
 
                 $result = $client->chat()->create([
-                    'model' => 'gpt-5',
+                    'model' => 'gpt-5-mini',
 //                    'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
@@ -169,6 +171,17 @@ class LMStudioClient implements GPTProcessorInterface
                     $completionTokens,
                     $totalTokens
                 ));
+            }
+
+            if ($finished) {
+                $todo = $this->tools->getTodo();
+                if ($todo) {
+                    $chat->addMessage(
+                        $this->messageMapper->mapToHelpInstructionMessage(
+                            "You have uncompleted tasks. You need to complete them and mark them with the tool." . $todo
+                        )
+                    );
+                }
             }
 
         } while (!$finished);
