@@ -22,7 +22,7 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
         private PageContextServiceFactoryInterface $pageContextServiceFactory,
     )
     {
-        $this->factory = new ToolsFactory($gitRepoProvider, $pageContextServiceFactory, new TasksStorage());
+        $this->factory = new ToolsFactory($gitRepoProvider, $pageContextServiceFactory);
     }
 
     public function withTools(array $tools): ToolsService
@@ -37,10 +37,6 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
             [
                 // Базовые утилиты
                 'time' => $this->factory->time(),
-                // Tasks utils
-                'tasks-list' => $this->factory->tasksList(),
-                'tasks-add' => $this->factory->tasksAdd(),
-                'tasks-complete' => $this->factory->tasksComplete(),
             ]
         );
     }
@@ -52,6 +48,6 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
 
     public function createToolsBuilderWithRepository(RepositoryProvider $repositoryProvider): ToolsBuilder
     {
-        return new ToolsBuilder($this, new ToolsFactory($repositoryProvider, $this->pageContextServiceFactory, $this->tasksStorage));
+        return new ToolsBuilder($this, new ToolsFactory($repositoryProvider, $this->pageContextServiceFactory));
     }
 }

@@ -38,7 +38,6 @@ class ToolsFactory
     public function __construct(
         private GitRepoProviderInterface $gitRepoProvider,
         private PageContextServiceFactoryInterface $pageContextServiceFactory,
-        private TasksStorage $tasksStorage,
     )
     {
     }
@@ -163,18 +162,18 @@ class ToolsFactory
         return new InsertOrReplace($this->gitRepoProvider);
     }
 
-    public function tasksList(): ToolInterface
+    public function tasksList(TasksStorage $tasksStorage): ToolInterface
     {
-        return new ListTasks($this->tasksStorage);
+        return new ListTasks($tasksStorage);
     }
 
-    public function tasksAdd(): ToolInterface
+    public function tasksAdd(TasksStorage $tasksStorage): ToolInterface
     {
-        return new AddTasks($this->tasksStorage);
+        return new AddTasks($tasksStorage);
     }
 
-    public function tasksComplete(): ToolInterface
+    public function tasksComplete(TasksStorage $tasksStorage): ToolInterface
     {
-        return new CompleteTask($this->tasksStorage);
+        return new CompleteTask($tasksStorage);
     }
 }

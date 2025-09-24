@@ -22,7 +22,9 @@ class ListTasks implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $name,
-                'description' => 'Return all tasks with their IDs, titles and completion status.'
+                'description' => 'Return the full list of internal tasks with their IDs, titles, and completion status. '
+                    . 'This is the agent’s private memory, not visible to the user. '
+                    . 'Use this only to recall or review your own plan of work.',
             ]
         ];
     }

@@ -54,6 +54,7 @@ class Service implements TaskApi, PageApi
         return new Task(
             id: $taskData->task_id,
             type: $taskData->type,
+            conversationId: $taskData->chat_id,
             messages: $taskData->messages,
             projectId: $taskData->project_id,
             resultRequired: $taskData->resulRequired

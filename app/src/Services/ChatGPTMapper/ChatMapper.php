@@ -9,6 +9,7 @@ use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\InfoMessage;
+use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;

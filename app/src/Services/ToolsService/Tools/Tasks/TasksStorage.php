@@ -12,7 +12,7 @@ class TasksStorage
      */
     private array $state;
 
-    public function __construct(?string $storageFile = null)
+    public function __construct()
     {
         // keep signature for BC; storage is now in-memory only
         $this->state = ['tasks' => [], 'lastId' => 0];

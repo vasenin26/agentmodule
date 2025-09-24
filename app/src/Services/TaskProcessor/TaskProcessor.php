@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\TaskProcessor;
 use Anymodule\Agentmodule\Entity\LLMResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
+use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
@@ -14,6 +15,7 @@ class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         private ToolServiceFactoryInterface $toolsFactory,
         private LLMFactoryInterface $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
+        private TaskStorageProviderInterface $taskStorageProvider,
     )
     {
     }
@@ -26,6 +28,10 @@ class TaskProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             $toolsBuilder->withProject($task->projectId);
             $toolsBuilder->withGit();
         }
+
+
+        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
+        $toolsBuilder->withTasks($taskStorage);
 
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);

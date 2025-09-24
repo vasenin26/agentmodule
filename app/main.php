@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
 use Anymodule\Agentmodule\Services\ApiService\Service;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Vasenin26\Conversation\Factory\ConversationFactory;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -25,6 +26,7 @@ $processorFactory = new TaskProcessorFactory(
     ),
     new LLMFactory($repoProvider),
     new ConversationFactory(),
+    new TaskStorageProvider(),
 );
 
 (new Runner($api, $processorFactory))->run();

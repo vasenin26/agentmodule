@@ -36,13 +36,16 @@ class AddTasks implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $name,
-                'description' => 'Add one or multiple tasks. IDs are generated automatically.',
+                'description' => 'Add one or multiple tasks into the agent’s private memory. '
+                    . 'Use this to break down the user’s request into steps and track them internally. '
+                    . 'IDs are generated automatically and are not visible to the user.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'title' => [
                             'type' => 'string',
-                            'description' => 'Title of a single task to add.',
+                            'description' => 'The title of a single internal task to add. '
+                                . 'Keep it short and action-oriented (e.g., "Collect materials").',
                             'minLength' => 1
                         ],
                         'titles' => [
@@ -52,7 +55,8 @@ class AddTasks implements ToolInterface
                                 'minLength' => 1
                             ],
                             'minItems' => 1,
-                            'description' => 'List of task titles to add in bulk.',
+                            'description' => 'A list of internal task titles to add in bulk. '
+                                . 'Each entry should represent one step of the plan.',
                         ],
                     ],
                     'additionalProperties' => false,

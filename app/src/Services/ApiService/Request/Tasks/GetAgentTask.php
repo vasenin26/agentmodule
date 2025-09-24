@@ -62,6 +62,7 @@ final readonly class GetAgentTask implements RequestInterface
 
         return new TaskDTO(
             task_id: $data['id'],
+            chat_id: $data['chat']['id'],
             type: $data['type'] ?? null,
             project_id: $data['project_id'],
             messages: $data['chat']['messages'] ?? [],

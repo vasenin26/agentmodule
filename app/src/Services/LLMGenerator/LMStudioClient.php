@@ -13,6 +13,7 @@ class LMStudioClient implements GPTProcessorInterface
 {
     public function __construct(
         private string        $apiKey,
+        private string        $model,
         private LLMTools      $tools,
         private MessageMapper $messageMapper,
     )
@@ -34,8 +35,7 @@ class LMStudioClient implements GPTProcessorInterface
 
         $answer = null;
         $finished = false;
-
-        $chat->addMessage( $this->messageMapper->mapToHelpInstructionMessage( "Create an execution plan using task management utilities."));
+        $taskAwait = 0;
 
         do {
             Log::info("LLM ask");
@@ -55,7 +55,7 @@ class LMStudioClient implements GPTProcessorInterface
                 }
 
                 $result = $client->chat()->create([
-                    'model' => 'gpt-5-mini',
+                    'model' => $this->model,
 //                    'model' => 'gpt-4.1-nano',
                     'messages' => $messages,
                     'tools' => $this->tools->getMeta()
@@ -82,7 +82,7 @@ class LMStudioClient implements GPTProcessorInterface
             $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
 
             if ($processHandler) {
-                $processHandler(new LLMResult(
+                $state = $processHandler(new LLMResult(
                     false,
                     $answer,
                     $chat->serialize(),
@@ -90,6 +90,10 @@ class LMStudioClient implements GPTProcessorInterface
                     $completionTokens,
                     $totalTokens
                 ));
+
+                if ($state === 'stopped') {
+                    break;
+                }
             }
 
             Log::info("LLM Say:" . $lastMessage->content);
@@ -163,7 +167,7 @@ class LMStudioClient implements GPTProcessorInterface
             }
 
             if ($processHandler && !$finished) {
-                $processHandler(new LLMResult(
+                $status = $processHandler(new LLMResult(
                     false,
                     $answer,
                     $chat->serialize(),
@@ -171,20 +175,24 @@ class LMStudioClient implements GPTProcessorInterface
                     $completionTokens,
                     $totalTokens
                 ));
+
+                if($status === 'stopped') {
+                    break;
+                }
             }
 
             if ($finished) {
-                $todo = $this->tools->getTodo();
-                if ($todo) {
+                $taskAwait = $this->tools->getTodo();
+                if ($taskAwait > 0) {
                     $chat->addMessage(
                         $this->messageMapper->mapToHelpInstructionMessage(
-                            "You have uncompleted tasks. You need to complete them and mark them with the tool." . $todo
+                            "You have {$taskAwait} uncompleted tasks. You need to complete them and mark them with the tool."
                         )
                     );
                 }
             }
 
-        } while (!$finished);
+        } while (!$finished || $taskAwait);
 
         return new LLMResult(
             true,

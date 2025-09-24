@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
+use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
 
 class ToolsBuilder
 {
@@ -59,12 +60,12 @@ class ToolsBuilder
         return $this;
     }
 
-    public function withTasks(): ToolsBuilder
+    public function withTasks(TasksStorage $tasksStorage): ToolsBuilder
     {
         $this->tools = array_merge($this->tools, [
-            'tasks-list' => $this->toolsFactory->tasksList(),
-            'tasks-add' => $this->toolsFactory->tasksAdd(),
-            'tasks-complete' => $this->toolsFactory->tasksComplete(),
+            'tasks-list' => $this->toolsFactory->tasksList($tasksStorage),
+            'tasks-add' => $this->toolsFactory->tasksAdd($tasksStorage),
+            'tasks-complete' => $this->toolsFactory->tasksComplete($tasksStorage),
         ]);
 
         return $this;

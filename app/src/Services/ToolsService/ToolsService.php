@@ -61,7 +61,7 @@ class ToolsService implements LLMTools
         return $this->map['tasks-list'] ?? null;
     }
 
-    public function getTodo(): ?string
+    public function getTodo(): int
     {
         $taskTool = $this->getTaskTool();
 
@@ -70,15 +70,17 @@ class ToolsService implements LLMTools
 
             if($tasks) {
                 $items = json_decode($tasks, true);
+                $await = 0;
 
-                if(empty($items)) {
-                    return null;
+                foreach ($items as $item) {
+                    if($item['done'] ?? false) continue;
+                    $await++;
                 }
 
-                return $tasks;
+                return $await;
             }
         }
 
-        return null;
+        return 0;
     }
 }

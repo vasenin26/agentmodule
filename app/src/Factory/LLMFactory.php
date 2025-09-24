@@ -20,9 +20,11 @@ final readonly class LLMFactory implements LLMFactoryInterface
     public function createChat(ToolsService $toolsService): GPTProcessorInterface
     {
         $apiKey = getenv('OPENAI_API_KEY');
+        $model = getenv('OPENAI_MODEL');
 
         return new LMStudioClient(
             $apiKey,
+            $model,
             $toolsService,
             new ChatMapper($this->repoProvider)
         );

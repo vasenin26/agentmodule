@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Log;
@@ -18,6 +19,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         private ToolServiceFactoryInterface  $toolsFactory,
         private LLMFactoryInterface          $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
+        private TaskStorageProviderInterface $taskStorageProvider,
     )
     {
     }
@@ -37,9 +39,11 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             $toolsBuilder->withProject($task->projectId);
         }
 
+        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
+
         $toolsBuilder->withGit();
         $toolsBuilder->withEditor();
-        $toolsBuilder->withTasks();
+        $toolsBuilder->withTasks($taskStorage);
 
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);

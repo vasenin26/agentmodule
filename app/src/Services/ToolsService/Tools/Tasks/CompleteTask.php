@@ -29,13 +29,15 @@ class CompleteTask implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $name,
-                'description' => 'Mark a task as completed by its ID.',
+                'description' => 'Mark an internal task as completed by its ID. '
+                    . 'Tasks and IDs belong to the agent’s private memory only. '
+                    . 'Never reveal these IDs to the user, just use them to track your progress.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'id' => [
                             'type' => 'integer',
-                            'description' => 'Task ID to complete.',
+                            'description' => 'The ID of the internal task to complete. Must be a valid ID from memory.',
                             'minimum' => 1
                         ],
                     ],
