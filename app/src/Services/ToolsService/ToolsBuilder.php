@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
-use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class ToolsBuilder
 {
@@ -74,5 +74,12 @@ class ToolsBuilder
     public function build(): ToolsService
     {
         return $this->toolServiceFactory->withTools($this->tools);
+    }
+
+    public function withTools(array $append): ToolsBuilder
+    {
+        $this->tools = array_merge($this->tools, $append);
+
+        return $this;
     }
 }

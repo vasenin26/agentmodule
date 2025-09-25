@@ -32,7 +32,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             );
         }
 
-        return new \Anymodule\Agentmodule\Services\TaskProcessor\TaskProcessor(
+        return new \Anymodule\Agentmodule\Services\TaskProcessor\TextProcessor(
             $this->toolsFactory,
             $this->chatFactory,
             $this->conversationFactory,

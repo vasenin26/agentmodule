@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ApiService;
 
-use Anymodule\Agentmodule\Entity\LLMResult;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Page;
 use Anymodule\Agentmodule\Entity\PageVersion;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
@@ -61,17 +61,17 @@ class Service implements TaskApi, PageApi
         );
     }
 
-    public function sendResult(UuidInterface $agentId, int $taskId, LLMResult $result): void
+    public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): void
     {
         $request = new UpdateAgentTask(
             token: $this->token,
             taskId: $taskId,
             agentId: $agentId->toString(),
-            chatMessages: $result->messages,
+            chatMessages: $result->messages->serialize(),
             tokenStats: UpdateAgentTask::createTokenStats(
-                promptTokens: $result->prompt_tokens,
-                completionTokens: $result->completion_tokens,
-                totalTokens: $result->total_tokens
+                promptTokens: $result->promptTokens,
+                completionTokens: $result->completionTokens,
+                totalTokens: $result->totalTokens
             ),
             completed: $result->completed,
             result: $result->answer

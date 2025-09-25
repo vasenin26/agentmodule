@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
+use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
+use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\PageVersionMessage;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
-use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 class PageVersionMapper implements MessageMapperInterface
 {

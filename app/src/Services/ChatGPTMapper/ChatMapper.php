@@ -3,23 +3,23 @@
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
-use Vasenin26\Conversation\Chat;
-use Vasenin26\Conversation\Message;
-use Vasenin26\Conversation\Messages\AssistantMessage;
-use Vasenin26\Conversation\Messages\DisappearingMessage;
-use Vasenin26\Conversation\Messages\InfoMessage;
-use Vasenin26\Conversation\Messages\SystemMessage;
-use Vasenin26\Conversation\Messages\ToolMessage;
-use Vasenin26\Conversation\Messages\UserMessage;
+use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
-use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
+use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
+use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
-use Anymodule\Agentmodule\Services\LLMGenerator\MessageMapper;
+use OpenAI\Responses\Chat\CreateResponse;
 use OpenAI\Responses\Chat\CreateResponseMessage;
+use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\DisappearingMessage;
+use Vasenin26\Conversation\Messages\InfoMessage;
+use Vasenin26\Conversation\Messages\ToolMessage;
+use Vasenin26\Conversation\Messages\UserMessage;
 
 class ChatMapper implements MessageMapper
 {
@@ -58,25 +58,36 @@ class ChatMapper implements MessageMapper
     }
 
 
-    public function prepareAssistantMessage(CreateResponseMessage $message): Message
+    public function prepareAssistantMessage(CreateResponse $result): OpenAiResult
     {
+        $message = $result->choices[0]->message;
         $toolCalls = $message->toolCalls;
 
         $toolCallsArray = [];
         foreach ($toolCalls as $tc) {
             $toolCallsArray[] = [
                 'id' => $tc->id,
-                'type' => 'function',
-                'function' => [
-                    'name' => $tc->function->name,
-                    'arguments' => $tc->function->arguments,
-                ],
+                'name' => $tc->function->name,
+                'arguments' => $tc->function->arguments,
             ];
         }
 
-        return new AssistantMessage(
-            content: $message->content ?? '',
-            toolCallsArray: $toolCallsArray ?: []
+        $promptTokens = 0;
+        $completionTokens = 0;
+        $totalTokens = 0;
+
+        if (!is_null($result->usage)) {
+            $promptTokens += $result->usage->promptTokens ?? 0;
+            $completionTokens += $result->usage->completionTokens ?? 0;
+            $totalTokens += $result->usage->totalTokens ?? 0;
+        }
+
+        return new OpenAiResult(
+            message: $message->content ?? '',
+            toolCall: $toolCallsArray ?: [],
+            sent: $promptTokens ?? 0,
+            received: $completionTokens ?? 0,
+            total: $totalTokens ?? 0,
         );
     }
 

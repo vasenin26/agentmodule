@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Interface;
 
-use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 interface TaskStorageProviderInterface
 {

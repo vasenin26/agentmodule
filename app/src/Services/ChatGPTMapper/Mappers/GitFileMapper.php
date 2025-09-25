@@ -2,13 +2,12 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
-use Vasenin26\Conversation\Message;
-use Vasenin26\Conversation\Messages\GitFileMessage;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 use Anymodule\Agentmodule\Utils\Log;
-use CzProject\GitPhp\GitRepository;
+use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\GitFileMessage;
 
 class GitFileMapper implements MessageMapperInterface
 {

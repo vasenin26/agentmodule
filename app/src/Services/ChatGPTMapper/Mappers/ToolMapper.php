@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\ToolMessage;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 
 class ToolMapper implements MessageMapperInterface
 {

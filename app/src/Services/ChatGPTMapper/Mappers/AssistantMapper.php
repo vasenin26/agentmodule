@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
 
 class AssistantMapper implements MessageMapperInterface
 {
@@ -23,16 +23,17 @@ class AssistantMapper implements MessageMapperInterface
             ];
 
             if(!empty($message->toolCallsArray)) {
-                $toolCallsArray = [];
+                $normalizedToolCalls = [];
 
                 foreach($message->toolCallsArray as $toolCall) {
-                    if($this->validateToolCallsArray($toolCall)) {
-                        $toolCallsArray[] = $toolCall;
+                    $normalized = $this->normalizeToolCall($toolCall);
+                    if ($normalized !== null) {
+                        $normalizedToolCalls[] = $normalized;
                     }
                 }
 
-                if(!empty($toolCallsArray)) {
-                    $result['tool_calls'] = $toolCallsArray;
+                if(!empty($normalizedToolCalls)) {
+                    $result['tool_calls'] = $normalizedToolCalls;
                 }
             }
 
@@ -71,5 +72,46 @@ class AssistantMapper implements MessageMapperInterface
         }
 
         return true;
+    }
+
+    private function normalizeToolCall(mixed $toolCall): ?array
+    {
+        // Если это уже корректная структура OpenAI tool_calls - валидируем и возвращаем как есть
+        if (is_array($toolCall)) {
+            return $this->validateToolCallsArray($toolCall) ? $toolCall : null;
+        }
+
+        // Ожидаем объект со свойствами id, name, arguments (как возвращает процессор)
+        if (is_object($toolCall)) {
+            $id = property_exists($toolCall, 'id') ? $toolCall->id : null;
+            $name = property_exists($toolCall, 'name') ? $toolCall->name : null;
+            $arguments = property_exists($toolCall, 'arguments') ? $toolCall->arguments : null;
+
+            if (!is_string($id) || !is_string($name)) {
+                return null;
+            }
+
+            // Аргументы должны быть строкой JSON по требованиям OpenAI
+            if (is_string($arguments)) {
+                $argumentsJson = $arguments;
+            } else {
+                $encoded = json_encode($arguments, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                if ($encoded === false) {
+                    return null;
+                }
+                $argumentsJson = $encoded;
+            }
+
+            return [
+                'id' => $id,
+                'type' => 'function',
+                'function' => [
+                    'name' => $name,
+                    'arguments' => $argumentsJson,
+                ],
+            ];
+        }
+
+        return null;
     }
 }

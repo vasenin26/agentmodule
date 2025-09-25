@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Services\ToolsService;
 
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
-use Anymodule\Agentmodule\Services\ToolsService\Tools\SendResult;
+use Anymodule\Agentmodule\Tools\SendResult;
 
 class ToolsService implements LLMTools
 {

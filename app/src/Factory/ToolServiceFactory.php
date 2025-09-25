@@ -10,7 +10,7 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
-use Anymodule\Agentmodule\Services\ToolsService\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class ToolServiceFactory implements ToolServiceFactoryInterface
 {

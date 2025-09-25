@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Utils;
 
-use Anymodule\Agentmodule\Entity\LLMResult;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Task\TaskApi;
@@ -24,7 +24,7 @@ class FakeApi implements TaskApi, PageApi
         );
     }
 
-    public function sendResult(UuidInterface $agentId, int $taskId, LLMResult $result)
+    public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result)
     {
         var_dump($result);
     }

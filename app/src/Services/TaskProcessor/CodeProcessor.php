@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
-use Anymodule\Agentmodule\Entity\LLMResult;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
@@ -24,7 +24,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
     {
     }
 
-    public function process(Task $task, $processHandler): LLMResult
+    public function process(Task $task, $processHandler): ProcessingResult
     {
         $workBranch = $this->getTaskBranch($task);
 

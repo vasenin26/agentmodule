@@ -3,12 +3,15 @@
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
 use Vasenin26\Conversation\Chat;
-use Anymodule\Agentmodule\Entity\LLMResult;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
 
+/**
+ * @deprecated use OpenAiChat like solution
+ */
 class LMStudioClient implements GPTProcessorInterface
 {
     public function __construct(
@@ -20,7 +23,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Chat $chat, $processHandler, bool $resultRequired = false): LLMResult
+    public function process(Chat $chat, $processHandler, bool $resultRequired = false): ProcessingResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -44,10 +47,10 @@ class LMStudioClient implements GPTProcessorInterface
                 $messages = $this->messageMapper->mapChat($chat);
 
                 if (empty($messages)) {
-                    return new LLMResult(
+                    return new ProcessingResult(
                         true,
                         'Empty chat',
-                        $chat->serialize(),
+                        $chat,
                         $promptTokens,
                         $completionTokens,
                         $totalTokens
@@ -66,10 +69,10 @@ class LMStudioClient implements GPTProcessorInterface
 
                 $chat->addMessage($this->messageMapper->mapToInfoMessage($exception->getMessage()));
 
-                return new LLMResult(
+                return new ProcessingResult(
                     true,
                     null,
-                    $chat->serialize(),
+                    $chat,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -82,10 +85,10 @@ class LMStudioClient implements GPTProcessorInterface
             $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
 
             if ($processHandler) {
-                $state = $processHandler(new LLMResult(
+                $state = $processHandler(new ProcessingResult(
                     false,
                     $answer,
-                    $chat->serialize(),
+                    $chat,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -167,10 +170,10 @@ class LMStudioClient implements GPTProcessorInterface
             }
 
             if ($processHandler && !$finished) {
-                $status = $processHandler(new LLMResult(
+                $status = $processHandler(new ProcessingResult(
                     false,
                     $answer,
-                    $chat->serialize(),
+                    $chat,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -194,10 +197,10 @@ class LMStudioClient implements GPTProcessorInterface
 
         } while (!$finished || $taskAwait);
 
-        return new LLMResult(
+        return new ProcessingResult(
             true,
             $answer,
-            $chat->serialize(),
+            $chat,
             $promptTokens,
             $completionTokens,
             $totalTokens
