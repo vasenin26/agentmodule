@@ -1725,11 +1725,11 @@
         },
         {
             "name": "vasenin26/conversation",
-            "version": "v0.6.2",
+            "version": "v0.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vasenin26/conversation.git",
-                "reference": "01fddaf3c6da251e439349dc01f46e5940c3aee7"
+                "reference": "13d8b59f3fe7846098337f58c7c4588d91b91987"
             },
             "require": {
                 "php": ">=8.2"
@@ -1747,7 +1747,7 @@
                 }
             ],
             "description": "Conversation package",
-            "time": "2025-09-25T05:24:45+00:00"
+            "time": "2025-09-25T11:41:56+00:00"
         }
     ],
     "packages-dev": [

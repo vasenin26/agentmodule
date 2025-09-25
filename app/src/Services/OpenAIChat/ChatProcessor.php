@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use OpenAI;
 use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 
 class ChatProcessor implements CharProcessorInterface
 {
@@ -20,7 +21,7 @@ class ChatProcessor implements CharProcessorInterface
     {
     }
 
-    public function process(Chat $chat, LLMTools $tools): ChatResultInterface
+    public function process(Conversation $chat, LLMTools $tools): ChatResultInterface
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -42,7 +43,6 @@ class ChatProcessor implements CharProcessorInterface
 
             return $this->messageMapper->prepareAssistantMessage($result);
         } catch (\Throwable $exception) {
-
             return OpenAiResult::error($exception->getMessage());
         }
     }

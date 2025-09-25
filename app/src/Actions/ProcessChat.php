@@ -2,17 +2,14 @@
 
 namespace Anymodule\Agentmodule\Actions;
 
-use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 
 class ProcessChat implements ActionContract
 {
     public function __construct(
-        private ToolsService              $toolsService,
-        private ChatAgentFactoryInterface $chatAgentFactory,
+        private ActionContract $agent
     )
     {
     }
@@ -22,9 +19,8 @@ class ProcessChat implements ActionContract
         return 'process-chat';
     }
 
-    public function execute(Chat $instructions): \Generator
+    public function execute(Conversation $conversation): \Generator
     {
-        $agent = $this->chatAgentFactory->createAgent($this->toolsService);
-        return $agent->execute($instructions);
+        return $this->agent->execute($conversation);
     }
 }

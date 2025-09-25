@@ -8,7 +8,9 @@ use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Tools\Utils\AddFileToList;
+use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\GitFileMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
@@ -37,9 +39,11 @@ EIO;
     {
     }
 
-    public function execute(Chat $instructions): \Generator
+    public function execute(Conversation $conversation): \Generator
     {
-        $instructions = $instructions->getInstructions();
+        Log::info("Start relevant files searching");
+
+        $instructions = $conversation->getInstructions();
 
         $chat = new Chat();
         $chat->addMessage(new SystemMessage(self::ROLE));
@@ -58,25 +62,29 @@ EIO;
             ])->build();
 
         $agent = $this->chatAgentFactory->createAgent($tools);
+        $generator = $agent->execute($chat);
 
-        foreach ($agent->execute($chat) as $processingResult) {
+        foreach ($generator as $processingResult) {
             if ($processingResult->completed) {
                 $resultChat = new Chat();
+
                 foreach ($fileList as $file) {
                     $resultChat->addMessage(new GitFileMessage($file['url'], $file['description']));
                 }
 
-                return new ProcessingResult(
+                yield new ProcessingResult(
                     completed: true,
                     answer: $processingResult->answer,
-                    messages: $resultChat,
+                    conversation: $resultChat,
                     promptTokens: $processingResult->promptTokens,
                     completionTokens: $processingResult->completionTokens,
                     totalTokens: $processingResult->totalTokens
                 );
             } else {
                 yield $processingResult;
-            };
+            }
         }
+
+        Log::info("End relevant files searching", $fileList);
     }
 }

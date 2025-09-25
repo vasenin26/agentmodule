@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
@@ -15,6 +16,7 @@ use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use OpenAI\Responses\Chat\CreateResponse;
 use OpenAI\Responses\Chat\CreateResponseMessage;
 use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\InfoMessage;
@@ -34,6 +36,7 @@ class ChatMapper implements MessageMapper
 
         $this->mappers = [
             new UserMapper(),
+            new UserTaskMapper(),
             new AssistantMapper(),
             new SystemMapper(),
             new ToolMapper(),
@@ -41,7 +44,7 @@ class ChatMapper implements MessageMapper
         ];
     }
 
-    public function mapChat(Chat $chat): array
+    public function mapChat(Conversation $chat): array
     {
         $messages = [];
 

@@ -1,16 +1,18 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\Actualization;
+namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\ProcessChat;
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
-use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Utils\TokenCounter;
 use Vasenin26\Conversation\Messages\ServiceMessage;
 
 class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -31,7 +33,8 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
     public function process(Task $task, $processHandler): ProcessingResult
     {
-        $conversation = $this->conversationFactory->fromMessages($task->messages);
+        $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
+        $tokenCounter = new TokenCounter();
 
         do {
             $awaitRun = array_diff(array_keys($this->actions), array_map(fn($m) => $m->key, (array)$conversation->getServices()));
@@ -45,24 +48,40 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
                     continue;
                 }
 
-                $taskProcessor->execute($conversation);
-            }
+                foreach ($taskProcessor->execute($conversation) as $result) {
+                    if ($result->completed) {
+                        $conversation->addMessage(new ServiceMessage($currentTask, ['message' => $result->answer]));
+                        $tokenCounter->combine($result);
 
+                        foreach ($result->conversation->getMessages() as $message) {
+                            $conversation->addMessage($message);
+                        }
+                    }
+                }
+            }
         } while (!empty($awaitRun));
 
-        $defaultProcessor = new ProcessChat(
-            $this->getTools($task->conversationId),
-            $processHandler
-        );
+        $defaultProcessor = $this->getDefaultChatProcessor($task);
 
-        return $defaultProcessor->execute($conversation);
+        foreach ($defaultProcessor->execute($conversation) as $result) {
+            if ($result->completed) {
+                $tokenCounter->combine($result);
+            }
+        }
+
+        return new ProcessingResult(
+            true,
+            'Actualization completed',
+            $conversation,
+            ...$tokenCounter->get()
+        );
     }
 
-    private function getTools(int $conversationId): ToolsService
+    private function getTools(Task $task): ToolsService
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
-        $taskStorage = $this->taskStorageProvider->getTaskStorage($conversationId);
+        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
         $toolsBuilder->withTasks($taskStorage);
 
         if ($task->projectId) {
@@ -71,5 +90,11 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         }
 
         return $toolsBuilder->build();
+    }
+
+    private function getDefaultChatProcessor(Task $task): ActionContract
+    {
+        $tools = $this->getTools($task);
+        return new ProcessChat($this->chatAgentFactory->createAgent($tools));
     }
 }

@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Utils\Log;
-use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
@@ -20,7 +20,7 @@ class ChatAgent implements ActionContract
     {
     }
 
-    public function execute(Chat $instructions): \Generator
+    public function execute(Conversation $conversation): \Generator
     {
         $promptTokens = 0;
         $completionTokens = 0;
@@ -33,17 +33,17 @@ class ChatAgent implements ActionContract
 
         do {
             Log::info("Call LLM");
-            $result = $this->chatProcessor->process($instructions, $this->tools);
+            $result = $this->chatProcessor->process($conversation, $this->tools);
 
             $answerMessage = $this->prepareAssistantMessage($result);
-            $instructions->addMessage($answerMessage);
+            $conversation->addMessage($answerMessage);
 
             Log::info("LLM ok");
 
             yield new ProcessingResult(
                 false,
                 $answer,
-                $instructions,
+                $conversation,
                 $promptTokens,
                 $completionTokens,
                 $totalTokens
@@ -65,7 +65,7 @@ class ChatAgent implements ActionContract
 
                         Log::info("Tool result: {$toolResult}");
                     } catch (\Throwable $exception) {
-                        $instructions->addMessage(new ToolMessage(
+                        $conversation->addMessage(new ToolMessage(
                             false,
                             $toolCall->id,
                             $toolCall->name,
@@ -79,7 +79,7 @@ class ChatAgent implements ActionContract
                     }
 
                     if (is_null($toolResult)) {
-                        $instructions->addMessage(new ToolMessage(
+                        $conversation->addMessage(new ToolMessage(
                             false,
                             $toolCall->id,
                             $toolCall->name,
@@ -90,7 +90,7 @@ class ChatAgent implements ActionContract
                         continue;
                     }
 
-                    $instructions->addMessage(new ToolMessage(
+                    $conversation->addMessage(new ToolMessage(
                         false,
                         $toolCall->id,
                         $toolCall->name,
@@ -110,7 +110,7 @@ class ChatAgent implements ActionContract
             yield new ProcessingResult(
                 false,
                 $answer,
-                $instructions,
+                $conversation,
                 $promptTokens,
                 $completionTokens,
                 $totalTokens
@@ -118,10 +118,10 @@ class ChatAgent implements ActionContract
 
         } while (!$finished);
 
-        return new ProcessingResult(
+        yield new ProcessingResult(
             true,
             $answer,
-            $instructions,
+            $conversation,
             $promptTokens,
             $completionTokens,
             $totalTokens
