@@ -28,7 +28,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             return new CodeProcessor(
                 $this->toolsFactory,
                 $this->chatFactory,
-                $this->conversationFactory,
+                new ConversationFactory(),
                 $this->taskStorageProvider,
             );
         }

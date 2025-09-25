@@ -69,7 +69,7 @@ EIO;
                 $resultChat = new Chat();
 
                 foreach ($fileList as $file) {
-                    $resultChat->addMessage(new GitFileMessage($file['url'], $file['description']));
+                    $resultChat->addMessage(new GitFileMessage($file['url'], $file['path'], $file['description']));
                 }
 
                 yield new ProcessingResult(

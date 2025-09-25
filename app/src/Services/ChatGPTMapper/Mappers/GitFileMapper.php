@@ -31,12 +31,10 @@ class GitFileMapper implements MessageMapperInterface
     public function map(Message $message): array
     {
         if ($message instanceof GitFileMessage) {
-            $repoUrl = $this->urlParser->extractRepoUrl($message->url);
-            $filePath = $this->urlParser->extractFilePath($message->url);
+            $fileContent = $this->getFileContent($message->url, $message->path);
 
-            $fileContent = $this->getFileContent($repoUrl, $filePath);
-
-            $content = "Git file: {$filePath}\n";
+            $content = "Git repo: {$message->url}\n";
+            $content .= "File path: {$message->path}\n";
             if ($message->description) {
                 $content .= "Description: {$message->description}\n";
             }

@@ -17,6 +17,7 @@ class AddFileToList implements ToolInterface
     {
         $this->list[] = [
             'url' => $args['url'],
+            'path' => $args['path'],
             'description' => $args['description'] ?? '',
         ];
 
@@ -35,14 +36,18 @@ class AddFileToList implements ToolInterface
                     'properties' => [
                         'url' => [
                             'type' => 'string',
-                            'description' => 'Git repository file path',
+                            'description' => 'Git repository url',
+                        ],
+                        'path' => [
+                            'type' => 'string',
+                            'description' => 'Path to file',
                         ],
                         'description' => [
                             'type' => 'string',
                             'description' => 'А description of what information the file contains and how it can be useful for solving the problem',
                         ]
                     ],
-                    'required' => ['url'],
+                    'required' => ['url', 'path'],
                 ]
             ]
         ];

@@ -35,7 +35,7 @@
         "nyholm/psr7": "^1.8",
         "guzzlehttp/guzzle": "^7.10",
         "ramsey/uuid": "^4.9",
-        "vasenin26/conversation": "^0.6"
+        "vasenin26/conversation": "^0.7"
     },
     "config": {
         "allow-plugins": {

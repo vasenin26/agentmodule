@@ -4,14 +4,12 @@ namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
-use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Log;
-use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
 class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
@@ -47,7 +45,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);
-        $chat = $this->conversationFactory->fromMessages($task->messages);
+        $chat = $this->conversationFactory->handledConversation($task->messages, $processHandler);
 
         $result = $llm->process($chat, $processHandler, $task->resultRequired);
 
