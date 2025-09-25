@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
+use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 
 /**
@@ -25,7 +26,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Chat $chat, $processHandler, bool $resultRequired = false): ProcessingResult
+    public function process(Conversation $chat, $processHandler, bool $resultRequired = false): ProcessingResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)

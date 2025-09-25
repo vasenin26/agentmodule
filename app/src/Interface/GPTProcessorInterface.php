@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Interface;
 
-use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
+use Vasenin26\Conversation\Interface\Conversation;
 
 interface GPTProcessorInterface
 {
-    public function process(Chat $chat, $processHandler, bool $resultRequired = false): ProcessingResult;
+    public function process(Conversation $chat, $processHandler, bool $resultRequired = false): ProcessingResult;
 }
