@@ -3,12 +3,13 @@
 namespace Anymodule\Agentmodule\Services\Actualization;
 
 use Anymodule\Agentmodule\Actions\ProcessChat;
+use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
+use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Services\Actualization\Actions\SearchRelevantFiles;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 use Vasenin26\Conversation\Messages\ServiceMessage;
 
@@ -18,13 +19,13 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
-        private LLMFactoryInterface          $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ChatAgentFactoryInterface    $chatAgentFactory,
     )
     {
         $this->actions = [
-           'search-relevant-files' => new SearchRelevantFiles(),
+            'search-relevant-files' => new SearchRelevantFiles($chatAgentFactory, $this->toolsFactory),
         ];
     }
 
@@ -49,18 +50,26 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
         } while (!empty($awaitRun));
 
+        $defaultProcessor = new ProcessChat(
+            $this->getTools($task->conversationId),
+            $processHandler
+        );
+
+        return $defaultProcessor->execute($conversation);
+    }
+
+    private function getTools(int $conversationId): ToolsService
+    {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
+
+        $taskStorage = $this->taskStorageProvider->getTaskStorage($conversationId);
+        $toolsBuilder->withTasks($taskStorage);
 
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
             $toolsBuilder->withGit();
         }
 
-        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
-        $toolsBuilder->withTasks($taskStorage);
-        $tools = $toolsBuilder->build();
-        $defaultProcessor = new ProcessChat($tools, $processHandler, $task->resultRequired);
-
-        return $defaultProcessor->execute($conversation);
+        return $toolsBuilder->build();
     }
 }

@@ -7,5 +7,9 @@ use Vasenin26\Conversation\Chat;
 
 interface ActionContract
 {
-    public function execute(Chat $instructions): ProcessingResult;
+    /**
+     * @param Chat $instructions
+     * @return \Generator<ProcessingResult>
+     */
+    public function execute(Chat $instructions): \Generator;
 }

@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ChatAgent;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
-use Anymodule\Agentmodule\Interface\ChatAgentInterface;
+use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Utils\Log;
@@ -11,7 +11,7 @@ use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
-class ChatAgent implements ChatAgentInterface
+class ChatAgent implements ActionContract
 {
     public function __construct(
         private CharProcessorInterface $chatProcessor,
@@ -20,7 +20,7 @@ class ChatAgent implements ChatAgentInterface
     {
     }
 
-    public function process(Chat $chat, $processHandler = null): ProcessingResult
+    public function execute(Chat $instructions): \Generator
     {
         $promptTokens = 0;
         $completionTokens = 0;
@@ -33,27 +33,21 @@ class ChatAgent implements ChatAgentInterface
 
         do {
             Log::info("Call LLM");
-            $result = $this->chatProcessor->process($chat, $this->tools);
+            $result = $this->chatProcessor->process($instructions, $this->tools);
 
             $answerMessage = $this->prepareAssistantMessage($result);
-            $chat->addMessage($answerMessage);
+            $instructions->addMessage($answerMessage);
+
             Log::info("LLM ok");
 
-            if ($processHandler) {
-                Log::info("Process handler");
-                $state = $processHandler(new ProcessingResult(
-                    false,
-                    $answer,
-                    $chat,
-                    $promptTokens,
-                    $completionTokens,
-                    $totalTokens
-                ));
-
-                if ($state === 'stopped') {
-                    break;
-                }
-            }
+            yield new ProcessingResult(
+                false,
+                $answer,
+                $instructions,
+                $promptTokens,
+                $completionTokens,
+                $totalTokens
+            );
 
             $toolCalls = iterator_to_array($result->getToolCalls());
 
@@ -71,7 +65,7 @@ class ChatAgent implements ChatAgentInterface
 
                         Log::info("Tool result: {$toolResult}");
                     } catch (\Throwable $exception) {
-                        $chat->addMessage(new ToolMessage(
+                        $instructions->addMessage(new ToolMessage(
                             false,
                             $toolCall->id,
                             $toolCall->name,
@@ -85,7 +79,7 @@ class ChatAgent implements ChatAgentInterface
                     }
 
                     if (is_null($toolResult)) {
-                        $chat->addMessage(new ToolMessage(
+                        $instructions->addMessage(new ToolMessage(
                             false,
                             $toolCall->id,
                             $toolCall->name,
@@ -96,7 +90,7 @@ class ChatAgent implements ChatAgentInterface
                         continue;
                     }
 
-                    $chat->addMessage(new ToolMessage(
+                    $instructions->addMessage(new ToolMessage(
                         false,
                         $toolCall->id,
                         $toolCall->name,
@@ -112,28 +106,22 @@ class ChatAgent implements ChatAgentInterface
             $completionTokens += $usage->received;
             $totalTokens += $usage->total;
 
-            if ($processHandler && !$finished) {
-                Log::info("Process handler");
-                $status = $processHandler(new ProcessingResult(
-                    false,
-                    $answer,
-                    $chat,
-                    $promptTokens,
-                    $completionTokens,
-                    $totalTokens
-                ));
-
-                if ($status === 'stopped') {
-                    break;
-                }
-            }
+            Log::info("Process handler");
+            yield new ProcessingResult(
+                false,
+                $answer,
+                $instructions,
+                $promptTokens,
+                $completionTokens,
+                $totalTokens
+            );
 
         } while (!$finished);
 
         return new ProcessingResult(
             true,
             $answer,
-            $chat,
+            $instructions,
             $promptTokens,
             $completionTokens,
             $totalTokens
@@ -144,7 +132,7 @@ class ChatAgent implements ChatAgentInterface
     {
         return new AssistantMessage(
             $result->getProcessorAnswer()?->message ?? '',
-                iterator_to_array($result->getToolCalls()),
+            iterator_to_array($result->getToolCalls()),
         );
     }
 }

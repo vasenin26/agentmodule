@@ -1,18 +1,19 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\Actualization\Actions;
+namespace Anymodule\Agentmodule\Actions;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Services\Actualization\Tools\AddFileToList;
+use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Tools\Utils\AddFileToList;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Messages\GitFileMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 
-class SearchRelevantFiles implements ActionContract
+readonly class SearchRelevantFiles implements ActionContract
 {
     const ROLE = <<<ROLE
 You are a File Explorer Agent. Your only task is to identify relevant files in the repository 
@@ -30,13 +31,13 @@ Add relevant files to the list.
 EIO;
 
     public function __construct(
-        private ChatAgentFactoryInterface $chatAgentFactory,
-        private ToolsBuilder              $toolsBuilder,
+        private ChatAgentFactoryInterface   $chatAgentFactory,
+        private ToolServiceFactoryInterface $toolServiceFactory,
     )
     {
     }
 
-    public function execute(Chat $instructions): ProcessingResult
+    public function execute(Chat $instructions): \Generator
     {
         $instructions = $instructions->getInstructions();
 
@@ -50,27 +51,32 @@ EIO;
         $chat->addMessage(new UserMessage(self::PROMPT));
 
         $fileList = [];
-        $tools = $this->toolsBuilder
+        $tools = $this->toolServiceFactory->createToolsBuilder()
             ->withGit()
             ->withTools([
                 'add_file_to_list' => new AddFileToList($fileList),
             ])->build();
 
         $agent = $this->chatAgentFactory->createAgent($tools);
-        $processingResult = $agent->process($chat);
 
-        $resultChat = new Chat();
-        foreach ($fileList as $file) {
-            $resultChat->addMessage(new GitFileMessage($file['url'], $file['description']));
+        foreach ($agent->execute($chat) as $processingResult) {
+            if ($processingResult->completed) {
+                $resultChat = new Chat();
+                foreach ($fileList as $file) {
+                    $resultChat->addMessage(new GitFileMessage($file['url'], $file['description']));
+                }
+
+                return new ProcessingResult(
+                    completed: true,
+                    answer: $processingResult->answer,
+                    messages: $resultChat,
+                    promptTokens: $processingResult->promptTokens,
+                    completionTokens: $processingResult->completionTokens,
+                    totalTokens: $processingResult->totalTokens
+                );
+            } else {
+                yield $processingResult;
+            };
         }
-
-        return new ProcessingResult(
-            completed: true,
-            answer: $processingResult->answer,
-            messages: $resultChat,
-            promptTokens: $processingResult->promptTokens,
-            completionTokens: $processingResult->completionTokens,
-            totalTokens: $processingResult->totalTokens
-        );
     }
 }
