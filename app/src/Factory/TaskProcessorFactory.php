@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Services\TaskProcessor\CodeProcessor;
 use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
@@ -29,6 +30,15 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
                 $this->chatFactory,
                 $this->conversationFactory,
                 $this->taskStorageProvider,
+            );
+        }
+
+        if ($task->type == 'actualization') {
+            return new Actualization(
+                $this->toolsFactory,
+                new ConversationFactory(),
+                $this->taskStorageProvider,
+                $this->chatFactory,
             );
         }
 

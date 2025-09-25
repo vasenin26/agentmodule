@@ -10,8 +10,10 @@ use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Tools\Utils\UpdateArticle;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 use Vasenin26\Conversation\Messages\ServiceMessage;
 
@@ -61,7 +63,8 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             }
         } while (!empty($awaitRun));
 
-        $defaultProcessor = $this->getDefaultChatProcessor($task);
+        $updateTool = new UpdateArticle();
+        $defaultProcessor = $this->getDefaultChatProcessor($task, $updateTool);
 
         foreach ($defaultProcessor->execute($conversation) as $result) {
             if ($result->completed) {
@@ -71,13 +74,19 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
         return new ProcessingResult(
             true,
-            'Actualization completed',
+            $updateTool->getContent(),
             $conversation,
             ...$tokenCounter->get()
         );
     }
 
-    private function getTools(Task $task): ToolsService
+    private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool): ActionContract
+    {
+        $tools = $this->getTools($task, $updateTool);
+        return new ProcessChat($this->chatAgentFactory->createAgent($tools));
+    }
+
+    private function getTools(Task $task, ToolInterface $updateTool): ToolsService
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
@@ -89,12 +98,10 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             $toolsBuilder->withGit();
         }
 
-        return $toolsBuilder->build();
-    }
+        $toolsBuilder->withTools([
+            'update-article' => $updateTool,
+        ]);
 
-    private function getDefaultChatProcessor(Task $task): ActionContract
-    {
-        $tools = $this->getTools($task);
-        return new ProcessChat($this->chatAgentFactory->createAgent($tools));
+        return $toolsBuilder->build();
     }
 }
