@@ -2,12 +2,14 @@
 
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
+use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\LLMTools;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
+use Vasenin26\Conversation\Messages\AssistantMessage;
 
 /**
  * @deprecated use OpenAiChat like solution
@@ -82,7 +84,11 @@ class LMStudioClient implements GPTProcessorInterface
             $lastMessage = $result->choices[0]->message;
             $toolCalls = $lastMessage->toolCalls;
 
-            $chat->addMessage($this->messageMapper->prepareAssistantMessage($lastMessage));
+            $result = $this->messageMapper->prepareAssistantMessage($result);
+            $chat->addMessage(new AssistantMessage(
+                $result->getProcessorAnswer()?->message ?? '',
+                iterator_to_array($result->getToolCalls()),
+            ));
 
             if ($processHandler) {
                 $state = $processHandler(new ProcessingResult(

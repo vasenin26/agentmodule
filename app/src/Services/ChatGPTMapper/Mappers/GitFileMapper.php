@@ -16,7 +16,7 @@ class GitFileMapper implements MessageMapperInterface
 
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
-        UrlParserInterface $urlParser
+        UrlParserInterface       $urlParser
     )
     {
         $this->repositoryProvider = $repositoryProvider;
@@ -30,14 +30,20 @@ class GitFileMapper implements MessageMapperInterface
 
     public function map(Message $message): array
     {
-        if($message instanceof GitFileMessage) {
+        if ($message instanceof GitFileMessage) {
             $repoUrl = $this->urlParser->extractRepoUrl($message->url);
             $filePath = $this->urlParser->extractFilePath($message->url);
-            
+
             $fileContent = $this->getFileContent($repoUrl, $filePath);
-            
-            $content = "Git file: {$filePath}\n\nContent:\n{$fileContent}";
-            
+
+            $content = "Git file: {$filePath}\n";
+            if ($message->description) {
+                $content .= "Description: {$message->description}\n";
+            }
+            $content .= "START FILE CONTENT \n```\n";
+            $content .= $fileContent;
+            $content .= "```\n END FILE CONTENT \n";
+
             return [
                 'role' => 'user',
                 'content' => $content
@@ -52,17 +58,17 @@ class GitFileMapper implements MessageMapperInterface
         try {
             Log::info('GitFileMapper - Read path: ' . $filePath);
             Log::info('GitFileMapper - Read url: ' . $repoUrl);
-            
+
             $repo = $this->repositoryProvider->getRepo($repoUrl);
-            
+
             $fullPath = $repo->getRepositoryPath() . '/' . trim($filePath, '/');
-            
+
             $content = file_get_contents($fullPath);
-            
+
             if ($content === false) {
                 return "File not found";
             }
-            
+
             return $content;
         } catch (\Exception $e) {
             Log::warning('GitFileMapper error: ' . $e->getMessage());

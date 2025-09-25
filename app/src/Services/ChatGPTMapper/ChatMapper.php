@@ -14,8 +14,6 @@ use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use OpenAI\Responses\Chat\CreateResponse;
-use OpenAI\Responses\Chat\CreateResponseMessage;
-use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
