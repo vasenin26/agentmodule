@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
@@ -26,7 +27,7 @@ class LMStudioClient implements GPTProcessorInterface
     {
     }
 
-    public function process(Conversation $chat, $processHandler, bool $resultRequired = false): ProcessingResult
+    public function process(Conversation $chat, ?ProcessHandlerInterface $processHandler, bool $resultRequired = false): ProcessingResult
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -92,7 +93,7 @@ class LMStudioClient implements GPTProcessorInterface
             ));
 
             if ($processHandler) {
-                $state = $processHandler(new ProcessingResult(
+                $processHandler->handle(new ProcessingResult(
                     false,
                     $answer,
                     $chat,
@@ -100,10 +101,6 @@ class LMStudioClient implements GPTProcessorInterface
                     $completionTokens,
                     $totalTokens
                 ));
-
-                if ($state === 'stopped') {
-                    break;
-                }
             }
 
             Log::info("LLM Say:" . $lastMessage->content);
@@ -177,7 +174,7 @@ class LMStudioClient implements GPTProcessorInterface
             }
 
             if ($processHandler && !$finished) {
-                $status = $processHandler(new ProcessingResult(
+                $processHandler->handle(new ProcessingResult(
                     false,
                     $answer,
                     $chat,
@@ -185,10 +182,6 @@ class LMStudioClient implements GPTProcessorInterface
                     $completionTokens,
                     $totalTokens
                 ));
-
-                if($status === 'stopped') {
-                    break;
-                }
             }
 
             if ($finished) {

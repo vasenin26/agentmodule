@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
@@ -16,7 +17,6 @@ use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Anymodule\Agentmodule\Tools\Utils\UpdateArticle;
 use Anymodule\Agentmodule\Utils\TokenCounter;
-use Vasenin26\Conversation\Messages\ServiceMessage;
 
 class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
@@ -34,7 +34,7 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         ]);
     }
 
-    public function process(Task $task, $processHandler): ProcessingResult
+    public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $tokenCounter = new TokenCounter();
@@ -50,12 +50,12 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             }
         }
 
-        return new ProcessingResult(
+        $processHandler->handle(new ProcessingResult(
             true,
             $updateTool->getContent(),
             $conversation,
             ...$tokenCounter->get()
-        );
+        ));
     }
 
     private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool): ActionContract

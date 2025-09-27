@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ApiService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Page;
 use Anymodule\Agentmodule\Entity\PageVersion;
+use Anymodule\Agentmodule\Entity\TaskState;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
@@ -61,7 +62,7 @@ class Service implements TaskApi, PageApi
         );
     }
 
-    public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): void
+    public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): TaskState
     {
         $request = new UpdateAgentTask(
             token: $this->token,
@@ -77,7 +78,13 @@ class Service implements TaskApi, PageApi
             result: $result->answer
         );
 
-        $request->exec($this->api);
+        $response = $request->exec($this->api);
+
+        var_dump($response);
+
+        return new TaskState(
+            status: $response->status,
+        );
     }
 
     // PageApi methods implementation

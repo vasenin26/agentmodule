@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
-use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Utils\TokenCounter;
-use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
 
-class TextProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+class TextProcessor implements TaskProcessor
 {
     private ActionRunner $actionRunner;
 
     public function __construct(
-        private ToolServiceFactoryInterface $toolsFactory,
-        private LLMFactoryInterface $chatFactory,
+        private ToolServiceFactoryInterface  $toolsFactory,
+        private LLMFactoryInterface          $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
     )
@@ -28,11 +31,11 @@ class TextProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         ]);
     }
 
-    public function process(Task $task, $processHandler): ProcessingResult
+    public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
-        if($task->projectId) {
+        if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
             $toolsBuilder->withGit();
         }
@@ -42,10 +45,12 @@ class TextProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
         $tools = $toolsBuilder->build();
         $llm = $this->chatFactory->createChat($tools);
-        $chat = $this->conversationFactory->fromMessages($task->messages);
+        $chat = $this->conversationFactory->handledConversation($task->messages, $processHandler);
 
         $this->actionRunner->run($chat, new TokenCounter());
 
-        return $llm->process($chat, $processHandler, $task->resultRequired);
+        $result = $llm->process($chat, $processHandler, $task->resultRequired);
+
+        $processHandler->handle($result);
     }
 }

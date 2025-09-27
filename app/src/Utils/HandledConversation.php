@@ -3,42 +3,25 @@
 namespace Anymodule\Agentmodule\Utils;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Vasenin26\Conversation\Interface\Conversation;
+use Vasenin26\Conversation\Interface\MessageLinkInterface;
 use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\ServiceMessage;
 
 class HandledConversation implements Conversation
 {
-    /**
-     * @var callable
-     */
-    private $handler;
-
-    /**
-     * @param Conversation $conversation
-     * @param callable $handler
-     */
     public function __construct(
-        private Conversation $conversation,
-        callable             $handler,
+        private Conversation             $conversation,
+        private ?ProcessHandlerInterface $handler,
     )
     {
-        $this->handler = $handler;
     }
 
     public function addMessage(Message $message): void
     {
         $this->conversation->addMessage($message);
-
-        if ($this->handler) {
-            call_user_func($this->handler, new ProcessingResult(
-                completed: 0,
-                answer: null,
-                conversation: $this,
-                promptTokens: 0,
-                completionTokens: 0,
-                totalTokens: 0
-            ));
-        }
+        $this->fire();
     }
 
     public function getMessages(): array
@@ -59,5 +42,28 @@ class HandledConversation implements Conversation
     public function serialize(): array
     {
         return $this->conversation->serialize();
+    }
+
+    public function addServiceMessage(ServiceMessage $message): MessageLinkInterface
+    {
+        $link = $this->conversation->addServiceMessage($message);
+
+        return new HandledServiceMessageLink($link, function () {
+            $this->fire();
+        });
+    }
+
+    private function fire(): void
+    {
+        if ($this->handler) {
+            $this->handler->handle(new ProcessingResult(
+                completed: false,
+                answer: null,
+                conversation: $this,
+                promptTokens: 0,
+                completionTokens: 0,
+                totalTokens: 0
+            ));
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule;
 
 use Anymodule\Agentmodule\Interface\Task\TaskApi;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
+use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\Uuid;
 
@@ -35,12 +36,9 @@ final readonly class Runner
 
                 Log::info("Processing task: {$task->id}");
 
-                $result = $this->processorFactory->createProcessorForTask($task)
-                    ->process($task, function ($result) use ($agentId, $task) {
-                        $this->api->sendResult($agentId, $task->id, $result);
-                    });
-
-                $this->api->sendResult($agentId, $task->id, $result);
+                $handler = new DocsModule($this->api, $agentId, $task);
+                $this->processorFactory->createProcessorForTask($task)
+                    ->process($task, $handler);
             } catch (\Throwable $e) {
                 Log::warning($e->getMessage());
             }

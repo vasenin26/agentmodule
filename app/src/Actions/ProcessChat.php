@@ -3,7 +3,6 @@
 namespace Anymodule\Agentmodule\Actions;
 
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 
 class ProcessChat implements ActionContract

@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
+use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
@@ -9,7 +10,7 @@ use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Services\TaskProcessor\CodeProcessor;
-use Vasenin26\Conversation\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Services\TaskProcessor\TextProcessor;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
@@ -28,7 +29,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             return new CodeProcessor(
                 $this->toolsFactory,
                 $this->chatFactory,
-                new ConversationFactory(),
+                $this->conversationFactory,
                 $this->taskStorageProvider,
             );
         }
@@ -36,13 +37,13 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         if ($task->type == 'actualization') {
             return new Actualization(
                 $this->toolsFactory,
-                new ConversationFactory(),
+                $this->conversationFactory,
                 $this->taskStorageProvider,
                 $this->chatFactory,
             );
         }
 
-        return new \Anymodule\Agentmodule\Services\TaskProcessor\TextProcessor(
+        return new TextProcessor(
             $this->toolsFactory,
             $this->chatFactory,
             $this->conversationFactory,

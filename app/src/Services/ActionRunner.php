@@ -2,12 +2,16 @@
 
 namespace Anymodule\Agentmodule\Services;
 
+use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\ServiceMessage;
 
 class ActionRunner
 {
+    /**
+     * @param ActionContract[] $actions
+     */
     public function __construct(
         private readonly array $actions
     )
@@ -23,14 +27,20 @@ class ActionRunner
             if (!empty($currentTask)) {
                 $taskProcessor = $this->actions[$currentTask] ?? null;
 
+                $message = new ServiceMessage($currentTask, '');
+                $link = $conversation->addServiceMessage($message);
+
                 if (is_null($taskProcessor)) {
-                    $conversation->addMessage(new ServiceMessage($currentTask, ['error' => 'Not Found task']));
+                    $link->setError('Not found task');
                     continue;
                 }
 
                 foreach ($taskProcessor->execute($conversation) as $result) {
+                    $link->setMessage($result->answer);
+
                     if ($result->completed) {
-                        $conversation->addMessage(new ServiceMessage($currentTask, ['message' => $result->answer]));
+                        $link->complete();
+
                         $tokenCounter->combine($result);
 
                         foreach ($result->conversation->getMessages() as $message) {

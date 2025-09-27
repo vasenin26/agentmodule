@@ -6,13 +6,14 @@ use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Tools\Utils\AddFileToList;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
+use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\GitFileMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
+use Vasenin26\Conversation\Messages\ToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 
 readonly class SearchRelevantFiles implements ActionContract
@@ -81,10 +82,40 @@ EIO;
                     totalTokens: $processingResult->totalTokens
                 );
             } else {
-                yield $processingResult;
+                yield $this->createInformationResult($processingResult);
             }
         }
 
         Log::info("End relevant files searching", $fileList);
+    }
+
+    private function createInformationResult(ProcessingResult $processingResult): ProcessingResult
+    {
+        $answer = $processingResult->answer;
+
+        if (empty($answer)) {
+            $messages = $processingResult->conversation->getMessages();
+            $lastMessage = end($messages);
+
+            if ($lastMessage) {
+                if ($lastMessage instanceof AssistantMessage) {
+                    $answer = $lastMessage->content;
+                    if (empty($answer)) {
+                        $answer = 'Call tool: ' . join(', ', array_map(fn($t) => $t->name ?? 'unknown', $lastMessage->toolCallsArray));
+                    }
+                } elseif ($lastMessage instanceof ToolMessage) {
+                    $answer = 'Tool finished: ' . $lastMessage->name;
+                }
+            }
+        }
+
+        return new ProcessingResult(
+            completed: false,
+            answer: $answer,
+            conversation: $processingResult->conversation,
+            promptTokens: $processingResult->promptTokens,
+            completionTokens: $processingResult->completionTokens,
+            totalTokens: $processingResult->totalTokens
+        );
     }
 }

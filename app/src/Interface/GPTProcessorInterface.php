@@ -7,5 +7,5 @@ use Vasenin26\Conversation\Interface\Conversation;
 
 interface GPTProcessorInterface
 {
-    public function process(Conversation $chat, $processHandler, bool $resultRequired = false): ProcessingResult;
+    public function process(Conversation $chat, ProcessHandlerInterface $processHandler, bool $resultRequired = false): ProcessingResult;
 }

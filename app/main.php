@@ -1,5 +1,6 @@
 <?php
 
+use Anymodule\Agentmodule\Factory\ConversationFactory;
 use Anymodule\Agentmodule\Factory\LLMFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
@@ -8,7 +9,6 @@ use Anymodule\Agentmodule\Runner;
 use Anymodule\Agentmodule\Services\ApiService\Service;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
-use Vasenin26\Conversation\Factory\ConversationFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 

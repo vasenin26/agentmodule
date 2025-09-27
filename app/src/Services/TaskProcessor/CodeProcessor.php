@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Services\TaskProcessor;
 
-use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
@@ -22,7 +22,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
     {
     }
 
-    public function process(Task $task, $processHandler): ProcessingResult
+    public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $workBranch = $this->getTaskBranch($task);
 
@@ -62,7 +62,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             }
         }
 
-        return $result;
+        $processHandler->handle($result);
     }
 
     private function getTmpTaskFolder(Task $task): string
