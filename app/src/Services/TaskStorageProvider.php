@@ -9,8 +9,12 @@ class TaskStorageProvider implements TaskStorageProviderInterface
 {
     private $storages = [];
 
-    public function getTaskStorage(int $id): TasksStorage
+    public function getTaskStorage(?int $id): TasksStorage
     {
+        if (is_null($id)) {
+            return new TasksStorage();
+        }
+
         return $this->storages[$id] ?? $this->storages[$id] = new TasksStorage();
     }
 }

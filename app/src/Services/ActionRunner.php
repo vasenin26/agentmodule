@@ -21,7 +21,9 @@ class ActionRunner
     public function run(Conversation $conversation, TokenCounter $tokenCounter): void
     {
         do {
-            $awaitRun = array_diff(array_keys($this->actions), array_map(fn($m) => $m->key, (array)$conversation->getServices()));
+            $completed = array_map(fn($m) => $m->key, iterator_to_array($conversation->getServices()));
+            $awaitRun = array_diff(array_keys($this->actions), $completed);
+
             $currentTask = array_pop($awaitRun);
 
             if (!empty($currentTask)) {

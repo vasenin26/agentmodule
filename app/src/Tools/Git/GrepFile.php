@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Utils\Log;
 
 class GrepFile implements ToolInterface
 {
+    const NAME = 'git-grep-file';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -134,12 +136,12 @@ class GrepFile implements ToolInterface
         return null;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Search for pattern in file and return all matching lines',
                 'parameters' => [
                     'type' => 'object',
@@ -176,5 +178,10 @@ class GrepFile implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

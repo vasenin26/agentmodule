@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetProjectPages implements ToolInterface
 {
+    const NAME = 'page-get-project-pages';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -73,14 +75,19 @@ class GetProjectPages implements ToolInterface
     }
 
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get all pages for the current project with structure analysis and statistics (only works with current page versions in project context)'
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

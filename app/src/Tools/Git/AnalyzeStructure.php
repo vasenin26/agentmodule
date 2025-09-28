@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class AnalyzeStructure implements ToolInterface
 {
+    const NAME = 'git-analyze-structure';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -196,12 +198,12 @@ class AnalyzeStructure implements ToolInterface
         return $configFiles;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Analyze repository structure to determine project type, main directories, entry points and configuration files',
                 'parameters' => [
                     'type' => 'object',
@@ -215,5 +217,10 @@ class AnalyzeStructure implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

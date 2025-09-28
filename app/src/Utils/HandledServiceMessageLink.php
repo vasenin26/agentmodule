@@ -21,8 +21,6 @@ class HandledServiceMessageLink implements MessageLinkInterface
 
     public function setMessage(string $message): void
     {
-        var_dump($message);
-
         $this->link->setMessage($message);
         call_user_func($this->handler);
     }

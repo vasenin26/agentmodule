@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class ReadDir implements ToolInterface
 {
+    const NAME = 'git-read-dir';
 
     public function __construct(
         private GitRepoProviderInterface $repoProvider
@@ -45,12 +46,12 @@ class ReadDir implements ToolInterface
         return implode("\n", $files);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Read directory contents from repository',
                 'parameters' => [
                     'type' => 'object',
@@ -68,5 +69,10 @@ class ReadDir implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

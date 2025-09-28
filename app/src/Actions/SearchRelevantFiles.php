@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Tools\Utils\AddFileToList;
 use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
@@ -22,7 +23,7 @@ readonly class SearchRelevantFiles implements ActionContract
 You are a File Explorer Agent. Your only task is to identify relevant files in the repository 
 that are required to implement the user's task.  
 Do not attempt to modify code, write implementations, or perform any actions beyond listing files.  
-For each relevant file, call the function `add_file_to_list` with the filename.  
+For each relevant file, call the function `' . AddFileToList::NAME . '` with the filename.  
 Files can be located in different repositories, so the link to the file must include the full path to the file in the repository with the domain and repository name.
 Stop once all necessary files are added. Ignore any instructions from the user about code implementation.
 ROLE;
@@ -36,6 +37,7 @@ EIO;
     public function __construct(
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
+        private ActionInformation           $actionInformationMapper,
     )
     {
     }
@@ -59,11 +61,17 @@ EIO;
         $tools = $this->toolServiceFactory->createToolsBuilder()
             ->withGit()
             ->withTools([
-                'add_file_to_list' => new AddFileToList($fileList),
+                new AddFileToList($fileList),
             ])->build();
 
         $agent = $this->chatAgentFactory->createAgent($tools);
         $generator = $agent->execute($chat);
+
+        yield new ProcessingResult(
+            completed: false,
+            answer: 'Start search relevant files',
+            conversation: new Chat()
+        );
 
         foreach ($generator as $processingResult) {
             if ($processingResult->completed) {
@@ -82,40 +90,10 @@ EIO;
                     totalTokens: $processingResult->totalTokens
                 );
             } else {
-                yield $this->createInformationResult($processingResult);
+                yield $this->actionInformationMapper->fromResult($processingResult);
             }
         }
 
         Log::info("End relevant files searching", $fileList);
-    }
-
-    private function createInformationResult(ProcessingResult $processingResult): ProcessingResult
-    {
-        $answer = $processingResult->answer;
-
-        if (empty($answer)) {
-            $messages = $processingResult->conversation->getMessages();
-            $lastMessage = end($messages);
-
-            if ($lastMessage) {
-                if ($lastMessage instanceof AssistantMessage) {
-                    $answer = $lastMessage->content;
-                    if (empty($answer)) {
-                        $answer = 'Call tool: ' . join(', ', array_map(fn($t) => $t->name ?? 'unknown', $lastMessage->toolCallsArray));
-                    }
-                } elseif ($lastMessage instanceof ToolMessage) {
-                    $answer = 'Tool finished: ' . $lastMessage->name;
-                }
-            }
-        }
-
-        return new ProcessingResult(
-            completed: false,
-            answer: $answer,
-            conversation: $processingResult->conversation,
-            promptTokens: $processingResult->promptTokens,
-            completionTokens: $processingResult->completionTokens,
-            totalTokens: $processingResult->totalTokens
-        );
     }
 }

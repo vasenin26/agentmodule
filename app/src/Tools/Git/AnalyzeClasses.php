@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class AnalyzeClasses implements ToolInterface
 {
+    const NAME = 'git-analyze-classes';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -307,12 +309,12 @@ class AnalyzeClasses implements ToolInterface
         return array_slice($chains, 0, 20); // Ограничиваем количество цепочек
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Analyze PHP classes, interfaces, traits and their relationships to understand code architecture and design patterns',
                 'parameters' => [
                     'type' => 'object',
@@ -330,5 +332,10 @@ class AnalyzeClasses implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

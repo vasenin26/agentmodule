@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
@@ -12,6 +13,7 @@ use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -27,7 +29,8 @@ class ChatMapper implements MessageMapper
 
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
-        UrlParserInterface       $urlParser = null
+        UrlParserInterface       $urlParser = null,
+        ToolsService             $toolsService = null
     )
     {
         $urlParser = $urlParser ?? new ExtractRepoUrl();
@@ -40,6 +43,10 @@ class ChatMapper implements MessageMapper
             new ToolMapper(),
             new GitFileMapper($repositoryProvider, $urlParser),
         ];
+
+        if ($toolsService !== null) {
+            $this->mappers[] = new CallToolMapper($toolsService);
+        }
     }
 
     public function mapChat(Conversation $chat): array

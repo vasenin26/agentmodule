@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Anymodule\Agentmodule\Services\TaskProcessor;
+namespace Anymodule\Agentmodule\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Entity\Task;
@@ -13,6 +13,7 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
+use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
 class TextProcessor implements TaskProcessor
@@ -27,7 +28,7 @@ class TextProcessor implements TaskProcessor
     )
     {
         $this->actionRunner = new ActionRunner([
-            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory),
+            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
         ]);
     }
 

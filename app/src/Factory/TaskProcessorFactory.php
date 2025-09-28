@@ -8,9 +8,9 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Services\TaskProcessor\Actualization;
-use Anymodule\Agentmodule\Services\TaskProcessor\CodeProcessor;
-use Anymodule\Agentmodule\Services\TaskProcessor\TextProcessor;
+use Anymodule\Agentmodule\TaskProcessor\Actualization;
+use Anymodule\Agentmodule\TaskProcessor\CodeProcessor;
+use Anymodule\Agentmodule\TaskProcessor\TextProcessor;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {

@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetHierarchyTree implements ToolInterface
 {
+    const NAME = 'page-get-hierarchy-tree';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -97,12 +99,12 @@ class GetHierarchyTree implements ToolInterface
         return $count;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get hierarchical tree structure of pages with detailed information about each page (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -120,5 +122,10 @@ class GetHierarchyTree implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

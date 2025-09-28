@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Utils\Log;
 
 class ReadFile implements ToolInterface
 {
+    const NAME = 'git-read-file';
 
     public function __construct(
         private GitRepoProviderInterface $repoProvider
@@ -36,12 +37,12 @@ class ReadFile implements ToolInterface
         return $content;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Read file from repository',
                 'parameters' => [
                     'type' => 'object',
@@ -59,5 +60,10 @@ class ReadFile implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

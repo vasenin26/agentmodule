@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class ReplaceInFile implements ToolInterface
 {
+    const NAME = 'editor-replace-in-file';
     /**
      * Normalize a user-provided regex pattern.
      * - If the pattern already contains valid delimiters with optional modifiers at the end, return as-is.
@@ -236,12 +237,12 @@ class ReplaceInFile implements ToolInterface
         }
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Replace text in file using a regex pattern or a raw text pattern. If the pattern does not include delimiters, it will be wrapped automatically with ~...~ and modifiers su for multiline Unicode support.',
                 'parameters' => [
                     'type' => 'object',
@@ -272,5 +273,10 @@ class ReplaceInFile implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

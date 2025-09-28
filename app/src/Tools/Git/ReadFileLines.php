@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Utils\Log;
 
 class ReadFileLines implements ToolInterface
 {
+    const NAME = 'git-read-file-lines';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -102,12 +104,12 @@ class ReadFileLines implements ToolInterface
         }
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Read specific lines from file in repository',
                 'parameters' => [
                     'type' => 'object',
@@ -135,5 +137,10 @@ class ReadFileLines implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\TaskProcessor;
+namespace Anymodule\Agentmodule\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\ProcessChat;
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
@@ -16,6 +16,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
 use Anymodule\Agentmodule\Tools\Utils\UpdateArticle;
+use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
 class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -30,7 +31,7 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
     )
     {
         $this->actionRunner = new ActionRunner([
-            'search-relevant-files' => new SearchRelevantFiles($chatAgentFactory, $this->toolsFactory),
+            'search-relevant-files' => new SearchRelevantFiles($chatAgentFactory, $this->toolsFactory, new ActionInformation()),
         ]);
     }
 
@@ -77,7 +78,7 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         }
 
         $toolsBuilder->withTools([
-            'update-article' => $updateTool,
+            $updateTool,
         ]);
 
         return $toolsBuilder->build();

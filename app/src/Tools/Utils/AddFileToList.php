@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class AddFileToList implements ToolInterface
 {
+    const NAME = 'add-file-to-list';
+
     private array $list;
 
     public function __construct(array &$list)
@@ -24,12 +26,12 @@ class AddFileToList implements ToolInterface
         return 'File added to list';
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Store file to list',
                 'parameters' => [
                     'type' => 'object',
@@ -51,5 +53,10 @@ class AddFileToList implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

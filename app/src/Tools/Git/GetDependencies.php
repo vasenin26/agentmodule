@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetDependencies implements ToolInterface
 {
+    const NAME = 'git-get-dependencies';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -156,12 +158,12 @@ class GetDependencies implements ToolInterface
         return $conflicts;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Analyze project dependencies from composer.json, package.json, requirements.txt and other dependency files',
                 'parameters' => [
                     'type' => 'object',
@@ -175,5 +177,10 @@ class GetDependencies implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

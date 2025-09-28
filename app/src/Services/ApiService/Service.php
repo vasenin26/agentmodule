@@ -80,8 +80,6 @@ class Service implements TaskApi, PageApi
 
         $response = $request->exec($this->api);
 
-        var_dump($response);
-
         return new TaskState(
             status: $response->status,
         );

@@ -9,6 +9,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetAttachedFiles implements ToolInterface
 {
+    const NAME = 'page-get-attached-files';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService,
         private GitRepoProviderInterface $gitRepoProvider
@@ -169,12 +171,12 @@ class GetAttachedFiles implements ToolInterface
         }
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get list of files attached to a page with optional content loading (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -192,5 +194,10 @@ class GetAttachedFiles implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

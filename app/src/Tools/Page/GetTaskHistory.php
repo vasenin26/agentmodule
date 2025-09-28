@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetTaskHistory implements ToolInterface
 {
+    const NAME = 'page-get-task-history';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -208,12 +210,12 @@ class GetTaskHistory implements ToolInterface
         return $statistics;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get complete task generation history for a page including diff descriptions, LLM chats, techplanes and statistics (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -227,5 +229,10 @@ class GetTaskHistory implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

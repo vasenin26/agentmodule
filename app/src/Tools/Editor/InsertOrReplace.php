@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class InsertOrReplace implements ToolInterface
 {
+    const NAME = 'editor-insert-or-replace';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -257,12 +259,12 @@ class InsertOrReplace implements ToolInterface
         return preg_replace('/^LINE:\d+\n/', '', $content);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Insert or replace content in a file using clear modes. Modes: prepend (add to beginning), append (add to end), replace_all (replace entire file), replace_start (replace first lines), replace_end (replace last lines), insert_at_line (insert at specific 1-based line). Newlines are preserved as-is. For insert_at_line, prefix content with "LINE:<number>\\n".',
                 'parameters' => [
                     'type' => 'object',
@@ -294,5 +296,10 @@ class InsertOrReplace implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

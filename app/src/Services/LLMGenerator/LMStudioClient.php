@@ -167,11 +167,10 @@ class LMStudioClient implements GPTProcessorInterface
                 }
             }
 
-            if (!is_null($result->usage)) {
-                $promptTokens += $result->usage->promptTokens ?? 0;
-                $completionTokens += $result->usage->completionTokens ?? 0;
-                $totalTokens += $result->usage->totalTokens ?? 0;
-            }
+            $tokenUsage = $result->getTokenUsage();
+            $promptTokens += $tokenUsage->sent;
+            $completionTokens += $tokenUsage->received;
+            $totalTokens += $tokenUsage->total;
 
             if ($processHandler && !$finished) {
                 $processHandler->handle(new ProcessingResult(

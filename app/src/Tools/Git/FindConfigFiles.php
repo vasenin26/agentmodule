@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class FindConfigFiles implements ToolInterface
 {
+    const NAME = 'git-find-config-files';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -254,12 +256,12 @@ class FindConfigFiles implements ToolInterface
         return $descriptions[$basename] ?? 'Project file';
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Find and analyze configuration files in repository including .env, config directories, webpack, docker files etc.',
                 'parameters' => [
                     'type' => 'object',
@@ -278,5 +280,10 @@ class FindConfigFiles implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

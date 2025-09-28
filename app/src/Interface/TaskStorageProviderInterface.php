@@ -6,5 +6,5 @@ use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 interface TaskStorageProviderInterface
 {
-    public function getTaskStorage(int $id): TasksStorage;
+    public function getTaskStorage(?int $id): TasksStorage;
 }

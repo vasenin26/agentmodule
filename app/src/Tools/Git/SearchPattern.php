@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class SearchPattern implements ToolInterface
 {
+    const NAME = 'git-search-pattern';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -196,12 +198,12 @@ class SearchPattern implements ToolInterface
         return implode('', $unique);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Search for patterns in repository files. Supports regex and literal modes, optional modifiers, and file extension filtering.',
                 'parameters' => [
                     'type' => 'object',
@@ -237,5 +239,10 @@ class SearchPattern implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
+use Anymodule\Agentmodule\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class ToolsBuilder
@@ -11,64 +12,56 @@ class ToolsBuilder
 
     public function __construct(
         private ToolServiceFactory $toolServiceFactory,
-        private ToolsFactory $toolsFactory
+        private ToolsFactory       $toolsFactory
     )
     {
     }
 
     public function withProject($projectId, string $prefix = 'page'): ToolsBuilder
     {
-        $this->tools = array_merge($this->tools, [
-            $prefix . '-get-info' => $this->toolsFactory->pageGetInfo($projectId),
-            $prefix . '-get-attached-files' => $this->toolsFactory->pageGetAttachedFiles($projectId),
-            $prefix . '-get-project-pages' => $this->toolsFactory->pageGetProjectPages($projectId),
-            $prefix . '-get-hierarchy-tree' => $this->toolsFactory->pageGetHierarchyTree($projectId),
-            $prefix . '-find-related-pages' => $this->toolsFactory->pageGetRelatedPages($projectId),
-            $prefix . '-get-actualization-info' => $this->toolsFactory->pageGetActualizationInfo($projectId),
-            $prefix . '-get-task-history' => $this->toolsFactory->pageGetTaskHistory($projectId),
+        return $this->withTools([
+            $this->toolsFactory->pageGetInfo($projectId),
+            $this->toolsFactory->pageGetAttachedFiles($projectId),
+            $this->toolsFactory->pageGetProjectPages($projectId),
+            $this->toolsFactory->pageGetHierarchyTree($projectId),
+            $this->toolsFactory->pageGetRelatedPages($projectId),
+            $this->toolsFactory->pageGetActualizationInfo($projectId),
+            $this->toolsFactory->pageGetTaskHistory($projectId),
         ]);
-
-        return $this;
     }
 
     public function withGit(string $prefix = 'git'): ToolsBuilder
     {
-        $this->tools = array_merge($this->tools, [
-                $prefix . '-readFile' => $this->toolsFactory->gitReadFile(),
-                $prefix . '-read-file-lines' => $this->toolsFactory->gitReadFileLines(),
-                $prefix . '-grep-file' => $this->toolsFactory->gitGrepFile(),
-                $prefix . '-searchFileByName' => $this->toolsFactory->gitSearchFileByName(),
-                $prefix . '-readDir' => $this->toolsFactory->gitReadDir(),
-                $prefix . '-analyze-structure' => $this->toolsFactory->gitAnalyzeStructure(),
-                $prefix . '-get-dependencies' => $this->toolsFactory->gitGetDependencies(),
-                $prefix . '-search-pattern' => $this->toolsFactory->gitSearchPattern(),
-                $prefix . '-find-config-files' => $this->toolsFactory->gitFindConfigFiles(),
-                $prefix . '-analyze-classes' => $this->toolsFactory->gitAnalyzeClasses(),
+        return $this->withTools([
+            $this->toolsFactory->gitReadFile(),
+            $this->toolsFactory->gitReadFileLines(),
+            $this->toolsFactory->gitGrepFile(),
+            $this->toolsFactory->gitSearchFileByName(),
+            $this->toolsFactory->gitReadDir(),
+            $this->toolsFactory->gitAnalyzeStructure(),
+            $this->toolsFactory->gitGetDependencies(),
+            $this->toolsFactory->gitSearchPattern(),
+            $this->toolsFactory->gitFindConfigFiles(),
+            $this->toolsFactory->gitAnalyzeClasses(),
         ]);
-
-        return $this;
     }
 
     public function withEditor(string $prefix = 'editor'): ToolsBuilder
     {
-        $this->tools = array_merge($this->tools, [
-            $prefix . '-edit-file' => $this->toolsFactory->editorEditFile(),
-            $prefix . '-replace-in-file' => $this->toolsFactory->editorReplaceInFile(),
-            $prefix . '-insert-or-replace' => $this->toolsFactory->editorInsertOrReplace(),
+        return $this->withTools([
+            $this->toolsFactory->editorEditFile(),
+            $this->toolsFactory->editorReplaceInFile(),
+            $this->toolsFactory->editorInsertOrReplace(),
         ]);
-
-        return $this;
     }
 
     public function withTasks(TasksStorage $tasksStorage): ToolsBuilder
     {
-        $this->tools = array_merge($this->tools, [
-            'tasks-list' => $this->toolsFactory->tasksList($tasksStorage),
-            'tasks-add' => $this->toolsFactory->tasksAdd($tasksStorage),
-            'tasks-complete' => $this->toolsFactory->tasksComplete($tasksStorage),
+        return $this->withTools([
+            $this->toolsFactory->tasksList($tasksStorage),
+            $this->toolsFactory->tasksAdd($tasksStorage),
+            $this->toolsFactory->tasksComplete($tasksStorage),
         ]);
-
-        return $this;
     }
 
     public function build(): ToolsService
@@ -76,10 +69,23 @@ class ToolsBuilder
         return $this->toolServiceFactory->withTools($this->tools);
     }
 
-    public function withTools(array $append): ToolsBuilder
+    public function withTools(array $tools): ToolsBuilder
     {
-        $this->tools = array_merge($this->tools, $append);
-
+        foreach ($tools as $tool) {
+            $name = $tool->getName();
+            
+            if (isset($this->tools[$name])) {
+                $existingClass = get_class($this->tools[$name]);
+                $newClass = get_class($tool);
+                throw new \InvalidArgumentException(
+                    "Tool with name '$name' already exists. " .
+                    "Existing: $existingClass, New: $newClass. " .
+                    "Create wrapper class with different name to avoid conflicts."
+                );
+            }
+            
+            $this->tools[$name] = $tool;
+        }
         return $this;
     }
 }

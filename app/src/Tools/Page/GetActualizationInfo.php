@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetActualizationInfo implements ToolInterface
 {
+    const NAME = 'page-get-actualization-info';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -89,12 +91,12 @@ class GetActualizationInfo implements ToolInterface
     }
 
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get detailed actualization information for a page including status, history, LLM chat data and statistics (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -108,5 +110,10 @@ class GetActualizationInfo implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

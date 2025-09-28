@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class SearchFileByName implements ToolInterface
 {
+    const NAME = 'git-search-file-by-name';
 
     public function __construct(
         private GitRepoProviderInterface $repoProvider
@@ -40,12 +41,12 @@ class SearchFileByName implements ToolInterface
         return implode("\n", $output);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Search files by name in repository.',
                 'parameters' => [
                     'type' => 'object',
@@ -63,5 +64,10 @@ class SearchFileByName implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

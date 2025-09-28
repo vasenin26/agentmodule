@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class AddTasks implements ToolInterface
 {
+    const NAME = 'tasks-add';
+
     public function __construct(private TasksStorage $storage)
     {
     }
@@ -30,12 +32,12 @@ class AddTasks implements ToolInterface
         return json_encode($created, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Add one or multiple tasks into the agent’s private memory. '
                     . 'Use this to break down the user’s request into steps and track them internally. '
                     . 'IDs are generated automatically and are not visible to the user.',
@@ -63,6 +65,11 @@ class AddTasks implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }
 

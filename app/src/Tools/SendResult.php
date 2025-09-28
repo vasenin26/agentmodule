@@ -6,18 +6,19 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class SendResult implements ToolInterface
 {
+    const NAME = 'result';
 
     public function execute(array $args): ?string
     {
         return $args['content'] ?? null;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Сохраняет данные в хранилище.',
                 'parameters' => [
                     'type' => 'object',
@@ -31,5 +32,10 @@ class SendResult implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

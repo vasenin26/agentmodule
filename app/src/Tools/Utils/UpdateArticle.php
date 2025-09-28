@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class UpdateArticle implements ToolInterface
 {
+    const NAME = 'update-article';
+
     private ?string $content = null;
 
     public function execute(array $args): ?string
@@ -15,12 +17,12 @@ class UpdateArticle implements ToolInterface
         return 'Cодержимое успешно сохранено.';
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Сохраняет содержимое статьи в хранилище.',
                 'parameters' => [
                     'type' => 'object',
@@ -34,6 +36,11 @@ class UpdateArticle implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 
     public function getContent(): ?string

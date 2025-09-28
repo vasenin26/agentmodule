@@ -31,7 +31,7 @@ final readonly class LLMFactory implements LLMFactoryInterface, ChatAgentFactory
             $apiKey,
             $model,
             $toolsService,
-            new ChatMapper($this->repoProvider)
+            new ChatMapper($this->repoProvider, null, $toolsService)
         );
     }
 
@@ -40,8 +40,10 @@ final readonly class LLMFactory implements LLMFactoryInterface, ChatAgentFactory
         $processor = new ChatProcessor(
             getenv('OPENAI_API_KEY'),
             getenv('OPENAI_MODEL'),
-            new \Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper(
-                $this->repoProvider
+            new ChatMapper(
+                $this->repoProvider,
+                null,
+                $tools
             )
         );
 

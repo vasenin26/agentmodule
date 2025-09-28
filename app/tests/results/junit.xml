@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="/app/phpunit.xml" tests="2" assertions="2" errors="0" failures="0" skipped="0" time="0.003960">
-    <testsuite name="Unit" tests="2" assertions="2" errors="0" failures="0" skipped="0" time="0.003960">
-      <testsuite name="Anymodule\Agentmodule\Tests\Unit\OkTest" file="/app/tests/Unit/OkTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.000278">
-        <testcase name="test_ok" file="/app/tests/Unit/OkTest.php" line="7" class="Anymodule\Agentmodule\Tests\Unit\OkTest" classname="Anymodule.Agentmodule.Tests.Unit.OkTest" assertions="1" time="0.000278"/>
+  <testsuite name="/app/phpunit.xml" tests="7" assertions="20" errors="0" failures="0" skipped="0" time="0.007703">
+    <testsuite name="Unit" tests="7" assertions="20" errors="0" failures="0" skipped="0" time="0.007703">
+      <testsuite name="Anymodule\Agentmodule\Tests\Unit\OkTest" file="/app/tests/Unit/OkTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.001004">
+        <testcase name="test_ok" file="/app/tests/Unit/OkTest.php" line="7" class="Anymodule\Agentmodule\Tests\Unit\OkTest" classname="Anymodule.Agentmodule.Tests.Unit.OkTest" assertions="1" time="0.001004"/>
       </testsuite>
-      <testsuite name="Anymodule\Agentmodule\Tests\Unit\Services\ToolsService\ToolsServiceTest" file="/app/tests/Unit/Services/ToolsService/ToolsServiceTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.003681">
-        <testcase name="testCallTool" file="/app/tests/Unit/Services/ToolsService/ToolsServiceTest.php" line="18" class="Anymodule\Agentmodule\Tests\Unit\Services\ToolsService\ToolsServiceTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ToolsService.ToolsServiceTest" assertions="1" time="0.003681"/>
+      <testsuite name="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" tests="5" assertions="18" errors="0" failures="0" skipped="0" time="0.002478">
+        <testcase name="testSupportsCallToolMessage" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" line="22" class="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ChatGPTMapper.CallToolMapperTest" assertions="1" time="0.001454"/>
+        <testcase name="testDoesNotSupportOtherMessages" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" line="33" class="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ChatGPTMapper.CallToolMapperTest" assertions="1" time="0.000238"/>
+        <testcase name="testMapsCallToolMessageSuccessfully" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" line="40" class="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ChatGPTMapper.CallToolMapperTest" assertions="7" time="0.000418"/>
+        <testcase name="testMapsCallToolMessageWithError" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" line="63" class="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ChatGPTMapper.CallToolMapperTest" assertions="7" time="0.000199"/>
+        <testcase name="testThrowsExceptionForUnsupportedMessage" file="/app/tests/Unit/Services/ChatGPTMapper/CallToolMapperTest.php" line="85" class="Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper\CallToolMapperTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ChatGPTMapper.CallToolMapperTest" assertions="2" time="0.000169"/>
+      </testsuite>
+      <testsuite name="Anymodule\Agentmodule\Tests\Unit\Services\ToolsService\ToolsServiceTest" file="/app/tests/Unit/Services/ToolsService/ToolsServiceTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.004220">
+        <testcase name="testCallTool" file="/app/tests/Unit/Services/ToolsService/ToolsServiceTest.php" line="18" class="Anymodule\Agentmodule\Tests\Unit\Services\ToolsService\ToolsServiceTest" classname="Anymodule.Agentmodule.Tests.Unit.Services.ToolsService.ToolsServiceTest" assertions="1" time="0.004220"/>
       </testsuite>
     </testsuite>
   </testsuite>

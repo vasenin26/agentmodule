@@ -43,6 +43,14 @@ class ChatProcessor implements CharProcessorInterface
 
             return $this->messageMapper->prepareAssistantMessage($result);
         } catch (\Throwable $exception) {
+            $logDir = '/app/logs';
+
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+            $filename = $logDir . '/chat_' . date('Ymd_His') . '_' . uniqid() . '.json';
+            @file_put_contents($filename, json_encode($messages, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
             return OpenAiResult::error($exception->getMessage());
         }
     }

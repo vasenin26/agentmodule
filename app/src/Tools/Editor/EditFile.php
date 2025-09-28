@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class EditFile implements ToolInterface
 {
+    const NAME = 'editor-edit-file';
+
     public function __construct(
         private GitRepoProviderInterface $repoProvider
     ) {
@@ -133,12 +135,12 @@ class EditFile implements ToolInterface
     }
 
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Edit file in repository',
                 'parameters' => [
                     'type' => 'object',
@@ -165,5 +167,10 @@ class EditFile implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

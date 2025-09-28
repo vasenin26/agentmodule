@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class FindRelatedPages implements ToolInterface
 {
+    const NAME = 'page-find-related-pages';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -291,12 +293,12 @@ class FindRelatedPages implements ToolInterface
         return false;
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Find pages related to a specific page based on hierarchy, shared files, content references, and other relationships (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -310,5 +312,10 @@ class FindRelatedPages implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }

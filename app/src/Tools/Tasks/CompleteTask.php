@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class CompleteTask implements ToolInterface
 {
+    const NAME = 'tasks-complete';
+
     public function __construct(private TasksStorage $storage)
     {
     }
@@ -23,12 +25,12 @@ class CompleteTask implements ToolInterface
         return json_encode($task, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Mark an internal task as completed by its ID. '
                     . 'Tasks and IDs belong to the agent’s private memory only. '
                     . 'Never reveal these IDs to the user, just use them to track your progress.',
@@ -46,6 +48,11 @@ class CompleteTask implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }
 

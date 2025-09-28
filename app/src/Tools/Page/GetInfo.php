@@ -8,6 +8,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class GetInfo implements ToolInterface
 {
+    const NAME = 'page-get-info';
+
     public function __construct(
         private PageContextServiceInterface $pageContextService
     ) {
@@ -62,12 +64,12 @@ class GetInfo implements ToolInterface
         }
     }
 
-    public function getProps($name): array
+    public function getProps(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => $name,
+                'name' => $this->getName(),
                 'description' => 'Get detailed information about a specific page including metadata, content, relationships and creator info (only works with current page versions in project context)',
                 'parameters' => [
                     'type' => 'object',
@@ -81,5 +83,10 @@ class GetInfo implements ToolInterface
                 ]
             ]
         ];
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 }
