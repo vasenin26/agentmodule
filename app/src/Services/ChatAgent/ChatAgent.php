@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ChatAgent;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -132,7 +133,7 @@ class ChatAgent implements ActionContract
     {
         return new AssistantMessage(
             $result->getProcessorAnswer()?->message ?? '',
-            iterator_to_array($result->getToolCalls()),
+            array_map(fn(ToolCall $tc) => (array)$tc, iterator_to_array($result->getToolCalls())),
         );
     }
 }

@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
+use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -28,6 +29,8 @@ class ChatProcessor implements CharProcessorInterface
             ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
             ->make();
 
+        $messages = null;
+
         try {
             $messages = $this->messageMapper->mapChat($chat);
 
@@ -43,14 +46,7 @@ class ChatProcessor implements CharProcessorInterface
 
             return $this->messageMapper->prepareAssistantMessage($result);
         } catch (\Throwable $exception) {
-            $logDir = '/app/logs';
-
-            if (!is_dir($logDir)) {
-                @mkdir($logDir, 0777, true);
-            }
-            $filename = $logDir . '/chat_' . date('Ymd_His') . '_' . uniqid() . '.json';
-            @file_put_contents($filename, json_encode($messages, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
+            Log::storeMessages($messages);
             return OpenAiResult::error($exception->getMessage());
         }
     }

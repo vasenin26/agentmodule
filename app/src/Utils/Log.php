@@ -39,4 +39,15 @@ class Log
     {
         self::log(Level::Warning, $getMessage, $args);
     }
+
+    public static function storeMessages(array $messages): void
+    {
+        $logDir = '/app/logs';
+
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+        $filename = $logDir . '/chat_' . date('Ymd_His') . '_' . uniqid() . '.json';
+        @file_put_contents($filename, json_encode($messages, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
 }

@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Services\LLMGenerator;
 
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
@@ -71,7 +72,7 @@ class LMStudioClient implements GPTProcessorInterface
                     'tools' => $this->tools->getMeta()
                 ]);
             } catch (\Throwable $exception) {
-
+                Log::storeMessages($messages);
                 Log::warning($exception->getMessage());
 
                 $chat->addMessage($this->messageMapper->mapToInfoMessage($exception->getMessage()));
@@ -92,7 +93,7 @@ class LMStudioClient implements GPTProcessorInterface
             $result = $this->messageMapper->prepareAssistantMessage($result);
             $chat->addMessage(new AssistantMessage(
                 $result->getProcessorAnswer()?->message ?? '',
-                iterator_to_array($result->getToolCalls()),
+                array_map(fn(ToolCall $tc) => (array)$tc, iterator_to_array($result->getToolCalls())),
             ));
 
             if ($processHandler) {

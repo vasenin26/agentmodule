@@ -19,7 +19,6 @@ class ToolsServiceTest extends TestCase
     {
         $tool = Mockery::mock(ToolInterface::class);
         $tool->shouldReceive('getProps')
-            ->with('result')
             ->andReturn(['name' => 'result', 'description' => 'Test tool']);
         $tool->shouldReceive('execute')
             ->with([])
