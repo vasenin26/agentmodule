@@ -22,7 +22,15 @@ class CompleteTask implements ToolInterface
         if ($task === null) {
             return json_encode(['error' => 'Task not found'], JSON_UNESCAPED_UNICODE);
         }
-        return json_encode($task, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        
+        $stats = $this->storage->getStats();
+        
+        $result = [
+            'task' => $task,
+            'stats' => $stats
+        ];
+        
+        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function getProps(): array

@@ -77,6 +77,28 @@ class TasksStorage
         }
         return null;
     }
+
+    /**
+     * @return array{total:int,completed:int,remaining:int}
+     */
+    public function getStats(): array
+    {
+        $data = $this->read();
+        $total = count($data['tasks']);
+        $completed = 0;
+        
+        foreach ($data['tasks'] as $task) {
+            if ($task['done']) {
+                $completed++;
+            }
+        }
+        
+        return [
+            'total' => $total,
+            'completed' => $completed,
+            'remaining' => $total - $completed
+        ];
+    }
 }
 
 

@@ -29,7 +29,14 @@ class AddTasks implements ToolInterface
             return json_encode(['error' => 'No tasks provided'], JSON_UNESCAPED_UNICODE);
         }
         $created = $this->storage->addMany($items);
-        return json_encode($created, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $stats = $this->storage->getStats();
+        
+        $result = [
+            'tasks' => $created,
+            'stats' => $stats
+        ];
+        
+        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function getProps(): array

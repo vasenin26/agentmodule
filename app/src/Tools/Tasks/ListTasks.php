@@ -15,7 +15,14 @@ class ListTasks implements ToolInterface
     public function execute(array $args): ?string
     {
         $tasks = $this->storage->list();
-        return json_encode($tasks, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $stats = $this->storage->getStats();
+        
+        $result = [
+            'tasks' => $tasks,
+            'stats' => $stats
+        ];
+        
+        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function getProps(): array
