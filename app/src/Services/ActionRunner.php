@@ -40,6 +40,12 @@ class ActionRunner
                 foreach ($taskProcessor->execute($conversation) as $result) {
                     $link->setMessage($result->answer);
 
+                    var_dump($result->payload);
+
+                    if($result->payload) {
+                        $link->setPayload($result->payload);
+                    }
+
                     if ($result->completed) {
                         $link->complete();
 

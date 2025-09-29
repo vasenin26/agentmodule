@@ -31,6 +31,12 @@ class HandledServiceMessageLink implements MessageLinkInterface
         call_user_func($this->handler);
     }
 
+    public function setPayload(array $payload): void
+    {
+        $this->link->setPayload($payload);
+        call_user_func($this->handler);
+    }
+
     public function complete(): void
     {
         $this->link->complete();

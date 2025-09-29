@@ -8,6 +8,8 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ActionInformation
 {
+    private array $counters = [];
+
     public function fromResult(ProcessingResult $processingResult): ProcessingResult
     {
         $answer = $processingResult->answer;
@@ -24,6 +26,12 @@ class ActionInformation
                     }
                 } elseif ($lastMessage instanceof ToolMessage) {
                     $answer = 'Processing tool result: ' . $lastMessage->name;
+
+                    if(!array_key_exists($lastMessage->name, $this->counters)) {
+                        $this->counters[$lastMessage->name] = 0;
+                    }
+
+                    $this->counters[$lastMessage->name]++;
                 }
             }
         }
@@ -34,7 +42,8 @@ class ActionInformation
             conversation: $processingResult->conversation,
             promptTokens: $processingResult->promptTokens,
             completionTokens: $processingResult->completionTokens,
-            totalTokens: $processingResult->totalTokens
+            totalTokens: $processingResult->totalTokens,
+            payload: $this->counters,
         );
     }
 }

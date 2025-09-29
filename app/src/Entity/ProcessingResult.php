@@ -12,7 +12,8 @@ readonly class ProcessingResult
         public Conversation $conversation,
         public ?int         $promptTokens = null,
         public ?int         $completionTokens = null,
-        public ?int         $totalTokens = null
+        public ?int         $totalTokens = null,
+        public ?array       $payload = null,
     )
     {
     }
