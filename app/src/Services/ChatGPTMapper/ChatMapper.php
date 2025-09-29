@@ -6,6 +6,7 @@ use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\DisappearingMessageMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
@@ -38,6 +39,7 @@ class ChatMapper implements MessageMapper
         $this->mappers = [
             new UserMapper(),
             new UserTaskMapper(),
+            new DisappearingMessageMapper(),
             new AssistantMapper(),
             new SystemMapper(),
             new ToolMapper(),

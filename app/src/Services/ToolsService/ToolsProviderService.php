@@ -31,7 +31,7 @@ class ToolsProviderService implements ToolsProvider
 
     public function register(string $name, ToolInterface $tool): void
     {
-        $this->meta[$name] = $tool->getProps($name);
+        $this->meta[$name] = $tool->getProps();
         $this->map[$name] = $tool;
     }
 
@@ -53,7 +53,7 @@ class ToolsProviderService implements ToolsProvider
 
     public function isResultFunction(string $name): bool
     {
-        return $name === self::RESULT_TOOL;
+        return $name === SendResult::NAME;
     }
 
     public function getTaskTool(): ?ToolInterface
