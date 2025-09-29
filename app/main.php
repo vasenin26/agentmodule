@@ -1,5 +1,6 @@
 <?php
 
+use Anymodule\Agentmodule\Factory\ActionsFactory;
 use Anymodule\Agentmodule\Factory\ConversationFactory;
 use Anymodule\Agentmodule\Factory\LLMFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
@@ -19,14 +20,19 @@ $api = new Service(
 
 $repoProvider = new RepositoryProvider(reposFolder: 'default', branch: 'main');
 
+$toolFactory = new ToolServiceFactory(
+    $repoProvider,
+    new PageContextProviderFactory($api),
+);
+
+$llmFactory = new LLMFactory($repoProvider);
+
 $processorFactory = new TaskProcessorFactory(
-    new ToolServiceFactory(
-        $repoProvider,
-        new PageContextProviderFactory($api),
-    ),
-    new LLMFactory($repoProvider),
+    $toolFactory,
+    $llmFactory,
     new ConversationFactory(),
     new TaskStorageProvider(),
+    new ActionsFactory($toolFactory, $llmFactory),
 );
 
 (new Runner($api, $processorFactory))->run();

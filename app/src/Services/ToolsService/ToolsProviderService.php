@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
-use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Tools\SendResult;
 
-class ToolsService implements LLMTools
+class ToolsProviderService implements ToolsProvider
 {
     const RESULT_TOOL = 'result';
 

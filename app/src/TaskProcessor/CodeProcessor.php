@@ -2,9 +2,8 @@
 
 namespace Anymodule\Agentmodule\TaskProcessor;
 
-use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
-use Anymodule\Agentmodule\Actions\TaskPlanner;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
@@ -16,11 +15,10 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Utils\Log;
-use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 
-class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
 
     public function __construct(
@@ -28,6 +26,7 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ActionsFactoryInterface      $actionsFactory,
     )
     {
     }
@@ -79,21 +78,11 @@ class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
 
     private function getActionRunner(TasksStorage $tasksStorage): ActionRunner
     {
-        $infoMapper = new ActionInformation();
         $addTasksTool = new AddTasks($tasksStorage);
 
         return new ActionRunner([
-            'search-relevant-files' => new SearchRelevantFiles(
-                $this->chatFactory,
-                $this->toolsFactory,
-                $infoMapper,
-            ),
-            'plane-tasks' => new TaskPlanner(
-                $this->chatFactory,
-                $this->toolsFactory,
-                $addTasksTool,
-                $infoMapper,
-            )
+            'search-relevant-files' =>$this->actionsFactory->createSearchRelevantFiles(),
+            'plane-tasks' => $this->actionsFactory->createTaskPlanner($addTasksTool),
         ]);
     }
 

@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ToolsService;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +25,7 @@ class ToolsServiceTest extends TestCase
             ->with([])
             ->andReturn('test result');
 
-        $service = new ToolsService($tool, []);
+        $service = new ToolsProviderService($tool, []);
 
         $result = $service->callTool('result', '{}');
 

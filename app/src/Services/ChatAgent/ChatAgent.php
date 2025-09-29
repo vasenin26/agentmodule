@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Services\ChatAgent;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -15,7 +15,7 @@ class ChatAgent implements ActionContract
 {
     public function __construct(
         private CharProcessorInterface $chatProcessor,
-        private LLMTools               $tools,
+        private ToolsProvider          $tools,
     )
     {
     }

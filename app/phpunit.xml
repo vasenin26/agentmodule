@@ -22,9 +22,4 @@
             <directory>vendor</directory>
         </exclude>
     </source>
-
-    <logging>
-        <junit outputFile="tests/results/junit.xml"/>
-    </logging>
-
 </phpunit>

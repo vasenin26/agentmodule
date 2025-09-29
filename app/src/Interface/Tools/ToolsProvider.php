@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Interface\Tools;
 
-interface LLMTools
+interface ToolsProvider
 {
     public function isResultFunction(string $name): bool;
 

@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Vasenin26\Conversation\Chat;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
-use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -21,7 +21,7 @@ class LMStudioClient implements GPTProcessorInterface
     public function __construct(
         private string        $apiKey,
         private string        $model,
-        private LLMTools      $tools,
+        private ToolsProvider $tools,
         private MessageMapper $messageMapper,
     )
     {

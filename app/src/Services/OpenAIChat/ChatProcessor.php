@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
-use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
@@ -21,7 +21,7 @@ class ChatProcessor implements CharProcessorInterface
     {
     }
 
-    public function process(Conversation $chat, LLMTools $tools): ChatResultInterface
+    public function process(Conversation $chat, ToolsProvider $tools): ChatResultInterface
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)

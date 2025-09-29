@@ -3,9 +3,9 @@
 namespace Anymodule\Agentmodule\Interface;
 
 
-use Anymodule\Agentmodule\Interface\Tools\LLMTools;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 
 interface ChatAgentFactoryInterface
 {
-    public function createAgent(LLMTools $tools): ActionContract;
+    public function createAgent(ToolsProvider $tools): ActionContract;
 }

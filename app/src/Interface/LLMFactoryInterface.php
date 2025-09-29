@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Interface;
 
-use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 
 interface LLMFactoryInterface
 {
 
-    public function createChat(ToolsService $toolsService): GPTProcessorInterface;
+    public function createChat(ToolsProviderService $toolsService): GPTProcessorInterface;
 }

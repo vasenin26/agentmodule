@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
+use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
@@ -19,6 +20,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         private LLMFactoryInterface          $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ActionsFactoryInterface      $actionsFactory,
     )
     {
     }
@@ -31,6 +33,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
                 $this->chatFactory,
                 $this->conversationFactory,
                 $this->taskStorageProvider,
+                $this->actionsFactory,
             );
         }
 

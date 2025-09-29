@@ -9,7 +9,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class ToolServiceFactory implements ToolServiceFactoryInterface
@@ -25,14 +25,14 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
         $this->factory = new ToolsFactory($gitRepoProvider, $pageContextServiceFactory);
     }
 
-    public function withTools(array $tools): ToolsService
+    public function withTools(array $tools): ToolsProviderService
     {
-        return new ToolsService($this->factory->sendResult(), $tools);
+        return new ToolsProviderService($this->factory->sendResult(), $tools);
     }
 
-    public function withMainTools(): ToolsService
+    public function withMainTools(): ToolsProviderService
     {
-        return new ToolsService(
+        return new ToolsProviderService(
             $this->factory->sendResult(),
             [
                 // Базовые утилиты

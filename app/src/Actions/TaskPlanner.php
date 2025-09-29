@@ -5,8 +5,8 @@ namespace Anymodule\Agentmodule\Actions;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Utils\Log;
@@ -63,8 +63,8 @@ PROMPT;
     public function __construct(
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
-        private AddTasks                    $addTasksTool,
-        private ActionInformation           $actionInformationMappper
+        private ToolInterface               $addTasksTool,
+        private ActionInformation           $actionInformationMapper
     )
     {
     }
@@ -120,7 +120,7 @@ PROMPT;
                     totalTokens: $processingResult->totalTokens
                 );
             } else {
-                yield $this->actionInformationMappper->fromResult($processingResult);
+                yield $this->actionInformationMapper->fromResult($processingResult);
             }
         }
 

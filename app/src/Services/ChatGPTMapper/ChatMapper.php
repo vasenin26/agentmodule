@@ -13,7 +13,7 @@ use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -30,7 +30,7 @@ class ChatMapper implements MessageMapper
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
         UrlParserInterface       $urlParser = null,
-        ToolsService             $toolsService = null
+        ToolsProviderService $toolsService = null
     )
     {
         $urlParser = $urlParser ?? new ExtractRepoUrl();
