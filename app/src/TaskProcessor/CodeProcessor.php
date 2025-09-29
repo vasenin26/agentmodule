@@ -10,6 +10,7 @@ use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Tools\Tasks\AddTasks;
@@ -43,11 +44,13 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
             reposFolder: $this->getTmpTaskFolder($task),
         );
 
-        $this->getActionRunner($taskStorage)->run($conversation, $tokenCounter);
+        $editorTools = $this->getEditorTools($task, $taskStorage, $repositoryProvider);
+
+        $this->getActionRunner($taskStorage, $editorTools)->run($conversation, $tokenCounter);
 
         $conversation->addMessage(new DisappearingMessage("Check task list with tool before start"));
 
-        $result = $this->getMainProcessor($task, $repositoryProvider, $taskStorage)
+        $result = $this->chatFactory->createChat($editorTools)
             ->process($conversation, $processHandler, $task->resultRequired);
 
         foreach ($repositoryProvider->getProvidedRepositories() as $repo) {
@@ -55,7 +58,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
                 if ($repo->hasChanges()) {
                     $branch = $repo->getCurrentBranchName();
                     $repo->addAllChanges();
-                    $repo->commit($result->answer);
+                    $repo->commit($result->answer ?? 'without comment');
                     $repo->push($branch, ['--set-upstream', 'origin']);
                 }
             } catch (\Throwable $exception) {
@@ -68,7 +71,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
 
     private function getTmpTaskFolder(Task $task): string
     {
-        return uniqid('task' . $task->id . '_');
+        return 'task_' . $task->id;
     }
 
     private function getTaskBranch(Task $task): string
@@ -76,23 +79,18 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
         return 'agent/task' . $task->id;
     }
 
-    private function getActionRunner(TasksStorage $tasksStorage): ActionRunner
+    private function getActionRunner(TasksStorage $tasksStorage, ToolsProvider $editorTools): ActionRunner
     {
         $addTasksTool = new AddTasks($tasksStorage);
 
         return new ActionRunner([
-            'search-relevant-files' =>$this->actionsFactory->createSearchRelevantFiles(),
-            'plane-tasks' => $this->actionsFactory->createTaskPlanner($addTasksTool),
+            'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+            'plane-tasks' => $this->actionsFactory->createTaskPlanner($addTasksTool, $editorTools),
         ]);
     }
 
-    private function getMainProcessor(
-        Task               $task,
-        RepositoryProvider $repositoryProvider,
-        TasksStorage       $taskStorage
-    ): GPTProcessorInterface
+    private function getEditorTools(Task $task, TasksStorage $taskStorage, RepositoryProvider $repositoryProvider): ToolsProvider
     {
-
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
 
         if ($task->projectId) {
@@ -103,8 +101,6 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
         $toolsBuilder->withEditor();
         $toolsBuilder->withTasks($taskStorage);
 
-        $tools = $toolsBuilder->build();
-
-        return $this->chatFactory->createChat($tools);
+        return $toolsBuilder->build();
     }
 }

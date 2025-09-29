@@ -61,7 +61,7 @@ class GitFileMapper implements MessageMapperInterface
 
             $fullPath = $repo->getRepositoryPath() . '/' . trim($filePath, '/');
 
-            $content = file_get_contents($fullPath);
+            @$content = file_get_contents($fullPath);
 
             if ($content === false) {
                 return "File not found";

@@ -35,8 +35,8 @@ class Log
         self::log(Level::Notice, $message);
     }
 
-    public static function warning(string $getMessage): void
+    public static function warning(string $getMessage, ...$args): void
     {
-        self::log(Level::Warning, $getMessage);
+        self::log(Level::Warning, $getMessage, $args);
     }
 }

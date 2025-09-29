@@ -18,6 +18,8 @@ use Vasenin26\Conversation\Messages\AssistantMessage;
  */
 class LMStudioClient implements GPTProcessorInterface
 {
+    const MAX_RESULT_ATTEMPT = 3;
+
     public function __construct(
         private string        $apiKey,
         private string        $model,
@@ -43,6 +45,7 @@ class LMStudioClient implements GPTProcessorInterface
         $answer = null;
         $finished = false;
         $taskAwait = 0;
+        $resultAttempt = self::MAX_RESULT_ATTEMPT;
 
         do {
             Log::info("LLM ask");
@@ -107,11 +110,18 @@ class LMStudioClient implements GPTProcessorInterface
 
             if (empty($toolCalls)) {
                 if ($resultRequired) {
+                    $resultAttempt--;
                     $chat->addMessage($this->messageMapper->mapToHelpInstructionMessage('Store answer with tools for finish'));
+                    Log::info("LLM forgot send result (remember attempt: $resultAttempt)");
+                    if($resultAttempt === 0) {
+                        $answer = 'A dont know how to send result';
+                        $finished = true;
+                    }
                 } else {
                     $finished = true;
                 }
             } else {
+                $resultAttempt = self::MAX_RESULT_ATTEMPT;
                 foreach ($toolCalls as $toolCall) {
 
                     Log::info("LLM call tool " . $toolCall->function->name);
@@ -186,6 +196,7 @@ class LMStudioClient implements GPTProcessorInterface
             if ($finished) {
                 $taskAwait = $this->tools->getTodo();
                 if ($taskAwait > 0) {
+                    Log::info("LLM have unfinished  tasks (count: $taskAwait)");
                     $chat->addMessage(
                         $this->messageMapper->mapToHelpInstructionMessage(
                             "You have {$taskAwait} uncompleted tasks. You need to complete them and mark them with the tool."
