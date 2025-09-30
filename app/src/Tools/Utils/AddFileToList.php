@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Tools\Utils;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class AddFileToList implements ToolInterface
 {
@@ -15,7 +16,7 @@ class AddFileToList implements ToolInterface
         $this->list = &$list;
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         $this->list[] = [
             'url' => $args['url'],
@@ -23,7 +24,10 @@ class AddFileToList implements ToolInterface
             'description' => $args['description'] ?? '',
         ];
 
-        return 'File added to list';
+        return new ToolResult(true, 'File added to list', [
+            'url' => $args['url'],
+            'path' => $args['path'],
+        ]);
     }
 
     public function getProps(): array

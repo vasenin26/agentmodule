@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ReadFileLines implements ToolInterface
 {
@@ -15,7 +16,7 @@ class ReadFileLines implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url, 'path' => $path, 'start_line' => $startLine, 'end_line' => $endLine] = $args;
@@ -28,21 +29,13 @@ class ReadFileLines implements ToolInterface
             $fullPath = $repo->getRepositoryPath() . '/' . trim($path, '/');
 
             if (!file_exists($fullPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File not found: ' . $path,
-                    'code' => 'FILE_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
             }
 
             // Читаем весь файл
             $content = file_get_contents($fullPath);
             if ($content === false) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to read file: ' . $path,
-                    'code' => 'READ_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to read file: ' . $path, ['code' => 'READ_FAILED']);
             }
 
             // Разбиваем на строки
@@ -51,28 +44,16 @@ class ReadFileLines implements ToolInterface
 
             // Валидируем и нормализуем номера строк
             if ($startLine < 1) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Start line out of range. Must be >= 1',
-                    'code' => 'START_LINE_OUT_OF_RANGE',
-                ]);
+                return new ToolResult(false, 'Start line out of range. Must be >= 1', ['code' => 'START_LINE_OUT_OF_RANGE']);
             }
 
             // Если стартовая строка за пределами файла — сообщаем об ошибке
             if ($startLine > $totalLines) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Start line out of range. File has ' . $totalLines . ' lines',
-                    'code' => 'START_LINE_OUT_OF_RANGE',
-                ]);
+                return new ToolResult(false, 'Start line out of range. File has ' . $totalLines . ' lines', ['code' => 'START_LINE_OUT_OF_RANGE']);
             }
 
             if ($endLine < $startLine) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'End line out of range. Must be >= start line (' . $startLine . ')',
-                    'code' => 'END_LINE_OUT_OF_RANGE',
-                ]);
+                return new ToolResult(false, 'End line out of range. Must be >= start line (' . $startLine . ')', ['code' => 'END_LINE_OUT_OF_RANGE']);
             }
 
             // Ограничиваем конечную строку длиной файла
@@ -82,25 +63,17 @@ class ReadFileLines implements ToolInterface
             $selectedLines = array_slice($lines, $startLine - 1, $effectiveEndLine - $startLine + 1);
             $content = implode("\n", $selectedLines);
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'file_path' => $path,
-                    'start_line' => $startLine,
-                    'end_line' => $effectiveEndLine,
-                    'total_lines' => $totalLines,
-                    'lines_count' => count($selectedLines),
-                    'content' => $content
-                ],
-                'message' => 'File lines read successfully'
+            return new ToolResult(true, 'Git: read file lines ok', [
+                'file_path' => $path,
+                'start_line' => $startLine,
+                'end_line' => $effectiveEndLine,
+                'total_lines' => $totalLines,
+                'lines_count' => count($selectedLines),
+                'content' => $content,
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to read file lines: ' . $e->getMessage(),
-                'code' => 'READ_LINES_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to read file lines: ' . $e->getMessage(), ['code' => 'READ_LINES_ERROR', 'exception' => get_class($e)]);
         }
     }
 

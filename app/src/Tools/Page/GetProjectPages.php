@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Page;
 
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetProjectPages implements ToolInterface
 {
@@ -15,7 +16,7 @@ class GetProjectPages implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             // Получаем страницы из контекста проекта (project_id не нужен)
@@ -33,24 +34,16 @@ class GetProjectPages implements ToolInterface
             $pageTree = []; // Недоступно в PageListDTO
             $statistics = $this->calculateStatistics($pages);
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'total_pages' => count($pages),
-                    'root_pages_count' => count($rootPages),
-                    'pages' => $pagesData,
-                    'page_tree' => $pageTree,
-                    'statistics' => $statistics
-                ],
-                'message' => 'Project pages retrieved successfully',
+            return new ToolResult(true, 'Project pages retrieved successfully', [
+                'total_pages' => count($pages),
+                'root_pages_count' => count($rootPages),
+                'pages' => $pagesData,
+                'page_tree' => $pageTree,
+                'statistics' => $statistics,
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to retrieve project pages: ' . $e->getMessage(),
-                'code' => 'GET_PROJECT_PAGES_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to retrieve project pages: ' . $e->getMessage(), ['code' => 'GET_PROJECT_PAGES_ERROR', 'exception' => get_class($e)]);
         }
     }
 

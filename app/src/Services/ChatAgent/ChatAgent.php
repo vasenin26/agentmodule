@@ -64,14 +64,14 @@ class ChatAgent implements ActionContract
                     try {
                         $toolResult = $this->tools->callTool($toolCall->name, $toolCall->arguments);
 
-                        Log::info("Tool result: {$toolResult}");
+                        Log::info("Tool result: {$toolResult->message}");
                     } catch (\Throwable $exception) {
                         $conversation->addMessage(new ToolMessage(
                             false,
                             $toolCall->id,
                             $toolCall->name,
                             $toolCall->arguments,
-                            'This tool has broken',
+                            'This tool has broken: ' . $toolCall->name,
                         ));
 
                         Log::info("Tool error: {$exception->getMessage()}");
@@ -92,11 +92,11 @@ class ChatAgent implements ActionContract
                     }
 
                     $conversation->addMessage(new ToolMessage(
-                        false,
+                        $toolResult->status,
                         $toolCall->id,
                         $toolCall->name,
                         $toolCall->arguments,
-                        $toolResult,
+                        (string)$toolResult,
                     ));
                 }
             }

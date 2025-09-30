@@ -114,7 +114,7 @@ class LMStudioClient implements GPTProcessorInterface
                     $resultAttempt--;
                     $chat->addMessage($this->messageMapper->mapToHelpInstructionMessage('Store answer with tools for finish'));
                     Log::info("LLM forgot send result (remember attempt: $resultAttempt)");
-                    if($resultAttempt === 0) {
+                    if ($resultAttempt === 0) {
                         $answer = 'A dont know how to send result';
                         $finished = true;
                     }
@@ -143,7 +143,7 @@ class LMStudioClient implements GPTProcessorInterface
                         continue;
                     }
 
-                    Log::info("Tool OK");
+                    Log::info("Tool OK: " . $toolResult->message);
 
                     if (is_null($toolResult)) {
 
@@ -169,11 +169,11 @@ class LMStudioClient implements GPTProcessorInterface
                     }
 
                     $chat->addMessage($this->messageMapper->mapToToolMessage(
-                        true,
+                        $toolResult->status,
                         $toolCall->id,
                         $toolCall->function->name,
                         $toolCall->function->arguments,
-                        $toolResult,
+                        (string)$toolResult,
                     ));
                 }
             }

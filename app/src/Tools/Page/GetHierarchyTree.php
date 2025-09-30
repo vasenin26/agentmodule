@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Page;
 
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetHierarchyTree implements ToolInterface
 {
@@ -15,7 +16,7 @@ class GetHierarchyTree implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             $pageId = isset($args['page_id']) ? (int)$args['page_id'] : null;
@@ -23,34 +24,22 @@ class GetHierarchyTree implements ToolInterface
 
             // Проверяем доступ к странице, если указана
             if ($pageId && !$this->pageContextService->validatePageAccess($pageId)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Page not found or not accessible in current project context',
-                    'code' => 'PAGE_ACCESS_DENIED',
-                ]);
+                return new ToolResult(false, 'Page not found or not accessible in current project context', ['code' => 'PAGE_ACCESS_DENIED']);
             }
 
             $hierarchy = $this->pageContextService->getPageHierarchy($pageId);
             $tree = $this->buildDetailedTree($hierarchy, $maxDepth);
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'project_id' => $this->pageContextService->getProjectId(),
-                    'root_page_id' => $pageId,
-                    'max_depth' => $maxDepth,
-                    'total_pages' => $this->countPagesInTree($tree),
-                    'tree' => $tree
-                ],
-                'message' => 'Page hierarchy retrieved successfully',
+            return new ToolResult(true, 'Page hierarchy retrieved successfully', [
+                'project_id' => $this->pageContextService->getProjectId(),
+                'root_page_id' => $pageId,
+                'max_depth' => $maxDepth,
+                'total_pages' => $this->countPagesInTree($tree),
+                'tree' => $tree,
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to retrieve page hierarchy: ' . $e->getMessage(),
-                'code' => 'GET_HIERARCHY_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to retrieve page hierarchy: ' . $e->getMessage(), ['code' => 'GET_HIERARCHY_ERROR', 'exception' => get_class($e)]);
         }
     }
 

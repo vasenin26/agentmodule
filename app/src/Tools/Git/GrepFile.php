@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GrepFile implements ToolInterface
 {
@@ -15,7 +16,7 @@ class GrepFile implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url, 'path' => $path, 'pattern' => $pattern] = $args;
@@ -31,21 +32,13 @@ class GrepFile implements ToolInterface
             $fullPath = $repo->getRepositoryPath() . '/' . trim($path, '/');
 
             if (!file_exists($fullPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File not found: ' . $path,
-                    'code' => 'FILE_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
             }
 
             // Читаем содержимое файла
             $content = file_get_contents($fullPath);
             if ($content === false) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to read file: ' . $path,
-                    'code' => 'READ_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to read file: ' . $path, ['code' => 'READ_FAILED']);
             }
 
             // Разбиваем на строки
@@ -69,29 +62,21 @@ class GrepFile implements ToolInterface
                 }
             }
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'file_path' => $path,
-                    'pattern' => $pattern,
-                    'total_lines' => $totalLines,
-                    'matches_count' => count($matches),
-                    'matches' => $matches,
-                    'search_options' => [
-                        'case_sensitive' => $caseSensitive,
-                        'whole_word' => $wholeWord,
-                        'regex' => $regex
-                    ]
+            return new ToolResult(true, 'Search: pattern found in ' . count($matches) . ' lines', [
+                'file_path' => $path,
+                'pattern' => $pattern,
+                'total_lines' => $totalLines,
+                'matches_count' => count($matches),
+                'matches' => $matches,
+                'search_options' => [
+                    'case_sensitive' => $caseSensitive,
+                    'whole_word' => $wholeWord,
+                    'regex' => $regex,
                 ],
-                'message' => count($matches) . ' matches found'
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to grep file: ' . $e->getMessage(),
-                'code' => 'GREP_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to grep file: ' . $e->getMessage(), ['code' => 'GREP_ERROR', 'exception' => get_class($e)]);
         }
     }
 

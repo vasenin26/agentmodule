@@ -64,6 +64,20 @@ class ToolsBuilder
         ]);
     }
 
+    public function withRepoManagement(string $prefix = 'git'): ToolsBuilder
+    {
+        return $this->withTools([
+            $this->toolsFactory->gitGetCurrentBranch(),
+            $this->toolsFactory->gitPull(),
+            $this->toolsFactory->gitResetHard(),
+            $this->toolsFactory->gitAddFile(),
+            $this->toolsFactory->gitUnstageFile(),
+            $this->toolsFactory->gitCommit(),
+            $this->toolsFactory->gitPush(),
+            $this->toolsFactory->gitGetStatus(),
+        ]);
+    }
+
     public function build(): ToolsProviderService
     {
         return $this->toolServiceFactory->withTools($this->tools);

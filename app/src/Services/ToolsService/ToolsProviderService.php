@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\ToolsService;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Tools\SendResult;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ToolsProviderService implements ToolsProvider
 {
@@ -40,7 +41,7 @@ class ToolsProviderService implements ToolsProvider
         return array_values($this->meta);
     }
 
-    public function callTool(string $toolName, string $args): ?string
+    public function callTool(string $toolName, string $args): ?ToolResult
     {
         $params = json_decode($args, true);
 
@@ -48,7 +49,11 @@ class ToolsProviderService implements ToolsProvider
             $params = [];
         }
 
-        return $this->map[$toolName]->execute($params);
+        try {
+            return $this->map[$toolName]->execute($params);
+        } catch (\Throwable $exception) {
+            return new ToolResult(false, $exception->getMessage(), ['exception' => get_class($exception)]);
+        }
     }
 
     public function isResultFunction(string $name): bool
@@ -66,10 +71,12 @@ class ToolsProviderService implements ToolsProvider
         $taskTool = $this->getTaskTool();
 
         if($taskTool) {
-            $tasks = $taskTool->execute([]);
+            /** @var ToolResult|null $tasksResult */
+            $tasksResult = $taskTool->execute([]);
 
-            if($tasks) {
-                $items = json_decode($tasks, true);
+            if($tasksResult && $tasksResultJson = (string)$tasksResult) {
+                $decoded = json_decode($tasksResultJson, true);
+                $items = $decoded['payload'] ?? [];
                 $await = 0;
 
                 foreach ($items as $item) {

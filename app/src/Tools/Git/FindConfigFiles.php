@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class FindConfigFiles implements ToolInterface
 {
@@ -15,7 +16,7 @@ class FindConfigFiles implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url] = $args;
@@ -25,31 +26,19 @@ class FindConfigFiles implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $configFiles = $this->findConfigurationFiles($repoPath, $patterns);
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'config_files' => $configFiles,
-                    'total_found' => count($configFiles),
-                    'search_patterns' => array_merge($this->getDefaultPatterns(), $patterns)
-                ],
-                'message' => 'Configuration files found successfully',
+            return new ToolResult(true, 'Configuration files found successfully', [
+                'config_files' => $configFiles,
+                'total_found' => count($configFiles),
+                'search_patterns' => array_merge($this->getDefaultPatterns(), $patterns),
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to find configuration files: ' . $e->getMessage(),
-                'code' => 'CONFIG_SEARCH_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to find configuration files: ' . $e->getMessage(), ['code' => 'CONFIG_SEARCH_ERROR', 'exception' => get_class($e)]);
         }
     }
 

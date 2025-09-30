@@ -6,6 +6,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ReadFile implements ToolInterface
 {
@@ -18,7 +19,7 @@ class ReadFile implements ToolInterface
     }
 
     //read file from git repository
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         list('url' => $url, 'path' => $path) = $args;
 
@@ -28,13 +29,16 @@ class ReadFile implements ToolInterface
         $repo = $this->repoProvider->getRepo($url);
         $fullPath = $repo->getRepositoryPath() . '/' . trim($path, '/');
 
-        $content = file_get_contents($fullPath);
+        $content = @file_get_contents($fullPath);
 
         if ($content === false) {
-            return "File not found: $path";
+            return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
         }
 
-        return $content;
+        return new ToolResult(true, 'Git: read file ok', [
+            'path' => $path,
+            'content' => $content,
+        ]);
     }
 
     public function getProps(): array

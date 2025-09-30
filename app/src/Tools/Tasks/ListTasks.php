@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Tools\Tasks;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ListTasks implements ToolInterface
 {
@@ -12,17 +13,16 @@ class ListTasks implements ToolInterface
     {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         $tasks = $this->storage->list();
         $stats = $this->storage->getStats();
         
-        $result = [
+        $payload = [
             'tasks' => $tasks,
-            'stats' => $stats
+            'stats' => $stats,
         ];
-        
-        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return new ToolResult(true, 'Tasks listed', $payload);
     }
 
     public function getProps(): array

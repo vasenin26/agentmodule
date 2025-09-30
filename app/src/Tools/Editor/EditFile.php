@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Tools\Editor;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class EditFile implements ToolInterface
 {
@@ -14,7 +15,7 @@ class EditFile implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url, 'path' => $path, 'content' => $content, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
@@ -23,11 +24,7 @@ class EditFile implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $fullFilePath = $repoPath . '/' . trim($path, '/');
@@ -39,38 +36,22 @@ class EditFile implements ToolInterface
                     $dir = dirname($fullFilePath);
                     if (!is_dir($dir)) {
                         if (!mkdir($dir, 0755, true)) {
-                            return json_encode([
-                                'success' => false,
-                                'error' => 'Failed to create directory: ' . dirname($path),
-                                'code' => 'DIRECTORY_CREATE_FAILED',
-                            ]);
+                            return new ToolResult(false, 'Failed to create directory: ' . dirname($path), ['code' => 'DIRECTORY_CREATE_FAILED']);
                         }
                     }
                     
                     // Создаем пустой файл
                     if (!touch($fullFilePath)) {
-                        return json_encode([
-                            'success' => false,
-                            'error' => 'Failed to create file: ' . $path,
-                            'code' => 'FILE_CREATE_FAILED',
-                        ]);
+                        return new ToolResult(false, 'Failed to create file: ' . $path, ['code' => 'FILE_CREATE_FAILED']);
                     }
                 } else {
-                    return json_encode([
-                        'success' => false,
-                        'error' => 'File not found: ' . $path,
-                        'code' => 'FILE_NOT_FOUND',
-                    ]);
+                    return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
                 }
             }
 
             // Проверяем, что файл доступен для записи
             if (!is_writable($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File is not writable: ' . $path,
-                    'code' => 'FILE_NOT_WRITABLE',
-                ]);
+                return new ToolResult(false, 'File is not writable: ' . $path, ['code' => 'FILE_NOT_WRITABLE']);
             }
 
             // Определяем, был ли файл создан только что
@@ -81,11 +62,7 @@ class EditFile implements ToolInterface
             if (!$isNewFile) {
                 $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
                 if (!copy($fullFilePath, $backupPath)) {
-                    return json_encode([
-                        'success' => false,
-                        'error' => 'Failed to create backup of file: ' . $path,
-                        'code' => 'BACKUP_FAILED',
-                    ]);
+                    return new ToolResult(false, 'Failed to create backup of file: ' . $path, ['code' => 'BACKUP_FAILED']);
                 }
             }
 
@@ -102,11 +79,7 @@ class EditFile implements ToolInterface
                     unlink($fullFilePath);
                 }
                 
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to write content to file: ' . $path,
-                    'code' => 'WRITE_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to write content to file: ' . $path, ['code' => 'WRITE_FAILED']);
             }
 
             // Удаляем резервную копию после успешной записи
@@ -114,23 +87,15 @@ class EditFile implements ToolInterface
                 unlink($backupPath);
             }
 
-            return json_encode([
-                'success' => true,
-                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
-                'data' => [
-                    'file_path' => $path,
-                    'file_created' => $isNewFile,
-                    'bytes_written' => $result,
-                    'content_length' => strlen($content)
-                ]
+            return new ToolResult(true, $isNewFile ? 'File created successfully' : 'File updated successfully', [
+                'file_path' => $path,
+                'file_created' => $isNewFile,
+                'bytes_written' => $result,
+                'content_length' => strlen($content),
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to edit file: ' . $e->getMessage(),
-                'code' => 'EDIT_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to edit file: ' . $e->getMessage(), ['code' => 'EDIT_ERROR', 'exception' => get_class($e)]);
         }
     }
 

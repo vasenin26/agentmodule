@@ -3,14 +3,26 @@
 namespace Anymodule\Agentmodule\Tools;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class SendResult implements ToolInterface
 {
     const NAME = 'result';
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
-        return $args['content'] ?? null;
+        try {
+            if (!array_key_exists('content', $args)) {
+                return null; // отсутствие результата по семантике инструмента
+            }
+
+            $content = $args['content'];
+            $message = 'Result captured';
+            $payload = is_array($content) ? $content : ['content' => $content];
+            return new ToolResult(true, $message, $payload);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, $e->getMessage(), ['exception' => get_class($e)]);
+        }
     }
 
     public function getProps(): array

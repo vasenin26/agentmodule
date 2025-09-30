@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Page;
 
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetInfo implements ToolInterface
 {
@@ -15,27 +16,19 @@ class GetInfo implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['page_id' => $pageId] = $args;
 
             if (!is_numeric($pageId) || $pageId <= 0) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid page ID provided',
-                    'code' => 'INVALID_PAGE_ID',
-                ]);
+                return new ToolResult(false, 'Invalid page ID provided', ['code' => 'INVALID_PAGE_ID']);
             }
 
             $page = $this->pageContextService->getPageById((int)$pageId);
 
             if (!$page) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Page not found or not accessible in current project context',
-                    'code' => 'PAGE_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Page not found or not accessible in current project context', ['code' => 'PAGE_NOT_FOUND']);
             }
 
             $pageData = [
@@ -49,18 +42,10 @@ class GetInfo implements ToolInterface
 
             // Дополнительная информация о странице недоступна в базовой сущности Page
 
-            return json_encode([
-                'success' => true,
-                'data' => $pageData,
-                'message' => 'Page information retrieved successfully',
-            ]);
+            return new ToolResult(true, 'Page information retrieved successfully', $pageData);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to retrieve page information: ' . $e->getMessage(),
-                'code' => 'GET_PAGE_INFO_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to retrieve page information: ' . $e->getMessage(), ['code' => 'GET_PAGE_INFO_ERROR', 'exception' => get_class($e)]);
         }
     }
 

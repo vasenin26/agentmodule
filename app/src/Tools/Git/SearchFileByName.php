@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class SearchFileByName implements ToolInterface
 {
@@ -15,7 +16,7 @@ class SearchFileByName implements ToolInterface
     )
     {
     }
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         list('url' => $url, 'needle' => $path) = $args;
 
@@ -31,14 +32,14 @@ class SearchFileByName implements ToolInterface
         exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
-            return "Error searching for files.";
+            return new ToolResult(false, 'Error searching for files', ['code' => 'SEARCH_ERROR']);
         }
 
         if (empty($output)) {
-            return "No files found matching: $path";
+            return null; // ничего не найдено
         }
 
-        return implode("\n", $output);
+        return new ToolResult(true, 'Search: files found', ['files' => array_values($output)]);
     }
 
     public function getProps(): array

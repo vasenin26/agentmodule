@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class AnalyzeStructure implements ToolInterface
 {
@@ -15,7 +16,7 @@ class AnalyzeStructure implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url] = $args;
@@ -24,11 +25,7 @@ class AnalyzeStructure implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $analysis = [
@@ -38,18 +35,10 @@ class AnalyzeStructure implements ToolInterface
                 'config_files' => $this->findConfigFiles($repoPath)
             ];
 
-            return json_encode([
-                'success' => true,
-                'data' => $analysis,
-                'message' => 'Repository structure analyzed successfully',
-            ]);
+            return new ToolResult(true, 'Repository structure analyzed successfully', $analysis);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to analyze repository structure: ' . $e->getMessage(),
-                'code' => 'ANALYSIS_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to analyze repository structure: ' . $e->getMessage(), ['code' => 'ANALYSIS_ERROR', 'exception' => get_class($e)]);
         }
     }
 

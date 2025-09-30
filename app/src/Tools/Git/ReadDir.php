@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ReadDir implements ToolInterface
 {
@@ -17,7 +18,7 @@ class ReadDir implements ToolInterface
     }
 
     //read directory contents from git repository
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         list('url' => $url, 'path' => $path) = $args;
 
@@ -25,13 +26,13 @@ class ReadDir implements ToolInterface
         $fullPath = $repo->getRepositoryPath() . '/' . trim($path, '/');
 
         if (!is_dir($fullPath)) {
-            return "Directory not found: $path";
+            return new ToolResult(false, 'Directory not found: ' . $path, ['code' => 'DIR_NOT_FOUND']);
         }
 
         $files = scandir($fullPath);
 
         if ($files === false) {
-            return "Error reading directory: $path";
+            return new ToolResult(false, 'Error reading directory: ' . $path, ['code' => 'READDIR_ERROR']);
         }
 
         // Remove . and .. entries
@@ -40,10 +41,10 @@ class ReadDir implements ToolInterface
         });
 
         if (empty($files)) {
-            return "Directory is empty: $path";
+            return new ToolResult(true, 'Directory is empty', ['path' => $path, 'files' => []]);
         }
 
-        return implode("\n", $files);
+        return new ToolResult(true, 'Git: readdir ok', ['path' => $path, 'files' => array_values($files)]);
     }
 
     public function getProps(): array

@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Tools\Editor;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class ReplaceInFile implements ToolInterface
 {
@@ -33,26 +34,18 @@ class ReplaceInFile implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
 
             // Basic input validation and normalization
             if (!is_string($url) || $url === '' || !is_string($path) || $path === '') {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid arguments: url and path must be non-empty strings',
-                    'code' => 'ARGUMENTS_INVALID',
-                ]);
+                return new ToolResult(false, 'Invalid arguments: url and path must be non-empty strings', ['code' => 'ARGUMENTS_INVALID']);
             }
 
             if (!is_string($pattern) || $pattern === '') {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid arguments: pattern must be a non-empty string',
-                    'code' => 'PATTERN_INVALID',
-                ]);
+                return new ToolResult(false, 'Invalid arguments: pattern must be a non-empty string', ['code' => 'PATTERN_INVALID']);
             }
 
             if (!is_string($replacement)) {
@@ -64,11 +57,7 @@ class ReplaceInFile implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $fullFilePath = $repoPath . '/' . trim($path, '/');
@@ -80,48 +69,28 @@ class ReplaceInFile implements ToolInterface
                     $dir = dirname($fullFilePath);
                     if (!is_dir($dir)) {
                         if (!mkdir($dir, 0755, true)) {
-                            return json_encode([
-                                'success' => false,
-                                'error' => 'Failed to create directory: ' . dirname($path),
-                                'code' => 'DIRECTORY_CREATE_FAILED',
-                            ]);
+                            return new ToolResult(false, 'Failed to create directory: ' . dirname($path), ['code' => 'DIRECTORY_CREATE_FAILED']);
                         }
                     }
                     
                     // Создаем пустой файл
                     if (!touch($fullFilePath)) {
-                        return json_encode([
-                            'success' => false,
-                            'error' => 'Failed to create file: ' . $path,
-                            'code' => 'FILE_CREATE_FAILED',
-                        ]);
+                        return new ToolResult(false, 'Failed to create file: ' . $path, ['code' => 'FILE_CREATE_FAILED']);
                     }
                 } else {
-                    return json_encode([
-                        'success' => false,
-                        'error' => 'File not found: ' . $path,
-                        'code' => 'FILE_NOT_FOUND',
-                    ]);
+                    return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
                 }
             }
 
             // Проверяем, что файл доступен для записи
             if (!is_writable($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File is not writable: ' . $path,
-                    'code' => 'FILE_NOT_WRITABLE',
-                ]);
+                return new ToolResult(false, 'File is not writable: ' . $path, ['code' => 'FILE_NOT_WRITABLE']);
             }
 
             // Читаем содержимое файла
             $content = file_get_contents($fullFilePath);
             if ($content === false) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to read file: ' . $path,
-                    'code' => 'READ_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to read file: ' . $path, ['code' => 'READ_FAILED']);
             }
 
             // Если файл был создан только что, content будет пустым
@@ -132,11 +101,7 @@ class ReplaceInFile implements ToolInterface
             if (!$isNewFile) {
                 $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
                 if (!copy($fullFilePath, $backupPath)) {
-                    return json_encode([
-                        'success' => false,
-                        'error' => 'Failed to create backup of file: ' . $path,
-                        'code' => 'BACKUP_FAILED',
-                    ]);
+                    return new ToolResult(false, 'Failed to create backup of file: ' . $path, ['code' => 'BACKUP_FAILED']);
                 }
             }
 
@@ -156,14 +121,10 @@ class ReplaceInFile implements ToolInterface
                 }
 
                 $regexError = function_exists('preg_last_error_msg') ? preg_last_error_msg() : 'Regex error';
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to apply regex: ' . $regexError,
+                return new ToolResult(false, 'Failed to apply regex: ' . $regexError, [
                     'code' => 'REGEX_ERROR',
-                    'data' => [
-                        'pattern_provided' => $pattern,
-                        'pattern_final' => $finalPattern,
-                    ],
+                    'pattern_provided' => $pattern,
+                    'pattern_final' => $finalPattern,
                 ]);
             }
 
@@ -174,15 +135,11 @@ class ReplaceInFile implements ToolInterface
                     unlink($backupPath);
                 }
                 
-                return json_encode([
-                    'success' => true,
-                    'message' => 'No matches found for pattern',
-                    'data' => [
-                        'file_path' => $path,
-                        'pattern' => $finalPattern,
-                        'replacements_made' => 0,
-                        'file_created' => $isNewFile
-                    ]
+                return new ToolResult(true, 'No matches found for pattern', [
+                    'file_path' => $path,
+                    'pattern' => $finalPattern,
+                    'replacements_made' => 0,
+                    'file_created' => $isNewFile,
                 ]);
             }
 
@@ -199,11 +156,7 @@ class ReplaceInFile implements ToolInterface
                     unlink($fullFilePath);
                 }
                 
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to write content to file: ' . $path,
-                    'code' => 'WRITE_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to write content to file: ' . $path, ['code' => 'WRITE_FAILED']);
             }
 
             // Количество замен вычислено через preg_replace(..., -1, $replacementCount)
@@ -214,26 +167,18 @@ class ReplaceInFile implements ToolInterface
                 unlink($backupPath);
             }
 
-            return json_encode([
-                'success' => true,
-                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
-                'data' => [
-                    'file_path' => $path,
-                    'pattern' => $finalPattern,
-                    'replacement' => $replacement,
-                    'replacements_made' => $replacementsCount,
-                    'file_created' => $isNewFile,
-                    'bytes_written' => $result,
-                    'content_length' => strlen((string) $newContent)
-                ]
+            return new ToolResult(true, $isNewFile ? 'File created successfully' : 'File updated successfully', [
+                'file_path' => $path,
+                'pattern' => $finalPattern,
+                'replacement' => $replacement,
+                'replacements_made' => $replacementsCount,
+                'file_created' => $isNewFile,
+                'bytes_written' => $result,
+                'content_length' => strlen((string) $newContent),
             ]);
 
         } catch (\Throwable $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to replace in file: ' . $e->getMessage(),
-                'code' => 'REPLACE_ERROR',
-            ]);
+            return new ToolResult(false, 'Failed to replace in file: ' . $e->getMessage(), ['code' => 'REPLACE_ERROR', 'exception' => get_class($e)]);
         }
     }
 

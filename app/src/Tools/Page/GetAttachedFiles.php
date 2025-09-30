@@ -6,6 +6,7 @@ namespace Anymodule\Agentmodule\Tools\Page;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetAttachedFiles implements ToolInterface
 {
@@ -17,39 +18,27 @@ class GetAttachedFiles implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['page_id' => $pageId] = $args;
             $loadContent = $args['load_content'] ?? false;
 
             if (!is_numeric($pageId) || $pageId <= 0) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid page ID provided',
-                    'code' => 'INVALID_PAGE_ID',
-                ]);
+                return new ToolResult(false, 'Invalid page ID provided', ['code' => 'INVALID_PAGE_ID']);
             }
 
             if (!$this->pageContextService->validatePageAccess((int)$pageId)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Page not found or not accessible in current project context',
-                    'code' => 'PAGE_ACCESS_DENIED',
-                ]);
+                return new ToolResult(false, 'Page not found or not accessible in current project context', ['code' => 'PAGE_ACCESS_DENIED']);
             }
 
             $files = $this->pageContextService->getPageFiles((int)$pageId);
 
             if (empty($files)) {
-                return json_encode([
-                    'success' => true,
-                    'data' => [
-                        'page_id' => (int)$pageId,
-                        'files_count' => 0,
-                        'files' => []
-                    ],
-                    'message' => 'No files attached to this page',
+                return new ToolResult(true, 'No files attached to this page', [
+                    'page_id' => (int)$pageId,
+                    'files_count' => 0,
+                    'files' => [],
                 ]);
             }
 
@@ -72,23 +61,15 @@ class GetAttachedFiles implements ToolInterface
                 $filesData[] = $fileInfo;
             }
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'page_id' => (int)$pageId,
-                    'files_count' => count($filesData),
-                    'files' => $filesData,
-                    'content_loaded' => $loadContent
-                ],
-                'message' => 'Page files retrieved successfully',
+            return new ToolResult(true, 'Page files retrieved successfully', [
+                'page_id' => (int)$pageId,
+                'files_count' => count($filesData),
+                'files' => $filesData,
+                'content_loaded' => $loadContent,
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to retrieve page files: ' . $e->getMessage(),
-                'code' => 'GET_PAGE_FILES_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to retrieve page files: ' . $e->getMessage(), ['code' => 'GET_PAGE_FILES_ERROR', 'exception' => get_class($e)]);
         }
     }
 

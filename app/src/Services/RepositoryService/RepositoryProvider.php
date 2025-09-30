@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Services\RepositoryService;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use CzProject\GitPhp\Git;
+use CzProject\GitPhp\GitException;
 use CzProject\GitPhp\GitRepository;
 
 class RepositoryProvider implements GitRepoProviderInterface
@@ -41,15 +42,16 @@ class RepositoryProvider implements GitRepoProviderInterface
                 $repo = $git->cloneRepository($url, $fullPath);
             }
 
-            if ($this->branch) {
-                if ($repo->getCurrentBranchName() === $this->branch) {
+            if (!$this->branch || ($repo->getCurrentBranchName() === $this->branch)) {
+                try {
                     $repo->pull();
-                } else {
-                    $repo->createBranch($this->branch, true);
+                } catch (GitException $e) {
+                    Log::info($e->getMessage());
                 }
             } else {
-                $repo->pull();
+                $repo->createBranch($this->branch, true);
             }
+
         } catch (\Exception $exception) {
             Log::warning($url);
             Log::warning($exception->getMessage());

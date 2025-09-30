@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class SearchPattern implements ToolInterface
 {
@@ -15,7 +16,7 @@ class SearchPattern implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             [
@@ -32,19 +33,11 @@ class SearchPattern implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             if (!is_string($pattern) || $pattern === '') {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Pattern must be a non-empty string',
-                    'code' => 'PATTERN_INVALID',
-                ]);
+                return new ToolResult(false, 'Pattern must be a non-empty string', ['code' => 'PATTERN_INVALID']);
             }
 
             // Build final regex
@@ -54,41 +47,29 @@ class SearchPattern implements ToolInterface
             $isValid = @preg_match($finalPattern, "");
             if ($isValid === false) {
                 $regexError = function_exists('preg_last_error_msg') ? preg_last_error_msg() : 'Regex error';
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid regex: ' . $regexError,
+                return new ToolResult(false, 'Invalid regex: ' . $regexError, [
                     'code' => 'REGEX_ERROR',
-                    'data' => [
-                        'pattern_provided' => $pattern,
-                        'pattern_final' => $finalPattern,
-                        'mode' => $mode,
-                        'modifiers' => $modifiers,
-                    ]
+                    'pattern_provided' => $pattern,
+                    'pattern_final' => $finalPattern,
+                    'mode' => $mode,
+                    'modifiers' => $modifiers,
                 ]);
             }
 
             $results = $this->searchInRepository($repoPath, $finalPattern, $fileExtensions, $maxResults);
 
-            return json_encode([
-                'success' => true,
-                'data' => [
-                    'pattern' => $pattern,
-                    'pattern_final' => $finalPattern,
-                    'mode' => $mode,
-                    'modifiers' => $modifiers,
-                    'file_extensions' => $fileExtensions,
-                    'matches_count' => count($results),
-                    'matches' => $results
-                ],
-                'message' => 'Pattern search completed successfully',
+            return new ToolResult(true, 'Search: pattern search ok', [
+                'pattern' => $pattern,
+                'pattern_final' => $finalPattern,
+                'mode' => $mode,
+                'modifiers' => $modifiers,
+                'file_extensions' => $fileExtensions,
+                'matches_count' => count($results),
+                'matches' => $results,
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to search pattern: ' . $e->getMessage(),
-                'code' => 'SEARCH_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to search pattern: ' . $e->getMessage(), ['code' => 'SEARCH_ERROR', 'exception' => get_class($e)]);
         }
     }
 

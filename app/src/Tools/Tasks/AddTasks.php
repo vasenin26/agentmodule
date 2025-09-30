@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Tools\Tasks;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class AddTasks implements ToolInterface
 {
@@ -12,7 +13,7 @@ class AddTasks implements ToolInterface
     {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         $items = [];
         if (isset($args['title']) && is_string($args['title'])) {
@@ -26,17 +27,16 @@ class AddTasks implements ToolInterface
             }
         }
         if (empty($items)) {
-            return json_encode(['error' => 'No tasks provided'], JSON_UNESCAPED_UNICODE);
+            return new ToolResult(false, 'No tasks provided', ['code' => 'NO_TASKS']);
         }
         $created = $this->storage->addMany($items);
         $stats = $this->storage->getStats();
         
-        $result = [
+        $payload = [
             'tasks' => $created,
-            'stats' => $stats
+            'stats' => $stats,
         ];
-        
-        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return new ToolResult(true, 'Tasks added: ' . count($created), $payload);
     }
 
     public function getProps(): array

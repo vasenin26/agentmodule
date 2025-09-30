@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Tools\Utils;
 
+use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class UpdateArticle implements ToolInterface
@@ -10,11 +11,11 @@ class UpdateArticle implements ToolInterface
 
     private ?string $content = null;
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ToolResult
     {
         $this->content = is_string($args['content'] ?? null) ? $args['content'] : null;
 
-        return 'Cодержимое успешно сохранено.';
+        return new ToolResult(true, 'Cодержимое успешно сохранено.');
     }
 
     public function getProps(): array

@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Git;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetDependencies implements ToolInterface
 {
@@ -15,7 +16,7 @@ class GetDependencies implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url] = $args;
@@ -24,11 +25,7 @@ class GetDependencies implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $dependencies = [
@@ -41,18 +38,10 @@ class GetDependencies implements ToolInterface
             // Простая проверка на конфликты версий
             $dependencies['conflicts'] = $this->detectVersionConflicts($dependencies);
 
-            return json_encode([
-                'success' => true,
-                'data' => $dependencies,
-                'message' => 'Dependencies analyzed successfully',
-            ]);
+            return new ToolResult(true, 'Dependencies analyzed successfully', $dependencies);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to analyze dependencies: ' . $e->getMessage(),
-                'code' => 'DEPENDENCIES_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to analyze dependencies: ' . $e->getMessage(), ['code' => 'DEPENDENCIES_ERROR', 'exception' => get_class($e)]);
         }
     }
 

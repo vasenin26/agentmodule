@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Tools\Tasks;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class CompleteTask implements ToolInterface
 {
@@ -12,25 +13,24 @@ class CompleteTask implements ToolInterface
     {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         $id = isset($args['id']) ? (int)$args['id'] : 0;
         if ($id <= 0) {
-            return json_encode(['error' => 'Invalid id'], JSON_UNESCAPED_UNICODE);
+            return new ToolResult(false, 'Invalid id', ['code' => 'INVALID_ID']);
         }
         $task = $this->storage->complete($id);
         if ($task === null) {
-            return json_encode(['error' => 'Task not found'], JSON_UNESCAPED_UNICODE);
+            return new ToolResult(false, 'Task not found', ['code' => 'TASK_NOT_FOUND']);
         }
         
         $stats = $this->storage->getStats();
         
-        $result = [
+        $payload = [
             'task' => $task,
-            'stats' => $stats
+            'stats' => $stats,
         ];
-        
-        return json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return new ToolResult(true, 'Task completed', $payload);
     }
 
     public function getProps(): array

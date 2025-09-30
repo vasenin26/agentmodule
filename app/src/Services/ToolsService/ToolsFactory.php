@@ -20,6 +20,14 @@ use Anymodule\Agentmodule\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Tools\Git\ReadFileLines;
 use Anymodule\Agentmodule\Tools\Git\SearchFileByName;
 use Anymodule\Agentmodule\Tools\Git\SearchPattern;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\AddFile;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\Commit;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\GetCurrentBranch;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\GetStatus;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\Pull;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\Push;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\ResetHard;
+use Anymodule\Agentmodule\Tools\Git\RepoManagement\UnstageFile;
 use Anymodule\Agentmodule\Tools\Page\FindRelatedPages;
 use Anymodule\Agentmodule\Tools\Page\GetActualizationInfo;
 use Anymodule\Agentmodule\Tools\Page\GetAttachedFiles;
@@ -175,5 +183,46 @@ class ToolsFactory
     public function tasksComplete(TasksStorage $tasksStorage): ToolInterface
     {
         return new CompleteTask($tasksStorage);
+    }
+
+    // Repo Management утилиты
+    public function gitGetCurrentBranch(): ToolInterface
+    {
+        return new GetCurrentBranch($this->gitRepoProvider);
+    }
+
+    public function gitPull(): ToolInterface
+    {
+        return new Pull($this->gitRepoProvider);
+    }
+
+    public function gitResetHard(): ToolInterface
+    {
+        return new ResetHard($this->gitRepoProvider);
+    }
+
+    public function gitAddFile(): ToolInterface
+    {
+        return new AddFile($this->gitRepoProvider);
+    }
+
+    public function gitUnstageFile(): ToolInterface
+    {
+        return new UnstageFile($this->gitRepoProvider);
+    }
+
+    public function gitCommit(): ToolInterface
+    {
+        return new Commit($this->gitRepoProvider);
+    }
+
+    public function gitPush(): ToolInterface
+    {
+        return new Push($this->gitRepoProvider);
+    }
+
+    public function gitGetStatus(): ToolInterface
+    {
+        return new GetStatus($this->gitRepoProvider);
     }
 }

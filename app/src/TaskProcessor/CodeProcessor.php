@@ -59,7 +59,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
                     $branch = $repo->getCurrentBranchName();
                     $repo->addAllChanges();
                     $repo->commit($result->answer ?? 'without comment');
-                    $repo->push($branch, ['--set-upstream', 'origin']);
+                    $repo->push('origin', [$branch, '--set-upstream']);
                 }
             } catch (\Throwable $exception) {
                 Log::warning($exception->getMessage());
@@ -98,6 +98,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
         }
 
         $toolsBuilder->withGit();
+        $toolsBuilder->withRepoManagement();
         $toolsBuilder->withEditor();
         $toolsBuilder->withTasks($taskStorage);
 

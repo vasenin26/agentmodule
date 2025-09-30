@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tools\Page;
 
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class GetTaskHistory implements ToolInterface
 {
@@ -15,51 +16,31 @@ class GetTaskHistory implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['page_id' => $pageId] = $args;
 
             if (!is_numeric($pageId) || $pageId <= 0) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Invalid page ID provided',
-                    'code' => 'INVALID_PAGE_ID',
-                ]);
+                return new ToolResult(false, 'Invalid page ID provided', ['code' => 'INVALID_PAGE_ID']);
             }
 
             if (!$this->pageContextService->validatePageAccess((int)$pageId)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Page not found or not accessible in current project context',
-                    'code' => 'PAGE_ACCESS_DENIED',
-                ]);
+                return new ToolResult(false, 'Page not found or not accessible in current project context', ['code' => 'PAGE_ACCESS_DENIED']);
             }
 
             $page = $this->pageContextService->getPageById((int)$pageId);
             if (!$page) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Page not found',
-                    'code' => 'PAGE_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Page not found', ['code' => 'PAGE_NOT_FOUND']);
             }
 
             $taskHistory = $this->pageContextService->getTaskHistory((int)$pageId);
             $historyData = $this->buildTaskHistoryData($page, $taskHistory);
 
-            return json_encode([
-                'success' => true,
-                'data' => $historyData,
-                'message' => 'Task history retrieved successfully',
-            ]);
+            return new ToolResult(true, 'Task history retrieved successfully', $historyData);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to retrieve task history: ' . $e->getMessage(),
-                'code' => 'GET_TASK_HISTORY_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to retrieve task history: ' . $e->getMessage(), ['code' => 'GET_TASK_HISTORY_ERROR', 'exception' => get_class($e)]);
         }
     }
 

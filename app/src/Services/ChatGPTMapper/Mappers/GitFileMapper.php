@@ -54,8 +54,8 @@ class GitFileMapper implements MessageMapperInterface
     private function getFileContent(string $repoUrl, string $filePath): string
     {
         try {
-            Log::info('GitFileMapper - Read path: ' . $filePath);
-            Log::info('GitFileMapper - Read url: ' . $repoUrl);
+//            Log::info('GitFileMapper - Read path: ' . $filePath);
+//            Log::info('GitFileMapper - Read url: ' . $repoUrl);
 
             $repo = $this->repositoryProvider->getRepo($repoUrl);
 

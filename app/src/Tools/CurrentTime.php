@@ -4,14 +4,20 @@ namespace Anymodule\Agentmodule\Tools;
 
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class CurrentTime implements ToolInterface
 {
     const NAME = 'current-time';
 
-    public function execute(array $args): string
+    public function execute(array $args): ?ToolResult
     {
-        return (new \DateTime())->format('Y-m-d H:i:s');
+        try {
+            $now = (new \DateTime())->format('Y-m-d H:i:s');
+            return new ToolResult(true, 'Current time generated', ['datetime' => $now]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, $e->getMessage(), ['exception' => get_class($e)]);
+        }
     }
 
     public function getProps(): array

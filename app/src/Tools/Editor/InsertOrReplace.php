@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Tools\Editor;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Entity\ToolResult;
 
 class InsertOrReplace implements ToolInterface
 {
@@ -14,7 +15,7 @@ class InsertOrReplace implements ToolInterface
     ) {
     }
 
-    public function execute(array $args): ?string
+    public function execute(array $args): ?ToolResult
     {
         try {
             ['url' => $url, 'path' => $path, 'content' => $content, 'mode' => $mode, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
@@ -23,11 +24,7 @@ class InsertOrReplace implements ToolInterface
             $repoPath = $repo->getRepositoryPath();
 
             if (!is_dir($repoPath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Repository not found',
-                    'code' => 'REPO_NOT_FOUND',
-                ]);
+                return new ToolResult(false, 'Repository not found', ['code' => 'REPO_NOT_FOUND']);
             }
 
             $fullFilePath = $repoPath . '/' . trim($path, '/');
@@ -39,48 +36,28 @@ class InsertOrReplace implements ToolInterface
                     $dir = dirname($fullFilePath);
                     if (!is_dir($dir)) {
                         if (!mkdir($dir, 0755, true)) {
-                            return json_encode([
-                                'success' => false,
-                                'error' => 'Failed to create directory: ' . dirname($path),
-                                'code' => 'DIRECTORY_CREATE_FAILED',
-                            ]);
+                            return new ToolResult(false, 'Failed to create directory: ' . dirname($path), ['code' => 'DIRECTORY_CREATE_FAILED']);
                         }
                     }
                     
                     // Создаем пустой файл
                     if (!touch($fullFilePath)) {
-                        return json_encode([
-                            'success' => false,
-                            'error' => 'Failed to create file: ' . $path,
-                            'code' => 'FILE_CREATE_FAILED',
-                        ]);
+                        return new ToolResult(false, 'Failed to create file: ' . $path, ['code' => 'FILE_CREATE_FAILED']);
                     }
                 } else {
-                    return json_encode([
-                        'success' => false,
-                        'error' => 'File not found: ' . $path,
-                        'code' => 'FILE_NOT_FOUND',
-                    ]);
+                    return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
                 }
             }
 
             // Проверяем, что файл доступен для записи
             if (!is_writable($fullFilePath)) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'File is not writable: ' . $path,
-                    'code' => 'FILE_NOT_WRITABLE',
-                ]);
+                return new ToolResult(false, 'File is not writable: ' . $path, ['code' => 'FILE_NOT_WRITABLE']);
             }
 
             // Читаем содержимое файла
             $originalContent = file_get_contents($fullFilePath);
             if ($originalContent === false) {
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to read file: ' . $path,
-                    'code' => 'READ_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to read file: ' . $path, ['code' => 'READ_FAILED']);
             }
 
             // Если файл был создан только что, originalContent будет пустым
@@ -109,15 +86,11 @@ class InsertOrReplace implements ToolInterface
                     unlink($backupPath);
                 }
                 
-                return json_encode([
-                    'success' => true,
-                    'message' => 'No changes made to file',
-                    'data' => [
-                        'file_path' => $path,
-                        'mode' => $mode,
-                        'changes_made' => false,
-                        'file_created' => $isNewFile
-                    ]
+                return new ToolResult(true, 'No changes made to file', [
+                    'file_path' => $path,
+                    'mode' => $mode,
+                    'changes_made' => false,
+                    'file_created' => $isNewFile,
                 ]);
             }
 
@@ -134,11 +107,7 @@ class InsertOrReplace implements ToolInterface
                     unlink($fullFilePath);
                 }
                 
-                return json_encode([
-                    'success' => false,
-                    'error' => 'Failed to write content to file: ' . $path,
-                    'code' => 'WRITE_FAILED',
-                ]);
+                return new ToolResult(false, 'Failed to write content to file: ' . $path, ['code' => 'WRITE_FAILED']);
             }
 
             // Удаляем резервную копию после успешной записи
@@ -146,26 +115,18 @@ class InsertOrReplace implements ToolInterface
                 unlink($backupPath);
             }
 
-            return json_encode([
-                'success' => true,
-                'message' => $isNewFile ? 'File created successfully' : 'File updated successfully',
-                'data' => [
-                    'file_path' => $path,
-                    'mode' => $mode,
-                    'changes_made' => true,
-                    'file_created' => $isNewFile,
-                    'bytes_written' => $result,
-                    'original_length' => strlen($originalContent),
-                    'new_length' => strlen($newContent)
-                ]
+            return new ToolResult(true, $isNewFile ? 'File created successfully' : 'File updated successfully', [
+                'file_path' => $path,
+                'mode' => $mode,
+                'changes_made' => true,
+                'file_created' => $isNewFile,
+                'bytes_written' => $result,
+                'original_length' => strlen($originalContent),
+                'new_length' => strlen($newContent),
             ]);
 
-        } catch (\Exception $e) {
-            return json_encode([
-                'success' => false,
-                'error' => 'Failed to insert or replace in file: ' . $e->getMessage(),
-                'code' => 'INSERT_REPLACE_ERROR',
-            ]);
+        } catch (\Throwable $e) {
+            return new ToolResult(false, 'Failed to insert or replace in file: ' . $e->getMessage(), ['code' => 'INSERT_REPLACE_ERROR', 'exception' => get_class($e)]);
         }
     }
 
