@@ -33,8 +33,8 @@ COPY app/ /app/
 # Устанавливаем зависимости
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Создаем пользователя для production
-USER local
-
 # Устанавливаем рабочую директорию
 WORKDIR /app
+
+# Создаем пользователя для production
+USER local
