@@ -31,6 +31,33 @@
 docker compose run --rm agentmodule php vendor/bin/phpunit
 ```
 
+### Создание релизов
+
+Для создания нового релиза используйте команды из Makefile:
+
+```bash
+# Создать patch релиз (v1.0.0 -> v1.0.1)
+make bump-patch
+
+# Создать minor релиз (v1.0.0 -> v1.1.0)
+make bump-minor
+```
+
+После создания тега GitHub Actions автоматически:
+- Соберет Docker образ
+- Опубликует его в GitHub Container Registry (ghcr.io)
+- Создаст тег `latest` для последней версии
+
+### Использование production образа
+
+```bash
+# Запуск production версии
+docker-compose -f docker-compose.prod.yaml up
+
+# Или с конкретной версией
+docker run -it ghcr.io/vasenin26/agentmodule:v1.0.0
+```
+
 ### Подробная документация
 
 Подробные инструкции по настройке SSH ключей доступны в [docs/ssh-setup.md](docs/ssh-setup.md).

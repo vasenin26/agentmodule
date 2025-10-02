@@ -24,3 +24,17 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 FROM base AS develop
 
 RUN apt-get update && apt-get install -y inotify-tools make
+
+FROM base AS production
+
+# Копируем код приложения
+COPY app/ /app/
+
+# Устанавливаем зависимости
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Создаем пользователя для production
+USER local
+
+# Устанавливаем рабочую директорию
+WORKDIR /app

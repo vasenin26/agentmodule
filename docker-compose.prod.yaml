@@ -1,0 +1,4 @@
+services:
+  agentmodule:
+    image: ghcr.io/vasenin26/agentmodule:latest
+    working_dir: /app
