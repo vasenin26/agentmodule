@@ -14,7 +14,7 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 RUN groupadd -g 1000 local && useradd -m -u 1000 -g 1000 local
 
 # Копируем стартовый скрипт
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./docker/agent/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /app
