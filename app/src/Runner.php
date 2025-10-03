@@ -24,7 +24,7 @@ final readonly class Runner
 
     public function run(): void
     {
-        $agentId = Uuid::fromString("9d00a734-865c-4032-9915-0ad86d2204d7");// Uuid::uuid4();
+        $agentId = Uuid::uuid4();
         $attemptLimit = self::GET_TASK_ATTEMPTS;
 
         Log::info("Running agent $agentId module...");
