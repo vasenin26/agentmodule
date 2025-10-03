@@ -38,3 +38,6 @@ WORKDIR /app
 
 # Создаем пользователя для production
 USER local
+
+# Запускаем приложение при старте контейнера
+CMD ["php", "main.php"]
