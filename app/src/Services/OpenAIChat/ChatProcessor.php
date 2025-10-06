@@ -47,6 +47,11 @@ class ChatProcessor implements CharProcessorInterface
             return $this->messageMapper->prepareAssistantMessage($result);
         } catch (\Throwable $exception) {
             Log::storeMessages($messages);
+            Log::exception($exception, 'OpenAI Chat API error', [
+                'model' => $this->model,
+                'messages_count' => count($messages ?? []),
+                'tools_count' => count($tools->getMeta()),
+            ]);
             return OpenAiResult::error($exception->getMessage());
         }
     }

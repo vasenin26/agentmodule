@@ -9,13 +9,14 @@ use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
 use Anymodule\Agentmodule\Services\ApiService\Service;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Anymodule\Agentmodule\Services\StateStore;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 
 require __DIR__ . '/vendor/autoload.php';
 
 $api = new Service(
     host: getenv('API_HOST'),
-    token: getenv('AGENT_TOKEN'),
+    token: getenv('API_TOKEN'),
 );
 
 $repoProvider = new RepositoryProvider(reposFolder: 'default', branch: 'main');
@@ -35,4 +36,4 @@ $processorFactory = new TaskProcessorFactory(
     new ActionsFactory($toolFactory, $llmFactory),
 );
 
-(new Runner($api, $processorFactory))->run();
+(new Runner($api, StateStore::run(), $processorFactory))->run();

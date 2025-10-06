@@ -2,3 +2,11 @@ services:
   agentmodule:
     image: ghcr.io/vasenin26/agentmodule:latest
     working_dir: /app
+    environment:
+      - API_HOST
+      - AGENT_TOKEN
+      - OPENAI_MODEL
+      - OPENAI_API_KEY
+      - GIT_USER_NAME
+      - GIT_USER_EMAIL
+      - SSH_PRIVATE_KEY

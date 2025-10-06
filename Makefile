@@ -1,12 +1,15 @@
 bash:
-	docker-compose run --rm -u local agentmodule bash
+	docker-compose run --rm -u local -p 8484:8484 agentmodule bash
 
 test:
 	docker-compose run --rm -u local agentmodule ./vendor/bin/phpunit
 
 start:
 	docker-compose run --rm -u local agentmodule php main.php
-	
+
+build-prod:
+	docker build -t agentmodule:latest -f docker/agent/Dockerfile --target production .
+
 .PHONY: bump-patch
 bump-patch:
 	$(eval LATEST_TAG := $(shell git describe --tags --abbrev=0))
