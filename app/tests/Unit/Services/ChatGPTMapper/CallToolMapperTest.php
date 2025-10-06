@@ -45,19 +45,24 @@ class CallToolMapperTest extends TestCase
             args: ["param" => "value"]
         );
 
-        $expectedResult = "Test result";
+        $toolResult = new \Anymodule\Agentmodule\Entity\ToolResult(
+            status: true,
+            message: "Test result",
+            payload: []
+        );
+        
         $this->toolsService
             ->expects($this->once())
             ->method('callTool')
             ->with('test-tool', '{"param":"value"}')
-            ->willReturn($expectedResult);
+            ->willReturn($toolResult);
 
         $result = $this->mapper->map($message);
 
         $this->assertEquals('user', $result['role']);
         $this->assertStringContainsString('Test description', $result['content']);
         $this->assertStringContainsString('[РЕЗУЛЬТАТ ВЫПОЛНЕНИЯ ФУНКЦИИ: test-tool]', $result['content']);
-        $this->assertStringContainsString($expectedResult, $result['content']);
+        $this->assertStringContainsString("Test result", $result['content']);
     }
 
     public function testMapsCallToolMessageWithError(): void

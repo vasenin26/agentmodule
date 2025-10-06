@@ -135,6 +135,7 @@ class ActionRunnerTest extends TestCase
                     public function __construct(private array &$storage, private int $idx) {}
                     public function setMessage(string $message): void { /* not needed */ }
                     public function setError(string $error): void { /* not needed */ }
+                    public function setPayload(array $payload): void { /* not needed */ }
                     public function complete(): void { $this->storage[$this->idx]['completed'] = true; }
                 };
             }

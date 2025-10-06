@@ -29,6 +29,7 @@ use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageListDTO;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageHierarchyDTO;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageFilesDTO;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\TaskHistoryDTO;
+use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\UuidInterface;
 
 class Service implements TaskApi, PageApi
@@ -52,6 +53,70 @@ class Service implements TaskApi, PageApi
             return null;
         }
 
+        return new Task(
+            id: $taskData->task_id,
+            type: $taskData->type,
+            conversationId: $taskData->chat_id,
+            messages: $taskData->messages,
+            projectId: $taskData->project_id,
+            resultRequired: $taskData->resulRequired
+        );
+    }
+
+    /**
+     * Получить задачу по UUID агента (orchestrated режим)
+     * 
+     * Endpoint: POST /api/agent/task
+     * Body: {"agent_uuid": "uuid-456"}
+     * 
+     * Ответ от API:
+     * {
+     *   "id": 123,
+     *   "type": "documentation",
+     *   "agent_uuid": "uuid-456",
+     *   "project_id": 789,
+     *   "result_required": true,
+     *   "chat": {
+     *     "id": 456,
+     *     "messages": [...]
+     *   }
+     * }
+     * 
+     * Используется в orchestrated режиме когда оркестратор
+     * уже зарезервировал задачу для агента.
+     * 
+     * @param string $agentUuid UUID агента от оркестратора
+     * @return Task|null Задача или null если не найдена
+     */
+    public function getTaskByUuid(string $agentUuid): ?Task
+    {
+        Log::info("🔍 Requesting task by UUID", [
+            'agent_uuid' => $agentUuid,
+            'mode' => 'orchestrated',
+        ]);
+        
+        // Используем существующий GetAgentTask request
+        // Он уже правильно настроен!
+        $request = new GetAgentTask($this->token, $agentUuid);
+        $taskData = $request->exec($this->api);
+
+        if (is_null($taskData)) {
+            Log::warning("⚠️ Task not found for agent UUID", [
+                'agent_uuid' => $agentUuid,
+            ]);
+            
+            return null;
+        }
+
+        Log::info("✅ Task received from API", [
+            'task_id' => $taskData->task_id,
+            'type' => $taskData->type ?? 'unknown',
+            'project_id' => $taskData->project_id,
+            'chat_id' => $taskData->chat_id,
+            'messages_count' => count($taskData->messages),
+        ]);
+
+        // Маппинг в Task entity (как в getTask)
         return new Task(
             id: $taskData->task_id,
             type: $taskData->type,

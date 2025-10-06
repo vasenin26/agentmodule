@@ -1,9 +1,20 @@
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════
+# AgentModule - Docker Compose Configuration
+# ═══════════════════════════════════════════════════════════════
+
 services:
+  # ─────────────────────────────────────────────────────────────
+  # Development Service - для локальной разработки
+  # ─────────────────────────────────────────────────────────────
   agentmodule:
     build:
       context: .
       dockerfile: docker/agent/Dockerfile
       target: develop
+    image: agentmodule:develop
+    container_name: agentmodule-dev
     ports:
       - "50051:50051"
     volumes:
@@ -11,3 +22,65 @@ services:
     working_dir: /app
     env_file:
       - .env
+    environment:
+      - PHP_IDE_CONFIG=serverName=agentmodule
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────
+  # Standalone Service - автономный режим (текущий)
+  # ─────────────────────────────────────────────────────────────
+  agent-standalone:
+    build:
+      context: .
+      dockerfile: docker/agent/Dockerfile
+      target: standalone
+    image: agentmodule:standalone
+    container_name: agentmodule-standalone
+    env_file:
+      - .env
+    environment:
+      # API конфигурация
+      - API_HOST=${API_HOST}
+      - API_TOKEN=${API_TOKEN}
+      # Git конфигурация
+      - GIT_USER_NAME=${GIT_USER_NAME}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL}
+      # SSH ключ (опционально)
+      - SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY}
+      # OpenAI конфигурация
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+    restart: unless-stopped
+    # profiles: [standalone]  # Опционально: запускать только по запросу
+
+  # ─────────────────────────────────────────────────────────────
+  # Orchestrated Service - режим оркестратора (новый)
+  # Для тестирования orchestrated режима локально
+  # ─────────────────────────────────────────────────────────────
+  agent-orchestrated:
+    build:
+      context: .
+      dockerfile: docker/agent/Dockerfile
+      target: orchestrated
+    image: agentmodule:orchestrated
+    container_name: agentmodule-orchestrated
+    env_file:
+      - .env
+    environment:
+      # Orchestrator переменные
+      - TASK_ID=${TASK_ID:-test-task-123}
+      - AGENT_UUID=${AGENT_UUID:-test-uuid-456}
+      - AGENT_ID=${AGENT_ID:-test-agent-789}
+      # API конфигурация
+      - API_HOST=${API_HOST}
+      - API_TOKEN=${API_TOKEN}
+      # SSH ключ (обязательно!)
+      - SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY}
+      # Git конфигурация
+      - GIT_USER_NAME=${GIT_USER_NAME}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL}
+      # OpenAI конфигурация
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+    restart: "no"  # Не рестартовать - one-shot выполнение
+    # profiles: [orchestrated]  # Опционально: запускать только по запросу
