@@ -9,6 +9,8 @@ start:
 
 build-prod:
 	docker build -t agentmodule:latest -f docker/agent/Dockerfile --target production .
+build-orchestrated:
+	docker build -t agentmodule:latest -f docker/agent/Dockerfile --target orchestrated .
 
 .PHONY: bump-patch
 bump-patch:
