@@ -163,9 +163,7 @@ class LMStudioClient implements GPTProcessorInterface
                     Log::info("Tool OK");
 
                     if ($this->tools->isResultFunction($toolCall->function->name)) {
-                        $answer = $toolResult;
                         $finished = true;
-                        $toolResult = 'Данные сохранены.';
                     }
 
                     $chat->addMessage($this->messageMapper->mapToToolMessage(
