@@ -6,14 +6,17 @@ use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Page;
 use Anymodule\Agentmodule\Entity\PageVersion;
 use Anymodule\Agentmodule\Entity\TaskState;
+use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTaskById;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\ProcessingAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Task\TaskApi;
 use Anymodule\Agentmodule\Interface\TokenProviderInterface;
-use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetAgentTask;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\UpdateAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPage;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetAllProjectPages;
@@ -41,12 +44,16 @@ class Service implements TaskApi, PageApi
         private string $token,
     )
     {
+        if (empty($this->token)) {
+            throw new \Exception("Token not set");
+        }
+
         $this->api = new ApiClient($host);
     }
 
     public function getTask(UuidInterface $agentId): ?Task
     {
-        $request = new GetAgentTask($this->token, $agentId->toString());
+        $request = new GetTask($this->token, $agentId->toString());
         $taskData = $request->exec($this->api);
 
         if (is_null($taskData)) {
@@ -65,10 +72,10 @@ class Service implements TaskApi, PageApi
 
     /**
      * Получить задачу по UUID агента (orchestrated режим)
-     * 
+     *
      * Endpoint: POST /api/agent/task
      * Body: {"agent_uuid": "uuid-456"}
-     * 
+     *
      * Ответ от API:
      * {
      *   "id": 123,
@@ -81,30 +88,32 @@ class Service implements TaskApi, PageApi
      *     "messages": [...]
      *   }
      * }
-     * 
+     *
      * Используется в orchestrated режиме когда оркестратор
      * уже зарезервировал задачу для агента.
-     * 
-     * @param string $agentUuid UUID агента от оркестратора
+     *
+     * @param UuidInterface $agentUuid UUID агента от оркестратора
+     * @param int $taskId
      * @return Task|null Задача или null если не найдена
+     * @throws RequestException
      */
-    public function getTaskByUuid(string $agentUuid): ?Task
+    public function getAgentTaskById(UuidInterface $agentUuid, int $taskId): ?Task
     {
         Log::info("🔍 Requesting task by UUID", [
             'agent_uuid' => $agentUuid,
             'mode' => 'orchestrated',
         ]);
-        
+
         // Используем существующий GetAgentTask request
         // Он уже правильно настроен!
-        $request = new GetAgentTask($this->token, $agentUuid);
+        $request = new GetTaskById($this->token, $taskId, $agentUuid);
         $taskData = $request->exec($this->api);
 
         if (is_null($taskData)) {
             Log::warning("⚠️ Task not found for agent UUID", [
                 'agent_uuid' => $agentUuid,
             ]);
-            
+
             return null;
         }
 
@@ -125,6 +134,31 @@ class Service implements TaskApi, PageApi
             projectId: $taskData->project_id,
             resultRequired: $taskData->resulRequired
         );
+    }
+
+    public function setStartProcessing(UuidInterface $agentUuid, int $taskId)
+    {
+        Log::info("🔍 Requesting task by UUID", [
+            'agent_uuid' => $agentUuid,
+            'mode' => 'orchestrated',
+        ]);
+
+        // Используем существующий GetAgentTask request
+        // Он уже правильно настроен!
+        $request = new ProcessingAgentTask($this->token, $taskId, $agentUuid);
+        $taskData = $request->exec($this->api);
+
+        if (is_null($taskData)) {
+            Log::warning("⚠️ Task not found for agent UUID", [
+                'agent_uuid' => $agentUuid,
+            ]);
+
+            return null;
+        }
+
+        Log::info("✅ Task marked as processed", [
+            'task_id' => $taskId,
+        ]);
     }
 
     public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): TaskState

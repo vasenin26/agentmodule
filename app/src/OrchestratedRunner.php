@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Interface\Task\TaskApi;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * Orchestrated режим работы агента
@@ -27,31 +28,11 @@ final class OrchestratedRunner
     {
     }
 
-    public function run(): void
+    public function run(int $taskId, UuidInterface $agentUuid): void
     {
-        // Получить переменные окружения от оркестратора
-        $taskId = getenv('TASK_ID');
-        $agentUuid = getenv('AGENT_UUID');
-        $agentId = getenv('AGENT_ID');
-
-        // Валидация обязательных переменных
-        if (!$taskId || !$agentUuid || !$agentId) {
-            Log::error('Missing required environment variables for orchestrated mode', [
-                'TASK_ID' => $taskId ?: 'not set',
-                'AGENT_UUID' => $agentUuid ?: 'not set',
-                'AGENT_ID' => $agentId ?: 'not set',
-            ]);
-            
-            echo "ERROR: Missing required environment variables\n";
-            echo "Required: TASK_ID, AGENT_UUID, AGENT_ID\n";
-            
-            exit(1);
-        }
-
         $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'started');
 
         Log::info("🚀 Agent started in ORCHESTRATED mode", [
-            'agent_id' => $agentId,
             'agent_uuid' => $agentUuid,
             'task_id' => $taskId,
             'mode' => 'orchestrated',
@@ -65,7 +46,7 @@ final class OrchestratedRunner
             ]);
             
             $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'fetching');
-            $task = $this->api->getTaskByUuid($agentUuid);
+            $task = $this->api->getAgentTaskById($agentUuid, $taskId);
 
             if (is_null($task)) {
                 Log::error("❌ Failed to fetch task - task not found or not assigned", [
@@ -94,11 +75,12 @@ final class OrchestratedRunner
                 'task_id' => $task->id,
                 'type' => $task->type,
             ]);
-            
+
+            $this->api->setStartProcessing($agentUuid, $taskId);
             $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'processing');
 
             // Создать handler для обработки результата
-            $handler = new DocsModule($this->api, $agentId, $task);
+            $handler = new DocsModule($this->api, $agentUuid, $task);
             
             // Обработать задачу через соответствующий процессор
             $this->processorFactory->createProcessorForTask($task)
@@ -106,7 +88,7 @@ final class OrchestratedRunner
 
             Log::info("✅ Task completed successfully", [
                 'task_id' => $task->id,
-                'agent_id' => $agentId,
+                'agent_id' => $agentUuid,
             ]);
             
             $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'completed');
@@ -119,7 +101,7 @@ final class OrchestratedRunner
 
         } catch (\Throwable $e) {
             Log::exception($e, '❌ Task processing failed', [
-                'agent_id' => $agentId,
+                'agent_id' => $agentUuid,
                 'agent_uuid' => $agentUuid,
                 'task_id' => $taskId,
                 'error_class' => get_class($e),

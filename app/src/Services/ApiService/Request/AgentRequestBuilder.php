@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ApiService\Request;
 
-use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetAgentTask;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetAgentTaskDetails;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\UpdateAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Admin\GetAgentStats;
@@ -23,11 +23,11 @@ class AgentRequestBuilder
     /**
      * Создать запрос на получение задачи для агента
      */
-    public function getTask(string $agentId): GetAgentTask
+    public function getTask(string $agentId): GetTask
     {
         $this->validator->validateAgentId($agentId);
         
-        return new GetAgentTask($agentId);
+        return new GetTask($agentId);
     }
 
     /**

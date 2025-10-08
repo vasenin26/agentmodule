@@ -32,6 +32,7 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\StateStore;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\Log;
+use Ramsey\Uuid\Uuid;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -100,13 +101,30 @@ $processorFactory = new TaskProcessorFactory(
 
 Log::info("✅ All factories initialized");
 
+// Получить переменные окружения от оркестратора
+$taskId = getenv('TASK_ID');
+$agentUuid = getenv('AGENT_UUID');
+
+// Валидация обязательных переменных
+if (!$taskId || !$agentUuid) {
+    Log::error('Missing required environment variables for orchestrated mode', [
+        'TASK_ID' => $taskId ?: 'not set',
+        'AGENT_UUID' => $agentUuid ?: 'not set',
+    ]);
+
+    echo "ERROR: Missing required environment variables\n";
+    echo "Required: TASK_ID, AGENT_UUID, AGENT_ID\n";
+
+    exit(1);
+}
+
 // Запуск orchestrated runner
 echo "\n";
 echo "Starting task processing...\n";
 echo "────────────────────────────────────────────────────\n\n";
 
 try {
-    (new OrchestratedRunner($api, StateStore::run(), $processorFactory))->run();
+    (new OrchestratedRunner($api, StateStore::run(), $processorFactory))->run($taskId, Uuid::fromString($agentUuid));
 } catch (\Throwable $e) {
     Log::exception($e, '❌ Fatal error in orchestrated mode');
     

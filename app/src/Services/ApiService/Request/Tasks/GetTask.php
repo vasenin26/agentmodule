@@ -11,7 +11,7 @@ use Anymodule\Agentmodule\Utils\Log;
 use GuzzleHttp\Exception\ClientException;
 use function PHPUnit\Framework\throwException;
 
-final readonly class GetAgentTask implements RequestInterface
+final readonly class GetTask implements RequestInterface
 {
     public function __construct(
         private string $token,

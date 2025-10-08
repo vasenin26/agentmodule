@@ -19,14 +19,15 @@ interface TaskApi
 
     /**
      * Получить задачу по UUID агента (orchestrated режим)
-     * 
+     *
      * Используется в orchestrated режиме когда оркестратор
      * уже зарезервировал задачу для агента.
-     * 
-     * @param string $agentUuid UUID агента от оркестратора
+     *
+     * @param UuidInterface $agentUuid
+     * @param int $taskId
      * @return Task|null Задача или null если задача не найдена
      */
-    public function getTaskByUuid(string $agentUuid): ?Task;
+    public function getAgentTaskById(UuidInterface $agentUuid, int $taskId): ?Task;
 
     /**
      * Отправить результат обработки задачи
@@ -37,4 +38,6 @@ interface TaskApi
      * @return TaskState Состояние задачи
      */
     public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): TaskState;
+
+    public function setStartProcessing(UuidInterface $agentUuid, int $taskId);
 }
