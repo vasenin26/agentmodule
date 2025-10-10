@@ -3,8 +3,8 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
-use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
@@ -17,7 +17,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
-        private LLMFactoryInterface          $chatFactory,
+        private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
         private ActionsFactoryInterface      $actionsFactory,

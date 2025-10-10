@@ -13,6 +13,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Tools\CatchContent;
 use Anymodule\Agentmodule\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Utils\Log;
@@ -21,6 +23,11 @@ use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
+    const CODE_WORK_PROMPT = <<<YYY
+Before you begin, check your task list against the tool. 
+Save the task description after completion.
+YYY;
+
 
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
@@ -44,29 +51,35 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
             reposFolder: $this->getTmpTaskFolder($task),
         );
 
-        $editorTools = $this->getEditorTools($task, $taskStorage, $repositoryProvider);
+        $toolsBuilder = $this->getEditorTools($task, $taskStorage, $repositoryProvider);
 
-        $this->getActionRunner($taskStorage, $editorTools)->run($conversation, $tokenCounter);
+        $this->getActionRunner($taskStorage, $toolsBuilder->build())->run($conversation, $tokenCounter);
 
-        $conversation->addMessage(new DisappearingMessage("Check task list with tool before start"));
+        $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
 
-        $result = $this->chatFactory->createChat($editorTools)
-            ->process($conversation, $processHandler, $task->resultRequired);
+        $contentTool = new CatchContent(
+            'store-description',
+            'Saves a description of the work done.',
+            'Result success stored to storage',
+        );
 
-        foreach ($repositoryProvider->getProvidedRepositories() as $repo) {
-            try {
-                if ($repo->hasChanges()) {
-                    $branch = $repo->getCurrentBranchName();
-                    $repo->addAllChanges();
-                    $repo->commit($result->answer ?? 'without comment');
-                    $repo->push('origin', [$branch, '--set-upstream']);
-                }
-            } catch (\Throwable $exception) {
-                Log::warning($exception->getMessage());
+        $tools = $this->toolsFactory->createToolsBuilder()
+            ->withGit()
+            ->withTools([$contentTool])
+            ->build();
+
+        $agent = $this->chatFactory->createAgent($tools);
+        $generator = $agent->execute($conversation);
+
+        foreach ($generator as $processingResult) {
+            $answer = null;
+
+            if ($contentTool->hasContent()) {
+                $answer = $contentTool->getContent();
             }
-        }
 
-        $processHandler->handle($result);
+            $processHandler->handle($processingResult->withAnswer($answer));
+        }
     }
 
     private function getTmpTaskFolder(Task $task): string
@@ -89,7 +102,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
         ]);
     }
 
-    private function getEditorTools(Task $task, TasksStorage $taskStorage, RepositoryProvider $repositoryProvider): ToolsProvider
+    private function getEditorTools(Task $task, TasksStorage $taskStorage, RepositoryProvider $repositoryProvider): ToolsBuilder
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
 
@@ -102,6 +115,6 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
         $toolsBuilder->withEditor();
         $toolsBuilder->withTasks($taskStorage);
 
-        return $toolsBuilder->build();
+        return $toolsBuilder;
     }
 }

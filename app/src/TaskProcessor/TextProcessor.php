@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Anymodule\Agentmodule\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
-use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
-use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
@@ -17,8 +16,6 @@ use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Tools\CatchContent;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
-use Vasenin26\Conversation\Chat;
-use Vasenin26\Conversation\Messages\GitFileMessage;
 
 class TextProcessor implements TaskProcessor
 {
@@ -26,7 +23,7 @@ class TextProcessor implements TaskProcessor
 
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
-        private LLMFactoryInterface          $chatFactory,
+        private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
     )
@@ -48,7 +45,6 @@ class TextProcessor implements TaskProcessor
         $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
         $toolsBuilder->withTasks($taskStorage);
 
-        $tools = $toolsBuilder->build();
         $chat = $this->conversationFactory->handledConversation($task->messages, $processHandler);
 
         $this->actionRunner->run($chat, new TokenCounter());
@@ -66,7 +62,7 @@ class TextProcessor implements TaskProcessor
 
         foreach ($generator as $processingResult) {
             $answer = null;
-            
+
             if ($contentTool->hasContent()) {
                 $answer = $contentTool->getContent();
             }

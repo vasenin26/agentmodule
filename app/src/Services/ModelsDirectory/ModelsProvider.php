@@ -19,7 +19,7 @@ class ModelsProvider
         $opts = $this->models[$name] ?? null;
 
         if (null === $opts) {
-            throw new ModelNotFound();
+            throw new ModelNotFound('Model ' . $name . ' not found');
         }
 
         return new ModelMeta($name, $opts['context']);
