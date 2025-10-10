@@ -15,7 +15,6 @@ use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 class ToolServiceFactory implements ToolServiceFactoryInterface
 {
     private ToolsFactory $factory;
-    private TasksStorage $tasksStorage;
 
     public function __construct(
         GitRepoProviderInterface $gitRepoProvider,
@@ -27,13 +26,12 @@ class ToolServiceFactory implements ToolServiceFactoryInterface
 
     public function withTools(array $tools): ToolsProviderService
     {
-        return new ToolsProviderService($this->factory->sendResult(), $tools);
+        return new ToolsProviderService($tools);
     }
 
     public function withMainTools(): ToolsProviderService
     {
         return new ToolsProviderService(
-            $this->factory->sendResult(),
             [
                 // Базовые утилиты
                 'time' => $this->factory->time(),
