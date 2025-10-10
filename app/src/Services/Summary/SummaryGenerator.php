@@ -37,6 +37,13 @@ TTT;
      */
     public function generate(\Vasenin26\Conversation\Interface\Conversation $conversation): \Generator
     {
+        yield new ProcessingResult(
+            completed: false,
+            answer: 'Start generate summary',
+            conversation: new Chat(),
+            contextFill: 0,
+        );
+
         $summaryChat = new Chat();
 
         foreach ($conversation->getMessages() as $message) {
@@ -47,13 +54,6 @@ TTT;
 
         $agent = $this->chatAgentFactory->createAgent($this->toolServiceFactory->createToolsBuilder()->build());
         $generator = $agent->execute($summaryChat);
-
-        yield new ProcessingResult(
-            completed: false,
-            answer: 'Start generate summary',
-            conversation: new Chat(),
-            contextFill: 0,
-        );
 
         foreach ($generator as $processingResult) {
             yield $processingResult;

@@ -111,7 +111,6 @@ class ChatAgentTest extends TestCase
                     0,
                     0,
                     count($chat->getMessages())
-
                 );
             }
         };
