@@ -7,8 +7,9 @@ use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
-use Anymodule\Agentmodule\Services\ChatAgent\Exception\ContextOverloadException;
+use Anymodule\Agentmodule\Services\ChatAgent\Exception\CompressorException;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
+use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
@@ -39,7 +40,11 @@ class ChatAgent implements ActionContract
                 break;
             } catch (ContextOverloadException $exception) {
                 if ($compressed) {
-                    throw $exception;
+                    throw new CompressorException(
+                        'Failed to compress messages',
+                        $exception->getCode(),
+                        $exception
+                    );
                 }
 
                 $contextChat = $this->compressor->compress($conversation);
@@ -87,54 +92,17 @@ class ChatAgent implements ActionContract
                 $finished = true;
             } else {
                 foreach ($toolCalls as $toolCall) {
-
-                    Log::info("Call tool: {$toolCall->name}");
-
-                    try {
-                        $toolResult = $this->tools->callTool($toolCall->name, $toolCall->arguments);
-
-                        Log::info("Tool result: {$toolResult->message}");
-                    } catch (\Throwable $exception) {
-                        $conversation->addMessage(new ToolMessage(
-                            false,
-                            $toolCall->id,
-                            $toolCall->name,
-                            $toolCall->arguments,
-                            'This tool has broken: ' . $toolCall->name,
-                        ));
-
-                        Log::info("Tool error: {$exception->getMessage()}");
-
-                        continue;
-                    }
+                    $toolResult = $this->callTool($toolCall);
 
                     if (is_null($toolResult)) {
-                        $conversation->addMessage(new ToolMessage(
-                            false,
-                            $toolCall->id,
-                            $toolCall->name,
-                            $toolCall->arguments,
-                            'Tools was call with wrong parameters',
-                        ));
-
                         continue;
                     }
 
-                    $conversation->addMessage(new ToolMessage(
-                        $toolResult->status,
-                        $toolCall->id,
-                        $toolCall->name,
-                        $toolCall->arguments,
-                        (string)$toolResult,
-                    ));
+                    $conversation->addMessage($toolResult);
                 }
             }
 
             $usage = $result->getTokenUsage();
-
-            if ($usage->total > $this->chatProcessor->contextSize()) {
-                throw new ContextOverloadException();
-            }
 
             $contextFill = $this->calculateContextFill($usage);
 
@@ -177,10 +145,49 @@ class ChatAgent implements ActionContract
 
     private function calculateContextFill(DTO\TokenUsage $usage): float
     {
-        if($usage->total === 0) {
+        if ($usage->total === 0) {
             return 0;
         }
 
         return round(($usage->sent / $this->chatProcessor->contextSize()), 2);
+    }
+
+    private function callTool(ToolCall $toolCall): ?ToolMessage
+    {
+        Log::info("Call tool: {$toolCall->name}");
+
+        try {
+            $toolResult = $this->tools->callTool($toolCall->name, $toolCall->arguments);
+
+            Log::info("Tool result: {$toolResult->message}");
+        } catch (\Throwable $exception) {
+            Log::info("Tool error: {$exception->getMessage()}");
+
+            return new ToolMessage(
+                false,
+                $toolCall->id,
+                $toolCall->name,
+                $toolCall->arguments,
+                'This tool has broken: ' . $toolCall->name,
+            );
+        }
+
+        if (is_null($toolResult)) {
+            return new ToolMessage(
+                false,
+                $toolCall->id,
+                $toolCall->name,
+                $toolCall->arguments,
+                'Tools was call with wrong parameters',
+            );
+        }
+
+        return new ToolMessage(
+            $toolResult->status,
+            $toolCall->id,
+            $toolCall->name,
+            $toolCall->arguments,
+            (string)$toolResult,
+        );
     }
 }

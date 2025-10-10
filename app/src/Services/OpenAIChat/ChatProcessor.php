@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
+use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Client;
@@ -44,7 +45,14 @@ class ChatProcessor implements CharProcessorInterface
 
             Log::info('LLM OK');
 
-            return $this->messageMapper->prepareAssistantMessage($result);
+            $result = $this->messageMapper->prepareAssistantMessage($result);
+            $usage = $result->getTokenUsage();
+
+            if ($usage->total > $this->contextSize()) {
+                throw new ContextOverloadException();
+            }
+
+            return $result;
         } catch (\Throwable $exception) {
 //            Log::storeMessages($messages);
             Log::exception($exception, 'OpenAI Chat API error', [

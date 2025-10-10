@@ -42,7 +42,7 @@ final readonly class SummaryCompressor implements ConversationCompressorInterfac
 
         foreach ($this->summaryGenerator->generate($conversation) as $processResult) {
             $markerLink->setPayload([
-                'summary' => $processResult->answer,
+                'context_fill' => $processResult->contextFill,
             ]);
 
             if ($processResult->completed) {

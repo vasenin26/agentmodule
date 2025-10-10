@@ -9,10 +9,10 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\ChatAgent;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ProcessorAnswer;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\TokenUsage;
-use Anymodule\Agentmodule\Services\ChatAgent\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
+use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Chat;
@@ -100,7 +100,7 @@ class ChatAgentTest extends TestCase
             }
 
             public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
-            {
+            {                
                 if(count($chat->getMessages()) > $this->contextSize()) {
                     throw new ContextOverloadException();
                 }
@@ -136,5 +136,278 @@ class ChatAgentTest extends TestCase
 
         $this->assertNotEmpty($results);
         $this->assertTrue(end($results)->completed ?? true);
+    }
+
+    public function testContextOverload(): void
+    {
+        // Создаем процессор, который выбрасывает исключение при большом контексте
+        $processor = new class implements CharProcessorInterface {
+            public function contextSize(): int
+            {
+                return 1000; // Маленький лимит контекста
+            }
+
+            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            {
+                // Симулируем переполнение контекста
+                $messageCount = count($chat->getMessages());
+                if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
+                    throw new ContextOverloadException();
+                }
+
+                return new OpenAiResult(
+                    'ok',
+                    [],
+                    0,
+                    0,
+                    $messageCount
+                );
+            }
+        };
+
+        // Создаем компрессор, который НЕ РЕШАЕТ проблему - передает тот же большой контекст
+        $compressor = new class implements ConversationCompressorInterface {
+            public function compress(Conversation $conversation): Conversation
+            {
+                // ПРОБЛЕМА: компрессор возвращает тот же большой контекст!
+                // В реальности SummaryCompressor передает весь контекст в SummaryGenerator
+                // который снова передает его в ChatAgent, что снова вызовет переполнение
+                
+                $compressed = new Chat();
+                
+                // Добавляем ВСЕ сообщения из оригинального чата (проблема!)
+                foreach ($conversation->getMessages() as $message) {
+                    $compressed->addMessage($message);
+                }
+                
+                // Добавляем еще одно сообщение (делаем контекст еще больше!)
+                $compressed->addMessage(new UserMessage('Summary generation prompt'));
+                
+                return $compressed;
+            }
+        };
+
+        $toolsProvider = new class implements ToolsProviderInterface {
+            public function getMeta(): array
+            {
+                return [];
+            }
+
+            public function callTool(string $toolName, string $args): ?ToolResult
+            {
+                return null;
+            }
+
+            public function getTaskTool(): ?ToolInterface
+            {
+                return null;
+            }
+        };
+
+        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+
+        // Создаем чат с большим контекстом (больше лимита)
+        $conversation = new Chat();
+        for ($i = 0; $i < 10; $i++) {
+            $conversation->addMessage(new UserMessage("Message $i"));
+        }
+
+        // Ожидаем, что агент выбросит исключение даже после компрессии
+        $this->expectException(ContextOverloadException::class);
+        
+        $results = iterator_to_array($agent->execute($conversation));
+    }
+
+    public function testContextOverloadWithRealScenario(): void
+    {
+        // Тест, который точно воспроизводит проблему с SummaryCompressor
+        $processor = new class implements CharProcessorInterface {
+            public function contextSize(): int
+            {
+                return 1000; // Маленький лимит контекста
+            }
+
+            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            {
+                // Симулируем переполнение контекста
+                $messageCount = count($chat->getMessages());
+                if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
+                    throw new ContextOverloadException();
+                }
+
+                return new OpenAiResult(
+                    'ok',
+                    [],
+                    0,
+                    0,
+                    $messageCount
+                );
+            }
+        };
+
+        // Компрессор, который симулирует реальную проблему SummaryCompressor
+        $compressor = new class implements ConversationCompressorInterface {
+            public function compress(Conversation $conversation): Conversation
+            {
+                // РЕАЛЬНАЯ ПРОБЛЕМА: SummaryCompressor создает SummaryGenerator
+                // который передает ВЕСЬ контекст в ChatAgent для генерации саммари
+                // Это снова вызывает переполнение!
+                
+                $compressed = new Chat();
+                
+                // Сохраняем только системные сообщения (как в SummaryCompressor)
+                foreach ($conversation->getMessages() as $message) {
+                    if ($message instanceof \Vasenin26\Conversation\Messages\SystemMessage ||
+                        $message instanceof \Vasenin26\Conversation\Messages\UserTaskMessage) {
+                        $compressed->addMessage($message);
+                    }
+                }
+                
+                // НО! SummaryGenerator передает ВЕСЬ оригинальный контекст в агента
+                // для генерации саммари - это и есть проблема!
+                
+                // Симулируем это: добавляем весь оригинальный контекст + промпт
+                foreach ($conversation->getMessages() as $message) {
+                    $compressed->addMessage($message);
+                }
+                $compressed->addMessage(new UserMessage('Summary generation prompt'));
+                
+                return $compressed;
+            }
+        };
+
+        $toolsProvider = new class implements ToolsProviderInterface {
+            public function getMeta(): array
+            {
+                return [];
+            }
+
+            public function callTool(string $toolName, string $args): ?ToolResult
+            {
+                return null;
+            }
+
+            public function getTaskTool(): ?ToolInterface
+            {
+                return null;
+            }
+        };
+
+        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+
+        // Создаем чат с большим контекстом (больше лимита)
+        $conversation = new Chat();
+        for ($i = 0; $i < 10; $i++) {
+            $conversation->addMessage(new UserMessage("Message $i"));
+        }
+
+        // Ожидаем, что агент выбросит исключение даже после компрессии
+        $this->expectException(ContextOverloadException::class);
+        
+        $results = iterator_to_array($agent->execute($conversation));
+    }
+
+    public function testContextOverloadDemonstratesProblem(): void
+    {
+        // Этот тест демонстрирует, что проблема НЕ в логике ChatAgent
+        // а в том, что SummaryCompressor передает большой контекст в SummaryGenerator
+        
+        $processor = new class implements CharProcessorInterface {
+            public function contextSize(): int
+            {
+                return 1000; // Маленький лимит контекста
+            }
+
+            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            {
+                // Симулируем переполнение контекста
+                $messageCount = count($chat->getMessages());
+                if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
+                    throw new ContextOverloadException();
+                }
+
+                return new OpenAiResult(
+                    'ok',
+                    [],
+                    0,
+                    0,
+                    $messageCount
+                );
+            }
+        };
+
+        // Компрессор, который РЕШАЕТ проблему (правильная реализация)
+        $workingCompressor = new class implements ConversationCompressorInterface {
+            public function compress(Conversation $conversation): Conversation
+            {
+                // ПРАВИЛЬНАЯ РЕАЛИЗАЦИЯ: обрезаем контекст до безопасного размера
+                $compressed = new Chat();
+                
+                // Берем только первые 3 сообщения (безопасный размер)
+                $messages = $conversation->getMessages();
+                $safeMessages = array_slice($messages, 0, 3);
+                
+                foreach ($safeMessages as $message) {
+                    $compressed->addMessage($message);
+                }
+                
+                return $compressed;
+            }
+        };
+
+        // Компрессор, который НЕ РЕШАЕТ проблему (проблемная реализация)
+        $brokenCompressor = new class implements ConversationCompressorInterface {
+            public function compress(Conversation $conversation): Conversation
+            {
+                // ПРОБЛЕМНАЯ РЕАЛИЗАЦИЯ: передаем весь контекст + еще больше
+                $compressed = new Chat();
+                
+                // Передаем ВСЕ сообщения + добавляем еще
+                foreach ($conversation->getMessages() as $message) {
+                    $compressed->addMessage($message);
+                }
+                
+                // Добавляем еще сообщения (делаем контекст еще больше!)
+                for ($i = 0; $i < 5; $i++) {
+                    $compressed->addMessage(new UserMessage("Additional message $i"));
+                }
+                
+                return $compressed;
+            }
+        };
+
+        $toolsProvider = new class implements ToolsProviderInterface {
+            public function getMeta(): array
+            {
+                return [];
+            }
+
+            public function callTool(string $toolName, string $args): ?ToolResult
+            {
+                return null;
+            }
+
+            public function getTaskTool(): ?ToolInterface
+            {
+                return null;
+            }
+        };
+
+        // Создаем чат с большим контекстом
+        $conversation = new Chat();
+        for ($i = 0; $i < 10; $i++) {
+            $conversation->addMessage(new UserMessage("Message $i"));
+        }
+
+        // Тест 1: Рабочий компрессор должен работать
+        $workingAgent = new ChatAgent($processor, $workingCompressor, $toolsProvider);
+        $workingResults = iterator_to_array($workingAgent->execute($conversation));
+        $this->assertNotEmpty($workingResults);
+        $this->assertTrue(end($workingResults)->completed);
+
+        // Тест 2: Проблемный компрессор должен падать
+        $brokenAgent = new ChatAgent($processor, $brokenCompressor, $toolsProvider);
+        $this->expectException(ContextOverloadException::class);
+        $brokenResults = iterator_to_array($brokenAgent->execute($conversation));
     }
 }

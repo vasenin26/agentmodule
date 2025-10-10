@@ -3,14 +3,14 @@
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderInterfaceService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\CallToolMessage;
 
 class CallToolMapper implements MessageMapperInterface
 {
     public function __construct(
-        private ToolsProviderInterfaceService $toolsService
+        private ToolsProviderService $toolsService
     ) {}
 
     public function supports(Message $message): bool

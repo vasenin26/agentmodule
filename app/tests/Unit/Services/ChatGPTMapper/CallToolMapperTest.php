@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderInterfaceService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Messages\CallToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
@@ -11,11 +11,11 @@ use Vasenin26\Conversation\Messages\UserMessage;
 class CallToolMapperTest extends TestCase
 {
     private CallToolMapper $mapper;
-    private ToolsProviderInterfaceService $toolsService;
+    private ToolsProviderService $toolsService;
 
     protected function setUp(): void
     {
-        $this->toolsService = $this->createMock(ToolsProviderInterfaceService::class);
+        $this->toolsService = $this->createMock(ToolsProviderService::class);
         $this->mapper = new CallToolMapper($this->toolsService);
     }
 

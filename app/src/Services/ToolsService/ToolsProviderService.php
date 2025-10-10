@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Tools\SendResult;
 use Anymodule\Agentmodule\Entity\ToolResult;
 
-class ToolsProviderInterfaceService implements ToolsProviderInterface
+class ToolsProviderService implements ToolsProviderInterface
 {
     private array $meta = [];
     private array $map = [];

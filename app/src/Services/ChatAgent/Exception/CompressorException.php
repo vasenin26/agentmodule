@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ChatAgent\Exception;
 
-class ContextOverloadException extends \Exception
+class CompressorException extends \Exception
 {
 
 }

@@ -8,7 +8,7 @@ use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\Summary\SummaryGenerator;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderInterfaceService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Chat;
@@ -67,7 +67,7 @@ class SummaryGeneratorTest extends TestCase
         $agentFactory->shouldReceive('createAgent')->andReturn($agent);
 
         $toolsBuilder = Mockery::mock(ToolsBuilder::class);
-        $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(ToolsProviderInterfaceService::class));
+        $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(ToolsProviderService::class));
 
         $toolService = Mockery::mock(ToolServiceFactoryInterface::class);
         $toolService->shouldReceive('createToolsBuilder')->once()->andReturn($toolsBuilder);

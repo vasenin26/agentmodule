@@ -2,7 +2,7 @@
 
 return [
     'llm-studio' => [
-        'context' => 15_000
+        'context' => 25_000
     ],
     'gpt-5' => [
         'context' => 400_000
