@@ -10,11 +10,26 @@ readonly class ProcessingResult
         public bool         $completed,
         public ?string      $answer,
         public Conversation $conversation,
+        public float        $contextFill,
         public ?int         $promptTokens = null,
         public ?int         $completionTokens = null,
         public ?int         $totalTokens = null,
         public ?array       $payload = null,
     )
     {
+    }
+
+    public function withAnswer(?string $answer): self
+    {
+        return new self(
+            $this->completed,
+            $answer,
+            $this->conversation,
+            $this->contextFill,
+            $this->promptTokens,
+            $this->completionTokens,
+            $this->totalTokens,
+            $this->payload,
+        );
     }
 }

@@ -19,6 +19,7 @@ use Anymodule\Agentmodule\Utils\ExtractRepoUrl;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Message;
+use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\InfoMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
@@ -31,7 +32,7 @@ class ChatMapper implements MessageMapper
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
         UrlParserInterface       $urlParser = null,
-        ToolsProviderService $toolsService = null
+        ToolsProviderService     $toolsService = null
     )
     {
         $urlParser = $urlParser ?? new ExtractRepoUrl();
@@ -53,18 +54,28 @@ class ChatMapper implements MessageMapper
 
     public function mapChat(Conversation $chat): array
     {
-        $messages = [];
+        $chatMessages = $chat->getMessages();
+        $resultMessages = [];
 
-        foreach ($chat->getMessages() as $message) {
-            foreach ($this->mappers as $mapper) {
-                if ($mapper->supports($message)) {
-                    $messages[] = $mapper->map($message);
-                    break;
+        while ($message = array_shift($chatMessages)) {
+            if ($message instanceof AssistantMessage) {
+                if (!$this->chatHasAllAnswers($message, $chatMessages)) {
+                    $this->removeToolsStack($chatMessages);
+                    continue;
+                }
+            }
+
+            if ($message) {
+                foreach ($this->mappers as $mapper) {
+                    if ($mapper->supports($message)) {
+                        $resultMessages[] = $mapper->map($message);
+                        break;
+                    }
                 }
             }
         }
 
-        return $messages;
+        return $resultMessages;
     }
 
 
@@ -124,5 +135,43 @@ class ChatMapper implements MessageMapper
     public function mapToInfoMessage(string $content): Message
     {
         return new InfoMessage($content);
+    }
+
+    private function chatHasAllAnswers(AssistantMessage $assistantMessage, array $chatMessages): bool
+    {
+        if (empty($assistantMessage->toolCallsArray)) {
+            return true;
+        }
+
+        $toolCalls = array_map(fn($t) => $t['id'], $assistantMessage->toolCallsArray);
+
+        foreach ($chatMessages as $message) {
+            if ($message instanceof ToolMessage) {
+                if (in_array($message->id, $toolCalls)) {
+                    $toolCalls = array_values(array_filter($toolCalls, fn($item) => $item !== $message->id));
+                } else {
+                    return false;
+                }
+            } else {
+                break;
+            }
+        }
+
+        return count($toolCalls) === 0;
+    }
+
+    private function removeToolsStack(array &$chatMessages): void
+    {
+        $clone = array_slice($chatMessages, 0);
+
+        do {
+            $message = current($clone);
+
+            if ($message instanceof ToolMessage) {
+                array_shift($chatMessages);
+            } else {
+                break;
+            }
+        } while (next($clone));
     }
 }

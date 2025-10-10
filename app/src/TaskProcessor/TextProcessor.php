@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Anymodule\Agentmodule\TaskProcessor;
 
 use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\LLMFactoryInterface;
@@ -13,8 +14,11 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
+use Anymodule\Agentmodule\Tools\CatchContent;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
+use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Messages\GitFileMessage;
 
 class TextProcessor implements TaskProcessor
 {
@@ -45,13 +49,29 @@ class TextProcessor implements TaskProcessor
         $toolsBuilder->withTasks($taskStorage);
 
         $tools = $toolsBuilder->build();
-        $llm = $this->chatFactory->createChat($tools);
         $chat = $this->conversationFactory->handledConversation($task->messages, $processHandler);
 
         $this->actionRunner->run($chat, new TokenCounter());
 
-        $result = $llm->process($chat, $processHandler, $task->resultRequired);
+        $contentTool = new CatchContent(
+            'store-result',
+            'Store result to storage',
+            'Result success stored to storage',
+        );
 
-        $processHandler->handle($result);
+        $tools = $toolsBuilder->withTools([$contentTool])->build();
+
+        $agent = $this->chatFactory->createAgent($tools);
+        $generator = $agent->execute($chat);
+
+        foreach ($generator as $processingResult) {
+            $answer = null;
+            
+            if ($contentTool->hasContent()) {
+                $answer = $contentTool->getContent();
+            }
+
+            $processHandler->handle($processingResult->withAnswer($answer));
+        }
     }
 }

@@ -168,6 +168,7 @@ class Service implements TaskApi, PageApi
             taskId: $taskId,
             agentId: $agentId->toString(),
             chatMessages: $result->conversation->serialize(),
+            contextFill: $result->contextFill,
             tokenStats: UpdateAgentTask::createTokenStats(
                 promptTokens: $result->promptTokens,
                 completionTokens: $result->completionTokens,

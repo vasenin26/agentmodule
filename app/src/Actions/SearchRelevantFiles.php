@@ -70,7 +70,8 @@ EIO;
         yield new ProcessingResult(
             completed: false,
             answer: 'Start search relevant files',
-            conversation: new Chat()
+            conversation: new Chat(),
+            contextFill: 0
         );
 
         foreach ($generator as $processingResult) {
@@ -85,6 +86,7 @@ EIO;
                     completed: true,
                     answer: $processingResult->answer,
                     conversation: $resultChat,
+                    contextFill: 0,
                     promptTokens: $processingResult->promptTokens,
                     completionTokens: $processingResult->completionTokens,
                     totalTokens: $processingResult->totalTokens

@@ -1,39 +1,25 @@
 <?php
 
-use Anymodule\Agentmodule\Factory\ActionsFactory;
-use Anymodule\Agentmodule\Factory\ConversationFactory;
-use Anymodule\Agentmodule\Factory\LLMFactory;
-use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
-use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
-use Anymodule\Agentmodule\Factory\ToolServiceFactory;
+use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Runner;
-use Anymodule\Agentmodule\Services\ApiService\Service;
-use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\StateStore;
-use Anymodule\Agentmodule\Services\TaskStorageProvider;
+use Ramsey\Uuid\Uuid;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new Service(
-    host: getenv('API_HOST'),
-    token: getenv('API_TOKEN'),
+/**
+ * @var $container DI\Container
+ */
+$container = require __DIR__ . '/bootstrap/container.php';
+
+$agentUuid = getenv('AGENT_UUID');
+$agentUuid = $agentUuid ? Uuid::fromString($agentUuid) : Uuid::uuid4();
+
+$runner = new Runner(
+    $container->get(TaskApi::class),
+    StateStore::run(),
+    $container->get(TaskProcessorFactoryInterface::class)
 );
 
-$repoProvider = new RepositoryProvider(reposFolder: 'default', branch: 'main');
-
-$toolFactory = new ToolServiceFactory(
-    $repoProvider,
-    new PageContextProviderFactory($api),
-);
-
-$llmFactory = new LLMFactory($repoProvider);
-
-$processorFactory = new TaskProcessorFactory(
-    $toolFactory,
-    $llmFactory,
-    new ConversationFactory(),
-    new TaskStorageProvider(),
-    new ActionsFactory($toolFactory, $llmFactory),
-);
-
-(new Runner($api, StateStore::run(), $processorFactory))->run();
+$runner->run($agentUuid);

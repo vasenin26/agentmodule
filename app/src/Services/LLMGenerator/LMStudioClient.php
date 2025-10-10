@@ -59,6 +59,7 @@ class LMStudioClient implements GPTProcessorInterface
                         true,
                         'Empty chat',
                         $chat,
+                        0,
                         $promptTokens,
                         $completionTokens,
                         $totalTokens
@@ -81,6 +82,7 @@ class LMStudioClient implements GPTProcessorInterface
                     true,
                     null,
                     $chat,
+                    0,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -101,6 +103,7 @@ class LMStudioClient implements GPTProcessorInterface
                     false,
                     $answer,
                     $chat,
+                    0,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -163,6 +166,7 @@ class LMStudioClient implements GPTProcessorInterface
                     Log::info("Tool OK");
 
                     if ($this->tools->isResultFunction($toolCall->function->name)) {
+                        $answer = json_encode($toolResult->payload);
                         $finished = true;
                     }
 
@@ -177,6 +181,7 @@ class LMStudioClient implements GPTProcessorInterface
             }
 
             $tokenUsage = $result->getTokenUsage();
+
             $promptTokens += $tokenUsage->sent;
             $completionTokens += $tokenUsage->received;
             $totalTokens += $tokenUsage->total;
@@ -186,6 +191,7 @@ class LMStudioClient implements GPTProcessorInterface
                     false,
                     $answer,
                     $chat,
+                    0,
                     $promptTokens,
                     $completionTokens,
                     $totalTokens
@@ -210,6 +216,7 @@ class LMStudioClient implements GPTProcessorInterface
             true,
             $answer,
             $chat,
+            0,
             $promptTokens,
             $completionTokens,
             $totalTokens

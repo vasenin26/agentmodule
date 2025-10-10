@@ -4,8 +4,10 @@ namespace Anymodule\Agentmodule\Services\ChatAgent;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
+use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
+use Anymodule\Agentmodule\Services\ChatAgent\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -15,13 +17,38 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 class ChatAgent implements ActionContract
 {
     public function __construct(
-        private CharProcessorInterface $chatProcessor,
-        private ToolsProvider          $tools,
+        private CharProcessorInterface          $chatProcessor,
+        private ConversationCompressorInterface $compressor,
+        private ToolsProvider                   $tools,
     )
     {
     }
 
     public function execute(Conversation $conversation): \Generator
+    {
+        $contextChat = $conversation;
+        $compressed = false;
+
+        do {
+            try {
+                foreach ($this->process($contextChat) as $processingResult) {
+                    $compressed = false;
+                    yield $processingResult;
+                }
+
+                break;
+            } catch (ContextOverloadException $exception) {
+                if ($compressed) {
+                    throw $exception;
+                }
+
+                $contextChat = $this->compressor->compress($conversation);
+                $compressed = true;
+            }
+        } while (true);
+    }
+
+    public function process(Conversation $conversation): \Generator
     {
         $promptTokens = 0;
         $completionTokens = 0;
@@ -31,6 +58,7 @@ class ChatAgent implements ActionContract
 
         $answer = null;
         $finished = false;
+        $contextFill = 0;
 
         do {
             Log::info("Call LLM");
@@ -45,6 +73,7 @@ class ChatAgent implements ActionContract
                 false,
                 $answer,
                 $conversation,
+                $contextFill,
                 $promptTokens,
                 $completionTokens,
                 $totalTokens
@@ -103,15 +132,23 @@ class ChatAgent implements ActionContract
 
             $usage = $result->getTokenUsage();
 
+            if ($usage->total > $this->chatProcessor->contextSize()) {
+                throw new ContextOverloadException();
+            }
+
+            $contextFill = $this->calculateContextFill($usage);
+
             $promptTokens += $usage->sent;
             $completionTokens += $usage->received;
             $totalTokens += $usage->total;
 
             Log::info("Process handler");
+
             yield new ProcessingResult(
                 false,
                 $answer,
                 $conversation,
+                $contextFill,
                 $promptTokens,
                 $completionTokens,
                 $totalTokens
@@ -123,6 +160,7 @@ class ChatAgent implements ActionContract
             true,
             $answer,
             $conversation,
+            $contextFill,
             $promptTokens,
             $completionTokens,
             $totalTokens
@@ -135,5 +173,14 @@ class ChatAgent implements ActionContract
             $result->getProcessorAnswer()?->message ?? '',
             array_map(fn(ToolCall $tc) => (array)$tc, iterator_to_array($result->getToolCalls())),
         );
+    }
+
+    private function calculateContextFill(DTO\TokenUsage $usage): float
+    {
+        if($usage->total === 0) {
+            return 0;
+        }
+
+        return round(($usage->sent / $this->chatProcessor->contextSize()), 2);
     }
 }

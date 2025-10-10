@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Utils;
+namespace Anymodule\Agentmodule\Messages;
 
 use Vasenin26\Conversation\Interface\MessageLinkInterface;
 

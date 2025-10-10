@@ -40,6 +40,7 @@ class ActionInformation
             completed: false,
             answer: $answer,
             conversation: $processingResult->conversation,
+            contextFill: 0,
             promptTokens: $processingResult->promptTokens,
             completionTokens: $processingResult->completionTokens,
             totalTokens: $processingResult->totalTokens,

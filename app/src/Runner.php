@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 final readonly class Runner
 {
@@ -27,9 +28,8 @@ final readonly class Runner
     {
     }
 
-    public function run(): void
+    public function run(UuidInterface $agentId): void
     {
-        $agentId = Uuid::uuid4();
         $attemptLimit = self::GET_TASK_ATTEMPTS;
 
         $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'started');

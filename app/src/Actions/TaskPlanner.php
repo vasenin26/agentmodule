@@ -105,7 +105,8 @@ PROMPT;
         yield new ProcessingResult(
             completed: false,
             answer: 'Start planing',
-            conversation: new Chat()
+            conversation: new Chat(),
+            contextFill: 0,
         );
 
         foreach ($generator as $processingResult) {
@@ -123,6 +124,7 @@ PROMPT;
                     completed: true,
                     answer: $processingResult->answer,
                     conversation: $resultChat,
+                    contextFill: 0,
                     promptTokens: $processingResult->promptTokens,
                     completionTokens: $processingResult->completionTokens,
                     totalTokens: $processingResult->totalTokens

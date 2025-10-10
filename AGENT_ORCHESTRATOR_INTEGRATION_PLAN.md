@@ -107,14 +107,14 @@ AgentManager оркестратор:
 1. **Генерация SSH ключей**
    ```php
    // ❌ УДАЛИТЬ: агент НЕ генерирует ключи!
-   $sshStorage->generateAndStoreKeyPair($agentId);
+   $sshStorage->generateAndStoreKeyPair($agentUuid);
    ```
    
 2. **Бесконечный цикл получения задач**
    ```php
    // ❌ УДАЛИТЬ: агент НЕ получает задачи в цикле!
    while (true) {
-       $task = $this->api->getTask($agentId);
+       $task = $this->api->getTask($agentUuid);
        // ...
    }
    ```
@@ -506,7 +506,7 @@ exec('git clone git@github.com:user/repo.git');
 
 ```php
 // ❌ УДАЛИТЬ - агент НЕ генерирует ключи!
-$sshStorage->generateAndStoreKeyPair($agentId);
+$sshStorage->generateAndStoreKeyPair($agentUuid);
 $sshKey = $this->sshKeyGenerator->generate();
 // и т.д.
 ```

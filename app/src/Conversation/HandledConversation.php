@@ -1,9 +1,10 @@
 <?php
 
-namespace Anymodule\Agentmodule\Utils;
+namespace Anymodule\Agentmodule\Conversation;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Messages\HandledServiceMessageLink;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Interface\MessageLinkInterface;
 use Vasenin26\Conversation\Message;
@@ -60,6 +61,7 @@ class HandledConversation implements Conversation
                 completed: false,
                 answer: null,
                 conversation: $this,
+                contextFill: 0,
                 promptTokens: 0,
                 completionTokens: 0,
                 totalTokens: 0

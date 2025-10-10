@@ -36,7 +36,8 @@
         "guzzlehttp/guzzle": "^7.10",
         "ramsey/uuid": "^4.9",
         "vasenin26/conversation": "^0.10",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "php-di/php-di": "^7.1"
     },
     "config": {
         "allow-plugins": {

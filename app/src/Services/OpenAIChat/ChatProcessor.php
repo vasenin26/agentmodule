@@ -2,21 +2,21 @@
 
 namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
+use Anymodule\Agentmodule\Entity\ModelMeta;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Anymodule\Agentmodule\Utils\Log;
-use OpenAI;
-use Vasenin26\Conversation\Chat;
+use OpenAI\Client;
 use Vasenin26\Conversation\Interface\Conversation;
 
 class ChatProcessor implements CharProcessorInterface
 {
     public function __construct(
-        private string        $apiKey,
-        private string        $model,
+        private Client        $apiClient,
+        private ModelMeta     $model,
         private MessageMapper $messageMapper,
     )
     {
@@ -24,35 +24,41 @@ class ChatProcessor implements CharProcessorInterface
 
     public function process(Conversation $chat, ToolsProvider $tools): ChatResultInterface
     {
-        $client = OpenAI::factory()
-            ->withApiKey($this->apiKey)
-            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
-            ->make();
-
         $messages = null;
 
         try {
             $messages = $this->messageMapper->mapChat($chat);
 
             if (empty($messages)) {
+                Log::warning('Empty conversation found');
                 return OpenAiResult::empty();
             }
 
-            $result = $client->chat()->create([
-                'model' => $this->model,
+            Log::info('Ask LLM');
+
+            $result = $this->apiClient->chat()->create([
+                'model' => $this->model->name,
                 'messages' => $messages,
                 'tools' => $tools->getMeta()
             ]);
 
+            Log::info('LLM OK');
+
             return $this->messageMapper->prepareAssistantMessage($result);
         } catch (\Throwable $exception) {
-            Log::storeMessages($messages);
+//            Log::storeMessages($messages);
             Log::exception($exception, 'OpenAI Chat API error', [
                 'model' => $this->model,
                 'messages_count' => count($messages ?? []),
                 'tools_count' => count($tools->getMeta()),
             ]);
+
             return OpenAiResult::error($exception->getMessage());
         }
+    }
+
+    public function contextSize(): int
+    {
+        return $this->model->contextSize;
     }
 }
