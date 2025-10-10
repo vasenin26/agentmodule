@@ -81,12 +81,14 @@ class SimpleCompressorTest extends TestCase
                 conversation: $conversation,
                 promptTokens: 10,
                 completionTokens: 5,
+                contextFill: 0,
                 totalTokens: 15
             ),
             new ProcessingResult(
                 completed: true,
                 answer: 'Complete summary',
                 conversation: $conversation,
+                contextFill: 0,
                 promptTokens: 20,
                 completionTokens: 10,
                 totalTokens: 30
@@ -173,17 +175,20 @@ class SimpleCompressorTest extends TestCase
             new ProcessingResult(
                 completed: false,
                 answer: 'Step 1',
-                conversation: $conversation
+                conversation: $conversation,
+                contextFill: 0,
             ),
             new ProcessingResult(
                 completed: false,
                 answer: 'Step 2',
-                conversation: $conversation
+                conversation: $conversation,
+                contextFill: 0,
             ),
             new ProcessingResult(
                 completed: true,
                 answer: 'Final summary',
-                conversation: $conversation
+                conversation: $conversation,
+                contextFill: 0,
             )
         ];
         

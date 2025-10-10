@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule;
 
 use Anymodule\Agentmodule\Interface\StateStoreInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
@@ -21,7 +21,7 @@ final class OrchestratedRunner
     const STORE_AGENT_STATUS_KEY = 'status';
 
     public function __construct(
-        private TaskApi                       $api,
+        private TaskApiInterface              $api,
         private StateStoreInterface           $stateStore,
         private TaskProcessorFactoryInterface $processorFactory,
     )

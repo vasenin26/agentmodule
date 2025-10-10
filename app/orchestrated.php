@@ -20,7 +20,7 @@
  *   - 1: Ошибка выполнения
  */
 
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\OrchestratedRunner;
 use Anymodule\Agentmodule\Services\StateStore;
@@ -96,7 +96,7 @@ echo "────────────────────────�
 
 try {
     (new OrchestratedRunner(
-        $container->get(TaskApi::class),
+        $container->get(TaskApiInterface::class),
         StateStore::run(),
         $container->get(TaskProcessorFactoryInterface::class),
     )

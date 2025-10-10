@@ -2,12 +2,12 @@
 
 namespace Anymodule\Agentmodule\Services\ToolsService;
 
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Tools\SendResult;
 use Anymodule\Agentmodule\Entity\ToolResult;
 
-class ToolsProviderService implements ToolsProvider
+class ToolsProviderInterfaceService implements ToolsProviderInterface
 {
     private array $meta = [];
     private array $map = [];

@@ -323,7 +323,7 @@ public function getRepo(string $url): GitRepository
 namespace Anymodule\Agentmodule;
 
 use Anymodule\Agentmodule\Interface\StateStoreInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
@@ -340,7 +340,7 @@ final readonly class OrchestratedRunner
     const STORE_AGENT_STATUS_KEY = 'status';
 
     public function __construct(
-        private TaskApi                       $api,
+        private TaskApiInterface                       $api,
         private StateStoreInterface           $stateStore,
         private TaskProcessorFactoryInterface $processorFactory,
     )
@@ -1451,7 +1451,7 @@ namespace Anymodule\Agentmodule\Tests\Unit;
 
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\StateStoreInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\OrchestratedRunner;
 use PHPUnit\Framework\TestCase;
@@ -1472,7 +1472,7 @@ class OrchestratedRunnerTest extends TestCase
         putenv('AGENT_UUID=test-uuid');
         putenv('AGENT_ID=test-agent');
 
-        $api = Mockery::mock(TaskApi::class);
+        $api = Mockery::mock(TaskApiInterface::class);
         $stateStore = Mockery::mock(StateStoreInterface::class);
         $stateStore->shouldReceive('push')->never();
         $processorFactory = Mockery::mock(TaskProcessorFactoryInterface::class);
@@ -1497,7 +1497,7 @@ class OrchestratedRunnerTest extends TestCase
         putenv('AGENT_UUID=');
         putenv('AGENT_ID=test-agent');
 
-        $api = Mockery::mock(TaskApi::class);
+        $api = Mockery::mock(TaskApiInterface::class);
         $stateStore = Mockery::mock(StateStoreInterface::class);
         $processorFactory = Mockery::mock(TaskProcessorFactoryInterface::class);
 
@@ -1520,7 +1520,7 @@ class OrchestratedRunnerTest extends TestCase
         putenv('AGENT_UUID=test-uuid');
         putenv('AGENT_ID=test-agent');
 
-        $api = Mockery::mock(TaskApi::class);
+        $api = Mockery::mock(TaskApiInterface::class);
         $api->shouldReceive('getTaskByUuid')
             ->with('test-uuid')
             ->once()
@@ -1559,7 +1559,7 @@ class OrchestratedRunnerTest extends TestCase
             resultRequired: true
         );
 
-        $api = Mockery::mock(TaskApi::class);
+        $api = Mockery::mock(TaskApiInterface::class);
         $api->shouldReceive('getTaskByUuid')
             ->with('test-uuid')
             ->once()

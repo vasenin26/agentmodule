@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule;
 
 use Anymodule\Agentmodule\Interface\StateStoreInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Utils\Log;
@@ -21,7 +21,7 @@ final readonly class Runner
     const STORE_AGENT_ATTEMPT_KEY = 'attempt';
 
     public function __construct(
-        private TaskApi                       $api,
+        private TaskApiInterface              $api,
         private StateStoreInterface           $stateStore,
         private TaskProcessorFactoryInterface $processorFactory,
     )

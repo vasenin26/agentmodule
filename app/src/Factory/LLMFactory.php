@@ -6,7 +6,7 @@ use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\ChatAgent;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
@@ -23,7 +23,7 @@ final readonly class LLMFactory implements ChatAgentFactoryInterface
     {
     }
 
-    public function createAgent(ToolsProvider $tools): ActionContract
+    public function createAgent(ToolsProviderInterface $tools): ActionContract
     {
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');

@@ -29,7 +29,7 @@ class TextProcessor implements TaskProcessor
     )
     {
         $this->actionRunner = new ActionRunner([
-            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
+//            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
         ]);
     }
 

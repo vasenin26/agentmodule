@@ -196,7 +196,7 @@ AgentManager оркестратор:
 
 namespace Anymodule\Agentmodule;
 
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Services\StateStoreInterface;
@@ -207,7 +207,7 @@ final readonly class OrchestratedRunner
     const STORE_AGENT_STATUS_KEY = 'status';
 
     public function __construct(
-        private TaskApi                       $api,
+        private TaskApiInterface                       $api,
         private StateStoreInterface           $stateStore,
         private TaskProcessorFactoryInterface $processorFactory,
     )

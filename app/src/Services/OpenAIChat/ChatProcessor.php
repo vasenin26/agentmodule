@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
 use Anymodule\Agentmodule\Entity\ModelMeta;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
@@ -22,7 +22,7 @@ class ChatProcessor implements CharProcessorInterface
     {
     }
 
-    public function process(Conversation $chat, ToolsProvider $tools): ChatResultInterface
+    public function process(Conversation $chat, ToolsProviderInterface $tools): ChatResultInterface
     {
         $messages = null;
 

@@ -1,8 +1,12 @@
 <?php
 
+use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use DI\ContainerBuilder;
 use Anymodule\Agentmodule\Factory\{
     ActionsFactory, ConversationFactory, LLMFactory, PageContextProviderFactory,
@@ -60,7 +64,7 @@ $builder->addDefinitions([
         new ActionsFactory($c->get(ToolServiceFactory::class), $c->get(LLMFactory::class)),
     ),
 
-    TaskApi::class => fn($c) => $c->get(Service::class),
+    TaskApiInterface::class => fn($c) => $c->get(Service::class),
 
 ]);
 

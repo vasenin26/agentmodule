@@ -45,6 +45,7 @@ class ActionRunnerTest extends TestCase
                 completed: true,
                 answer: 'done',
                 conversation: $resultConversation,
+                contextFill: 0,
                 promptTokens: 1,
                 completionTokens: 2,
                 totalTokens: 3
@@ -161,6 +162,7 @@ class ActionRunnerTest extends TestCase
                 completed: true,
                 answer: 'ok',
                 conversation: $resultConversation,
+                contextFill: 0,
                 promptTokens: 0,
                 completionTokens: 0,
                 totalTokens: 0

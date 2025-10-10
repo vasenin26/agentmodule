@@ -5,7 +5,7 @@ namespace Anymodule\Agentmodule\Services\ChatAgent;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Services\ChatAgent\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
@@ -19,7 +19,7 @@ class ChatAgent implements ActionContract
     public function __construct(
         private CharProcessorInterface          $chatProcessor,
         private ConversationCompressorInterface $compressor,
-        private ToolsProvider                   $tools,
+        private ToolsProviderInterface          $tools,
     )
     {
     }
@@ -48,7 +48,7 @@ class ChatAgent implements ActionContract
         } while (true);
     }
 
-    public function process(Conversation $conversation): \Generator
+    private function process(Conversation $conversation): \Generator
     {
         $promptTokens = 0;
         $completionTokens = 0;

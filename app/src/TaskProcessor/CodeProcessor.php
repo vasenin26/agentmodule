@@ -10,7 +10,7 @@ use Anymodule\Agentmodule\Interface\GPTProcessorInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
@@ -92,7 +92,7 @@ YYY;
         return 'agent/task' . $task->id;
     }
 
-    private function getActionRunner(TasksStorage $tasksStorage, ToolsProvider $editorTools): ActionRunner
+    private function getActionRunner(TasksStorage $tasksStorage, ToolsProviderInterface $editorTools): ActionRunner
     {
         $addTasksTool = new AddTasks($tasksStorage);
 

@@ -6,15 +6,15 @@ use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Exception\AgentTaskStopped;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Ramsey\Uuid\UuidInterface;
 
 class DocsModule implements ProcessHandlerInterface
 {
     public function __construct(
-        private TaskApi       $api,
-        private UuidInterface $agentId,
-        private Task          $task
+        private TaskApiInterface $api,
+        private UuidInterface    $agentId,
+        private Task             $task
     )
     {
     }

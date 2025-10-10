@@ -37,7 +37,12 @@ TTT;
      */
     public function generate(\Vasenin26\Conversation\Interface\Conversation $conversation): \Generator
     {
-        $summaryChat = clone $conversation;
+        $summaryChat = new Chat();
+
+        foreach ($conversation->getMessages() as $message) {
+            $summaryChat->addMessage($message);
+        }
+
         $summaryChat->addMessage(new UserMessage(self::PROMPT));
 
         $agent = $this->chatAgentFactory->createAgent($this->toolServiceFactory->createToolsBuilder()->build());

@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Interface\Tools;
 
 use Anymodule\Agentmodule\Entity\ToolResult;
 
-interface ToolsProvider
+interface ToolsProviderInterface
 {
     public function getMeta(): array;
 

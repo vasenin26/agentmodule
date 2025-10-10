@@ -14,7 +14,7 @@ use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\TokenProviderInterface;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\UpdateAgentTask;
@@ -35,7 +35,7 @@ use Anymodule\Agentmodule\Services\ApiService\Response\Pages\TaskHistoryDTO;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\UuidInterface;
 
-class Service implements TaskApi, PageApi
+class Service implements TaskApiInterface, PageApi
 {
     private ApiClient $api;
 

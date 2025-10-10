@@ -33,7 +33,7 @@ final readonly class SummaryCompressor implements ConversationCompressorInterfac
                 $message instanceof SystemMessage or
                 $message instanceof UserTaskMessage
             ) {
-                $compressed->addMessage($message);
+                $compressed->push($message);
             }
         }
 
@@ -57,7 +57,7 @@ final readonly class SummaryCompressor implements ConversationCompressorInterfac
             }
         }
 
-        $compressed->addMessage(new DisappearingMessage("Check task list before state. Then continue work"));
+        $compressed->push(new DisappearingMessage("Check task list before state. Then continue work"));
 
         return $compressed;
     }

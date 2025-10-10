@@ -78,7 +78,7 @@ class ToolsBuilder
         ]);
     }
 
-    public function build(): ToolsProviderService
+    public function build(): ToolsProviderInterfaceService
     {
         return $this->toolServiceFactory->withTools($this->tools);
     }

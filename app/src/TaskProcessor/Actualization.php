@@ -14,7 +14,7 @@ use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\ActionRunner;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
+use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderInterfaceService;
 use Anymodule\Agentmodule\Tools\Utils\UpdateArticle;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
@@ -66,7 +66,7 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
         return new ProcessChat($this->chatAgentFactory->createAgent($tools));
     }
 
-    private function getTools(Task $task, ToolInterface $updateTool): ToolsProviderService
+    private function getTools(Task $task, ToolInterface $updateTool): ToolsProviderInterfaceService
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 

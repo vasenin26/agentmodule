@@ -9,7 +9,7 @@ use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProvider;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 
@@ -32,7 +32,7 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
         );
     }
 
-    public function createTaskPlanner(ToolInterface $addTasksTool, ToolsProvider $availableTools): ActionContract
+    public function createTaskPlanner(ToolInterface $addTasksTool, ToolsProviderInterface $availableTools): ActionContract
     {
         $availableToolsDescription = [];
 

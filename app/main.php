@@ -1,6 +1,6 @@
 <?php
 
-use Anymodule\Agentmodule\Interface\Task\TaskApi;
+use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Runner;
 use Anymodule\Agentmodule\Services\StateStore;
@@ -17,7 +17,7 @@ $agentUuid = getenv('AGENT_UUID');
 $agentUuid = $agentUuid ? Uuid::fromString($agentUuid) : Uuid::uuid4();
 
 $runner = new Runner(
-    $container->get(TaskApi::class),
+    $container->get(TaskApiInterface::class),
     StateStore::run(),
     $container->get(TaskProcessorFactoryInterface::class)
 );

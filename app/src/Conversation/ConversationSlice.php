@@ -19,6 +19,11 @@ class ConversationSlice implements Conversation
         $this->slice = new Chat();
     }
 
+    public function push(Message $message): void
+    {
+        $this->slice->addMessage($message);
+    }
+
     public function addMessage(Message $message): void
     {
         $this->slice->addMessage($message);

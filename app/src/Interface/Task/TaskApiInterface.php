@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Entity\TaskState;
 use Ramsey\Uuid\UuidInterface;
 
-interface TaskApi
+interface TaskApiInterface
 {
     /**
      * Получить задачу для агента (standalone режим)
