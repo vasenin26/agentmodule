@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services;
 
-use Anymodule\Agentmodule\Conversation\ConversationSlice;
+use Anymodule\Agentmodule\Application\Conversation\ConversationSlice;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Services\Summary\SummaryCompressor;

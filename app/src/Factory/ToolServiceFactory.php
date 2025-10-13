@@ -3,14 +3,13 @@
 namespace Anymodule\Agentmodule\Factory;
 
 
+use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Application\ToolsService\ToolsFactory;
+use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsFactory;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
-use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class ToolServiceFactory implements ToolServiceFactoryInterface
 {

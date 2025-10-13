@@ -2,6 +2,9 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
+use Anymodule\Agentmodule\Application\TaskProcessor\Actualization;
+use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
+use Anymodule\Agentmodule\Application\TaskProcessor\TextProcessor;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
@@ -9,9 +12,6 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\TaskProcessor\Actualization;
-use Anymodule\Agentmodule\TaskProcessor\CodeProcessor;
-use Anymodule\Agentmodule\TaskProcessor\TextProcessor;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {

@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers;
 
+use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\MessageMapperInterface;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\CallToolMessage;
 

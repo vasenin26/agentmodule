@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Actions\SearchRelevantFiles;
-use Anymodule\Agentmodule\Actions\TaskPlanner;
+use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
+use Anymodule\Agentmodule\Application\Actions\TaskPlanner;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;

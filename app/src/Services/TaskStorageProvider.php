@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services;
 
+use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
-use Anymodule\Agentmodule\Tools\Tasks\TasksStorage;
 
 class TaskStorageProvider implements TaskStorageProviderInterface
 {

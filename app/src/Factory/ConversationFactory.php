@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Conversation\HandledConversation;
+use Anymodule\Agentmodule\Application\Conversation\HandledConversation;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Factory\ConversationFactory as Vasenin26ConversationFactory;

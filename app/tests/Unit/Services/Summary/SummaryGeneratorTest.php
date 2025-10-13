@@ -2,13 +2,13 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\Summary;
 
+use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\Summary\SummaryGenerator;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Chat;

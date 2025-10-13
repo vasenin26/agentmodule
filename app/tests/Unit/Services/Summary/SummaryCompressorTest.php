@@ -80,8 +80,8 @@ class SummaryCompressorTest extends TestCase
 
         // Создаем мок для ToolServiceFactory
         $toolServiceFactory = Mockery::mock(\Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface::class);
-        $toolsBuilder = Mockery::mock(\Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder::class);
-        $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(\Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService::class));
+        $toolsBuilder = Mockery::mock(\Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder::class);
+        $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(\Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService::class));
         $toolServiceFactory->shouldReceive('createToolsBuilder')->andReturn($toolsBuilder);
 
         // Создаем РЕАЛЬНЫЙ SummaryGenerator

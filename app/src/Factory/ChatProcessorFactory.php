@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\OpenAIChat\ChatProcessor;
 use OpenAI;

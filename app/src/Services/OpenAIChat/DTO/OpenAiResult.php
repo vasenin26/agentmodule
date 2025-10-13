@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Services\OpenAIChat\DTO;
 
-use Anymodule\Agentmodule\Services\ChatAgent\DTO\ProcessorAnswer;
-use Anymodule\Agentmodule\Services\ChatAgent\DTO\TokenUsage;
-use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\ProcessorAnswer;
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\TokenUsage;
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\ToolCall;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 
 final class OpenAiResult implements ChatResultInterface
 {

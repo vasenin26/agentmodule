@@ -1,5 +1,12 @@
 <?php
 
+use Anymodule\Agentmodule\Factory\{ActionsFactory,
+    ChatAgentFactory,
+    ChatProcessorFactory,
+    ConversationFactory,
+    PageContextProviderFactory,
+    TaskProcessorFactory,
+    ToolServiceFactory};
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
@@ -13,23 +20,14 @@ use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use DI\ContainerBuilder;
-use Anymodule\Agentmodule\Factory\{ActionsFactory,
-    ChatProcessorFactory,
-    ConversationFactory,
-    ChatAgentFactory,
-    PageContextProviderFactory,
-    TaskProcessorFactory,
-    ToolServiceFactory};
-use Anymodule\Agentmodule\Services\{
-    ApiService\DocModuleApi,
+use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     RepositoryService\RepositoryProvider,
     Summary\SummaryCompressor,
-    Summary\SummaryGenerator,
-    TaskStorageProvider
-};
+    Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
+use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
+use DI\ContainerBuilder;
 
 $builder = new ContainerBuilder();
 $builder->addDefinitions([

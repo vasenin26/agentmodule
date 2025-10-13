@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Messages\CallToolMessage;
 use Vasenin26\Conversation\Messages\UserMessage;

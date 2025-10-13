@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Interface\Tools;
 
+use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsBuilder;
-use Anymodule\Agentmodule\Services\ToolsService\ToolsProviderService;
 
 interface ToolServiceFactoryInterface
 {

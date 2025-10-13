@@ -2,14 +2,13 @@
 
 namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI;
-use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
 
 class ChatStereamProcessor implements ChatProcessorInterface

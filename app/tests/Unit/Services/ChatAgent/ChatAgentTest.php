@@ -2,15 +2,15 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatAgent;
 
+use Anymodule\Agentmodule\Application\ChatAgent\ChatAgent;
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\ProcessorAnswer;
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\TokenUsage;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\ChatAgent;
-use Anymodule\Agentmodule\Services\ChatAgent\DTO\ProcessorAnswer;
-use Anymodule\Agentmodule\Services\ChatAgent\DTO\TokenUsage;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Mockery;

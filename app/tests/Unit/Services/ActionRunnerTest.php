@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services;
 
-use PHPUnit\Framework\TestCase;
-use Anymodule\Agentmodule\Services\ActionRunner;
-use Anymodule\Agentmodule\Utils\TokenCounter;
-use Anymodule\Agentmodule\Interface\ActionContract;
+use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
+use Anymodule\Agentmodule\Interface\ActionContract;
+use Anymodule\Agentmodule\Utils\TokenCounter;
+use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Interface\MessageLinkInterface;
 use Vasenin26\Conversation\Messages\ServiceMessage;
