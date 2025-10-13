@@ -6,6 +6,7 @@ use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\UserMessage;
@@ -25,8 +26,7 @@ TTT;
 
 
     public function __construct(
-        private ChatAgentFactoryInterface   $chatAgentFactory,
-        private ToolServiceFactoryInterface $toolServiceFactory,
+        private SummaryAgentFactoryInterface $chatAgentFactory,
     )
     {
     }
@@ -52,7 +52,7 @@ TTT;
 
         $summaryChat->addMessage(new UserMessage(self::PROMPT));
 
-        $agent = $this->chatAgentFactory->createAgent($this->toolServiceFactory->createToolsBuilder()->build());
+        $agent = $this->chatAgentFactory->createSummaryAgent();
         $generator = $agent->execute($summaryChat);
 
         foreach ($generator as $processingResult) {

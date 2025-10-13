@@ -8,5 +8,5 @@ use Vasenin26\Conversation\Chat;
 interface ChatProcessorInterface
 {
     public function contextSize(): int;
-    public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface;
+    public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface;
 }

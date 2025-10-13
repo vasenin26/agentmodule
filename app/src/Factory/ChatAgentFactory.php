@@ -8,8 +8,10 @@ use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
+use Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface;
+use Anymodule\Agentmodule\Utils\BrokenCompressor;
 
-final readonly class ChatAgentFactory implements ChatAgentFactoryInterface
+final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, SummaryAgentFactoryInterface
 {
     public function __construct(
         private ChatProcessorFactoryInterface   $processorFactory,
@@ -24,6 +26,15 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface
             $this->processorFactory->createMainProcessor($tools),
             $this->compressor,
             $tools
+        );
+    }
+
+    public function createSummaryAgent(): ActionContract
+    {
+        return new ChatAgent(
+            $this->processorFactory->createSummaryProcessor(),
+            new BrokenCompressor(),
+            null
         );
     }
 }

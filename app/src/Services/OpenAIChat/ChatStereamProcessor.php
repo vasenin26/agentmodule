@@ -21,7 +21,7 @@ class ChatStereamProcessor implements ChatProcessorInterface
     {
     }
 
-    public function process(Conversation $chat, ToolsProviderInterface $tools): ChatResultInterface
+    public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
         $client = OpenAI::factory()
             ->withApiKey($this->apiKey)
@@ -37,7 +37,7 @@ class ChatStereamProcessor implements ChatProcessorInterface
             $stream = $client->chat()->createStreamed([
                 'model' => $this->model,
                 'messages' => $messages,
-                'tools' => $tools->getMeta(),
+                'tools' => $tools?->getMeta() ?? [],
                 'stream' => true,
             ]);
 

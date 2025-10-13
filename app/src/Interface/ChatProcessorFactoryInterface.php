@@ -9,4 +9,6 @@ interface ChatProcessorFactoryInterface
 {
 
     public function createMainProcessor(ToolsProviderInterface $tools): ChatProcessorInterface;
+
+    public function createSummaryProcessor(): ChatProcessorInterface;
 }

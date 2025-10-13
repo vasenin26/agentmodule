@@ -20,7 +20,7 @@ class ChatAgent implements ActionContract
     public function __construct(
         private ChatProcessorInterface          $chatProcessor,
         private ConversationCompressorInterface $compressor,
-        private ToolsProviderInterface          $tools,
+        private ?ToolsProviderInterface          $tools,
     )
     {
     }
@@ -59,7 +59,7 @@ class ChatAgent implements ActionContract
         $completionTokens = 0;
         $totalTokens = 0;
 
-        Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools->getMeta()));
+        Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
         $answer = null;
         $finished = false;

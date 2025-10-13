@@ -32,7 +32,7 @@ class ChatMapper implements MessageMapper
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
         UrlParserInterface       $urlParser = null,
-        ToolsProviderInterface $toolsService = null
+        ToolsProviderInterface   $toolsService = null
     )
     {
         $urlParser = $urlParser ?? new ExtractRepoUrl();

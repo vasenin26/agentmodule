@@ -23,7 +23,7 @@ class ChatProcessor implements ChatProcessorInterface
     {
     }
 
-    public function process(Conversation $chat, ToolsProviderInterface $tools): ChatResultInterface
+    public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
         $messages = $this->messageMapper->mapChat($chat);
 
@@ -38,14 +38,14 @@ class ChatProcessor implements ChatProcessorInterface
             $result = $this->apiClient->chat()->create([
                 'model' => $this->model->name,
                 'messages' => $messages,
-                'tools' => $tools->getMeta()
+                'tools' => $tools?->getMeta() ?? []
             ]);
         } catch (\Throwable $exception) {
 //            Log::storeMessages($messages);
             Log::exception($exception, 'OpenAI Chat API error', [
                 'model' => $this->model,
                 'messages_count' => count($messages ?? []),
-                'tools_count' => count($tools->getMeta()),
+                'tools_count' => count($tools?->getMeta() ?? []),
             ]);
 
             return OpenAiResult::error($exception->getMessage());

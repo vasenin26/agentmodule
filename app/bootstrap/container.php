@@ -6,7 +6,8 @@ use Anymodule\Agentmodule\Factory\{ActionsFactory,
     ConversationFactory,
     PageContextProviderFactory,
     TaskProcessorFactory,
-    ToolServiceFactory};
+    ToolServiceFactory
+};
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
@@ -22,8 +23,10 @@ use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     RepositoryService\RepositoryProvider,
+    Summary\Interface\SummaryAgentFactoryInterface,
     Summary\SummaryCompressor,
-    Summary\SummaryGenerator};
+    Summary\SummaryGenerator
+};
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
@@ -48,10 +51,9 @@ $builder->addDefinitions([
     SummaryCompressor::class => fn($c) => new SummaryCompressor(
         new SummaryGenerator(
             new ChatAgentFactory(
-                $c->get(ChatProcessorFactoryInterface::class),
+                $c->get(SummaryAgentFactoryInterface::class),
                 new BrokenCompressor(),
-            ),
-            $c->get(ToolServiceFactory::class)
+            )
         )
     ),
 
@@ -62,6 +64,7 @@ $builder->addDefinitions([
     PageContextServiceFactoryInterface::class => DI\autowire(PageContextProviderFactory::class),
     TaskProcessorFactoryInterface::class => DI\autowire(TaskProcessorFactory::class),
     ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
+    SummaryAgentFactoryInterface::class => DI\autowire(ChatAgentFactory::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),
     TaskApiInterface::class => fn($c) => $c->get(DocModuleApi::class),

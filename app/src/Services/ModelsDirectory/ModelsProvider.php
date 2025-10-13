@@ -22,6 +22,6 @@ class ModelsProvider
             throw new ModelNotFound('Model ' . $name . ' not found');
         }
 
-        return new ModelMeta($name, $opts['context']);
+        return new ModelMeta($opts['name'], $opts['context']);
     }
 }

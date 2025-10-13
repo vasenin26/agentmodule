@@ -44,4 +44,28 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             )
         );
     }
+
+    public function createSummaryProcessor(): ChatProcessorInterface
+    {
+        $apiHost = getenv('OPENAI_API_HOST');
+        $apiKey = getenv('OPENAI_API_KEY');
+
+        $modelMeta = $this->modelsProvider->get('summary');
+
+        $client = OpenAI::factory()
+            ->withApiKey($apiKey)
+            ->withBaseUri($apiHost)
+            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
+            ->make();
+
+        return new ChatProcessor(
+            $client,
+            $modelMeta,
+            new ChatMapper(
+                $this->repoProvider,
+                null,
+                null
+            )
+        );
+    }
 }

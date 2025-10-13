@@ -31,7 +31,7 @@ class ChatAgentTest extends TestCase
                 return 1_000_000;
             }
 
-            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 return new class implements ChatResultInterface {
                     public function getProcessorAnswer(): ?ProcessorAnswer
@@ -99,7 +99,7 @@ class ChatAgentTest extends TestCase
                 return 1;
             }
 
-            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 if(count($chat->getMessages()) > $this->contextSize()) {
                     throw new ContextOverloadException();
@@ -147,7 +147,7 @@ class ChatAgentTest extends TestCase
                 return 1000; // Маленький лимит контекста
             }
 
-            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());
@@ -227,7 +227,7 @@ class ChatAgentTest extends TestCase
                 return 1000; // Маленький лимит контекста
             }
 
-            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());
@@ -318,7 +318,7 @@ class ChatAgentTest extends TestCase
                 return 1000; // Маленький лимит контекста
             }
 
-            public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());
