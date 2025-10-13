@@ -35,7 +35,7 @@ use Anymodule\Agentmodule\Services\ApiService\Response\Pages\TaskHistoryDTO;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\UuidInterface;
 
-class Service implements TaskApiInterface, PageApi
+class DocModuleApi implements TaskApiInterface, PageApi
 {
     private ApiClient $api;
 

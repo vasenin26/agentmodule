@@ -8,7 +8,7 @@ use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Services\ChatAgent\Exception\CompressorException;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
+use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -18,7 +18,7 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 class ChatAgent implements ActionContract
 {
     public function __construct(
-        private CharProcessorInterface          $chatProcessor,
+        private ChatProcessorInterface          $chatProcessor,
         private ConversationCompressorInterface $compressor,
         private ToolsProviderInterface          $tools,
     )

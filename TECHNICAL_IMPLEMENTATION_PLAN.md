@@ -750,12 +750,12 @@ exec "$@"
 
 use Anymodule\Agentmodule\Factory\ActionsFactory;
 use Anymodule\Agentmodule\Factory\ConversationFactory;
-use Anymodule\Agentmodule\Factory\LLMFactory;
+use Anymodule\Agentmodule\Factory\ChatAgentFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\OrchestratedRunner;
-use Anymodule\Agentmodule\Services\ApiService\Service;
+use Anymodule\Agentmodule\Services\ApiService\DocModuleApi;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\StateStore;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
@@ -790,7 +790,7 @@ if (!$apiHost || !$apiToken) {
     exit(1);
 }
 
-$api = new Service(
+$api = new DocModuleApi(
     host: $apiHost,
     token: $apiToken,
 );
@@ -816,7 +816,7 @@ $toolFactory = new ToolServiceFactory(
     new PageContextProviderFactory($api),
 );
 
-$llmFactory = new LLMFactory($repoProvider);
+$llmFactory = new ChatAgentFactory($repoProvider);
 
 $processorFactory = new TaskProcessorFactory(
     $toolFactory,
@@ -863,24 +863,25 @@ try {
 **Файл:** `app/main.php` - НЕ ТРОГАТЬ!
 
 **Текущая версия:**
+
 ```php
 <?php
 
 use Anymodule\Agentmodule\Factory\ActionsFactory;
 use Anymodule\Agentmodule\Factory\ConversationFactory;
-use Anymodule\Agentmodule\Factory\LLMFactory;
+use Anymodule\Agentmodule\Factory\ChatAgentFactory;
 use Anymodule\Agentmodule\Factory\PageContextProviderFactory;
 use Anymodule\Agentmodule\Factory\TaskProcessorFactory;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Runner;
-use Anymodule\Agentmodule\Services\ApiService\Service;
+use Anymodule\Agentmodule\Services\ApiService\DocModuleApi;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\StateStore;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new Service(
+$api = new DocModuleApi(
     host: getenv('API_HOST'),
     token: getenv('API_TOKEN'),
 );
@@ -892,7 +893,7 @@ $toolFactory = new ToolServiceFactory(
     new PageContextProviderFactory($api),
 );
 
-$llmFactory = new LLMFactory($repoProvider);
+$llmFactory = new ChatAgentFactory($repoProvider);
 
 $processorFactory = new TaskProcessorFactory(
     $toolFactory,

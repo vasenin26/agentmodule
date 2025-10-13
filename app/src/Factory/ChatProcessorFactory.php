@@ -2,28 +2,25 @@
 
 namespace Anymodule\Agentmodule\Factory;
 
-use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
+use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\ChatAgent;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
+use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\OpenAIChat\ChatProcessor;
 use OpenAI;
 
-final readonly class LLMFactory implements ChatAgentFactoryInterface
+class ChatProcessorFactory implements ChatProcessorFactoryInterface
 {
     public function __construct(
-        private GitRepoProviderInterface        $repoProvider,
-        private ConversationCompressorInterface $compressor,
-        private ModelsProvider                  $modelsProvider,
+        private ModelsProvider           $modelsProvider,
+        private GitRepoProviderInterface $repoProvider,
     )
     {
     }
 
-    public function createAgent(ToolsProviderInterface $tools): ActionContract
+    public function createMainProcessor(ToolsProviderInterface $tools): ChatProcessorInterface
     {
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
@@ -37,7 +34,7 @@ final readonly class LLMFactory implements ChatAgentFactoryInterface
             ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
             ->make();
 
-        $processor = new ChatProcessor(
+        return new ChatProcessor(
             $client,
             $modelMeta,
             new ChatMapper(
@@ -46,7 +43,5 @@ final readonly class LLMFactory implements ChatAgentFactoryInterface
                 $tools
             )
         );
-
-        return new ChatAgent($processor, $this->compressor, $tools);
     }
 }

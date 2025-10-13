@@ -2,6 +2,7 @@
 
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
@@ -13,14 +14,13 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use DI\ContainerBuilder;
-use Anymodule\Agentmodule\Factory\{
-    ActionsFactory,
+use Anymodule\Agentmodule\Factory\{ActionsFactory,
+    ChatProcessorFactory,
     ConversationFactory,
-    LLMFactory,
+    ChatAgentFactory,
     PageContextProviderFactory,
     TaskProcessorFactory,
-    ToolServiceFactory
-};
+    ToolServiceFactory};
 use Anymodule\Agentmodule\Services\{
     ApiService\DocModuleApi,
     RepositoryService\RepositoryProvider,
@@ -49,29 +49,28 @@ $builder->addDefinitions([
 
     SummaryCompressor::class => fn($c) => new SummaryCompressor(
         new SummaryGenerator(
-            new LLMFactory(
-                $c->get(GitRepoProviderInterface::class),
+            new ChatAgentFactory(
+                $c->get(ChatProcessorFactoryInterface::class),
                 new BrokenCompressor(),
-                $c->get(ModelsProvider::class)
             ),
             $c->get(ToolServiceFactory::class)
         )
     ),
 
-    TaskProcessorFactoryInterface::class => DI\autowire(TaskProcessorFactory::class),
-
-    ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
-    ChatAgentFactoryInterface::class => DI\autowire(LLMFactory::class),
-    ConversationFactoryInterface::class => DI\autowire(ConversationFactory::class),
-    TaskStorageProviderInterface::class => DI\autowire(TaskStorageProvider::class),
     ActionsFactoryInterface::class => DI\autowire(ActionsFactory::class),
+    ChatAgentFactoryInterface::class => DI\autowire(ChatAgentFactory::class),
+    ChatProcessorFactoryInterface::class => DI\autowire(ChatProcessorFactory::class),
+    ConversationFactoryInterface::class => DI\autowire(ConversationFactory::class),
     PageContextServiceFactoryInterface::class => DI\autowire(PageContextProviderFactory::class),
+    TaskProcessorFactoryInterface::class => DI\autowire(TaskProcessorFactory::class),
+    ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),
     TaskApiInterface::class => fn($c) => $c->get(DocModuleApi::class),
 
-    ConversationCompressorInterface::class => fn($c) => $c->get(SummaryCompressor::class),
     ChatSummaryGeneratorInterface::class => DI\autowire(SummaryGenerator::class),
+    ConversationCompressorInterface::class => fn($c) => $c->get(SummaryCompressor::class),
+    TaskStorageProviderInterface::class => DI\autowire(TaskStorageProvider::class),
 
 ]);
 

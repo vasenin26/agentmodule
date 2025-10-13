@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
+use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
@@ -12,7 +12,7 @@ use OpenAI;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
 
-class ChatStereamProcessor implements CharProcessorInterface
+class ChatStereamProcessor implements ChatProcessorInterface
 {
     public function __construct(
         private string        $apiKey,

@@ -9,7 +9,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\ChatAgent;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\ProcessorAnswer;
 use Anymodule\Agentmodule\Services\ChatAgent\DTO\TokenUsage;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
+use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
@@ -25,7 +25,7 @@ class ChatAgentTest extends TestCase
     {
         $conversation = new Chat();
 
-        $processor = new class implements CharProcessorInterface {
+        $processor = new class implements ChatProcessorInterface {
             public function contextSize(): int
             {
                 return 1_000_000;
@@ -92,7 +92,7 @@ class ChatAgentTest extends TestCase
 
     public function testAgentCallCompressor()
     {
-        $processor = new class implements CharProcessorInterface {
+        $processor = new class implements ChatProcessorInterface {
 
             public function contextSize(): int
             {
@@ -100,7 +100,7 @@ class ChatAgentTest extends TestCase
             }
 
             public function process(Chat $chat, ToolsProviderInterface $tools): ChatResultInterface
-            {                
+            {
                 if(count($chat->getMessages()) > $this->contextSize()) {
                     throw new ContextOverloadException();
                 }
@@ -141,7 +141,7 @@ class ChatAgentTest extends TestCase
     public function testContextOverload(): void
     {
         // Создаем процессор, который выбрасывает исключение при большом контексте
-        $processor = new class implements CharProcessorInterface {
+        $processor = new class implements ChatProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
@@ -221,7 +221,7 @@ class ChatAgentTest extends TestCase
     public function testContextOverloadWithRealScenario(): void
     {
         // Тест, который точно воспроизводит проблему с SummaryCompressor
-        $processor = new class implements CharProcessorInterface {
+        $processor = new class implements ChatProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
@@ -312,7 +312,7 @@ class ChatAgentTest extends TestCase
         // Этот тест демонстрирует, что проблема НЕ в логике ChatAgent
         // а в том, что SummaryCompressor передает большой контекст в SummaryGenerator
         
-        $processor = new class implements CharProcessorInterface {
+        $processor = new class implements ChatProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста

@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Services\OpenAIChat;
 
 use Anymodule\Agentmodule\Entity\ModelMeta;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatAgent\Interface\CharProcessorInterface;
+use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
@@ -13,7 +13,7 @@ use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Client;
 use Vasenin26\Conversation\Interface\Conversation;
 
-class ChatProcessor implements CharProcessorInterface
+class ChatProcessor implements ChatProcessorInterface
 {
     public function __construct(
         private Client        $apiClient,
@@ -25,16 +25,14 @@ class ChatProcessor implements CharProcessorInterface
 
     public function process(Conversation $chat, ToolsProviderInterface $tools): ChatResultInterface
     {
-        $messages = null;
+        $messages = $this->messageMapper->mapChat($chat);
+
+        if (empty($messages)) {
+            Log::warning('Empty conversation found');
+            return OpenAiResult::empty();
+        }
 
         try {
-            $messages = $this->messageMapper->mapChat($chat);
-
-            if (empty($messages)) {
-                Log::warning('Empty conversation found');
-                return OpenAiResult::empty();
-            }
-
             Log::info('Ask LLM');
 
             $result = $this->apiClient->chat()->create([
@@ -42,17 +40,6 @@ class ChatProcessor implements CharProcessorInterface
                 'messages' => $messages,
                 'tools' => $tools->getMeta()
             ]);
-
-            Log::info('LLM OK');
-
-            $result = $this->messageMapper->prepareAssistantMessage($result);
-            $usage = $result->getTokenUsage();
-
-            if ($usage->total > $this->contextSize()) {
-                throw new ContextOverloadException();
-            }
-
-            return $result;
         } catch (\Throwable $exception) {
 //            Log::storeMessages($messages);
             Log::exception($exception, 'OpenAI Chat API error', [
@@ -63,6 +50,17 @@ class ChatProcessor implements CharProcessorInterface
 
             return OpenAiResult::error($exception->getMessage());
         }
+
+        Log::info('LLM OK');
+
+        $result = $this->messageMapper->prepareAssistantMessage($result);
+        $usage = $result->getTokenUsage();
+
+        if ($usage->total > $this->contextSize()) {
+            throw new ContextOverloadException();
+        }
+
+        return $result;
     }
 
     public function contextSize(): int
