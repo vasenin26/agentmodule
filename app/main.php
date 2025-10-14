@@ -13,8 +13,8 @@ require __DIR__ . '/vendor/autoload.php';
  */
 $container = require __DIR__ . '/bootstrap/container.php';
 
-$agentUuid = getenv('AGENT_UUID');
-$agentUuid = $agentUuid ? Uuid::fromString($agentUuid) : Uuid::uuid4();
+$envAgentUuid = getenv('AGENT_UUID');
+$agentUuid = $envAgentUuid ? Uuid::fromString($envAgentUuid) : Uuid::uuid4();
 
 $runner = new Runner(
     $container->get(TaskApiInterface::class),

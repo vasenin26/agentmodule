@@ -48,13 +48,9 @@ $builder->addDefinitions([
     ModelsProvider::class => DI\autowire(ModelsProvider::class),
     ToolServiceFactory::class => DI\autowire(ToolServiceFactory::class),
 
-    SummaryCompressor::class => fn($c) => new SummaryCompressor(
-        new SummaryGenerator(
-            new ChatAgentFactory(
-                $c->get(SummaryAgentFactoryInterface::class),
-                new BrokenCompressor(),
-            )
-        )
+    SummaryAgentFactoryInterface::class => fn($c) => new ChatAgentFactory(
+        $c->get(ChatProcessorFactoryInterface::class),
+        new BrokenCompressor()
     ),
 
     ActionsFactoryInterface::class => DI\autowire(ActionsFactory::class),
@@ -64,7 +60,6 @@ $builder->addDefinitions([
     PageContextServiceFactoryInterface::class => DI\autowire(PageContextProviderFactory::class),
     TaskProcessorFactoryInterface::class => DI\autowire(TaskProcessorFactory::class),
     ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
-    SummaryAgentFactoryInterface::class => DI\autowire(ChatAgentFactory::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),
     TaskApiInterface::class => fn($c) => $c->get(DocModuleApi::class),
