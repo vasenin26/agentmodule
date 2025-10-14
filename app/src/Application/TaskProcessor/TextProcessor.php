@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\ActionRunner;
+use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
@@ -13,6 +14,7 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
 class TextProcessor implements TaskProcessor
@@ -27,7 +29,7 @@ class TextProcessor implements TaskProcessor
     )
     {
         $this->actionRunner = new ActionRunner([
-//            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
+            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
         ]);
     }
 
