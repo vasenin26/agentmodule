@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89d47dd93775af527144fb2467e23b04",
+    "content-hash": "fa39c47cc555a1b9c66c0e9e6a4a3ce1",
     "packages": [
         {
             "name": "brick/math",
@@ -449,16 +449,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.5",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "3832547db6e0e2f8bb03d4093857b378c66eceed"
+                "reference": "038ce42edee619599a1debb7e81d7b3759492819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/3832547db6e0e2f8bb03d4093857b378c66eceed",
-                "reference": "3832547db6e0e2f8bb03d4093857b378c66eceed",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/038ce42edee619599a1debb7e81d7b3759492819",
+                "reference": "038ce42edee619599a1debb7e81d7b3759492819",
                 "shasum": ""
             },
             "require": {
@@ -506,7 +506,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2025-09-22T17:29:40+00:00"
+            "time": "2025-10-09T13:42:30+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2646,16 +2646,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.3.15",
+            "version": "12.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "b035ee2cd8ecad4091885b61017ebb1d80eb0e57"
+                "reference": "fc5413a2e6d240d2f6d9317bdf7f0a24e73de194"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b035ee2cd8ecad4091885b61017ebb1d80eb0e57",
-                "reference": "b035ee2cd8ecad4091885b61017ebb1d80eb0e57",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fc5413a2e6d240d2f6d9317bdf7f0a24e73de194",
+                "reference": "fc5413a2e6d240d2f6d9317bdf7f0a24e73de194",
                 "shasum": ""
             },
             "require": {
@@ -2691,7 +2691,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "12.3-dev"
+                    "dev-main": "12.4-dev"
                 }
             },
             "autoload": {
@@ -2723,7 +2723,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.3.15"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.4.1"
             },
             "funding": [
                 {
@@ -2747,7 +2747,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-28T12:10:54+00:00"
+            "time": "2025-10-09T14:08:29+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -3755,7 +3755,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-mbstring": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"

@@ -38,7 +38,7 @@
         "vasenin26/conversation": "^0.10",
         "ext-curl": "*",
         "ext-mbstring": "*",
-        "php-di/php-di": "^7.1",
+        "php-di/php-di": "^7.1"
     },
     "config": {
         "allow-plugins": {
