@@ -43,32 +43,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha
 
-      - name: Build and push Development image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/agent/Dockerfile
-          target: develop
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push Standalone image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/agent/Dockerfile
-          target: standalone
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:standalone
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}-standalone
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      
 
       - name: Build and push Orchestrated image
         uses: docker/build-push-action@v5
