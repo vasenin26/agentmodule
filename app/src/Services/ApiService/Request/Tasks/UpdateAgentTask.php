@@ -20,6 +20,7 @@ final readonly class UpdateAgentTask implements RequestInterface
         private array $tokenStats,
         private bool $completed,
         private ?string $result = null,
+        private ?string $modelName = null,
     )
     {
     }
@@ -43,6 +44,7 @@ final readonly class UpdateAgentTask implements RequestInterface
             'stats' => $this->tokenStats,
             'result' => $this->result,
             'completed' => $this->completed,
+            'model' => $this->modelName,
         ];
     }
 

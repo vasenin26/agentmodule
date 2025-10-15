@@ -175,7 +175,8 @@ class DocModuleApi implements TaskApiInterface, PageApi
                 totalTokens: $result->totalTokens
             ),
             completed: $result->completed,
-            result: $result->answer
+            result: $result->answer,
+            modelName: $result->modelName,
         );
 
         $response = $request->exec($this->api);

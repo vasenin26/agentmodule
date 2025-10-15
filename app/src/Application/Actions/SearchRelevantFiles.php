@@ -69,6 +69,7 @@ EIO;
             completed: false,
             answer: 'Start search relevant files',
             conversation: new Chat(),
+            modelName: null,
             contextFill: 0
         );
 
@@ -84,6 +85,7 @@ EIO;
                     completed: true,
                     answer: $processingResult->answer,
                     conversation: $resultChat,
+                    modelName: $processingResult->modelName,
                     contextFill: 0,
                     promptTokens: $processingResult->promptTokens,
                     completionTokens: $processingResult->completionTokens,

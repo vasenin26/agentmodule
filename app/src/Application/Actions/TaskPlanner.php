@@ -106,6 +106,7 @@ PROMPT;
             completed: false,
             answer: 'Start planing',
             conversation: new Chat(),
+            modelName: null,
             contextFill: 0,
         );
 
@@ -124,6 +125,7 @@ PROMPT;
                     completed: true,
                     answer: $processingResult->answer,
                     conversation: $resultChat,
+                    modelName: $processingResult->modelName,
                     contextFill: 0,
                     promptTokens: $processingResult->promptTokens,
                     completionTokens: $processingResult->completionTokens,

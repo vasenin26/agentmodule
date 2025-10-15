@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\ChatAgent;
 
+use Anymodule\Agentmodule\Application\ChatAgent\DTO\TokenUsage;
 use Anymodule\Agentmodule\Application\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Application\ChatAgent\Exception\CompressorException;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
@@ -17,10 +18,14 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatAgent implements ActionContract
 {
+    private int $promptTokens = 0;
+    private int $completionTokens = 0;
+    private int $totalTokens = 0;
+
     public function __construct(
         private ChatProcessorInterface          $chatProcessor,
         private ConversationCompressorInterface $compressor,
-        private ?ToolsProviderInterface          $tools,
+        private ?ToolsProviderInterface         $tools,
     )
     {
     }
@@ -55,18 +60,18 @@ class ChatAgent implements ActionContract
 
     private function process(Conversation $conversation): \Generator
     {
-        $promptTokens = 0;
-        $completionTokens = 0;
-        $totalTokens = 0;
+        $this->promptTokens = 0;
+        $this->completionTokens = 0;
+        $this->totalTokens = 0;
 
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
         $answer = null;
         $finished = false;
-        $contextFill = 0;
 
         do {
             Log::info("Call LLM");
+
             $result = $this->chatProcessor->process($conversation, $this->tools);
 
             $answerMessage = $this->prepareAssistantMessage($result);
@@ -74,15 +79,7 @@ class ChatAgent implements ActionContract
 
             Log::info("LLM ok");
 
-            yield new ProcessingResult(
-                false,
-                $answer,
-                $conversation,
-                $contextFill,
-                $promptTokens,
-                $completionTokens,
-                $totalTokens
-            );
+            yield $this->prepareResult(false, $result, $answer, $conversation);
 
             $toolCalls = iterator_to_array($result->getToolCalls());
 
@@ -102,37 +99,22 @@ class ChatAgent implements ActionContract
                 }
             }
 
-            $usage = $result->getTokenUsage();
-
-            $contextFill = $this->calculateContextFill($usage);
-
-            $promptTokens += $usage->sent;
-            $completionTokens += $usage->received;
-            $totalTokens += $usage->total;
+            $this->calculateUsage($result->getTokenUsage());
 
             Log::info("Process handler");
 
-            yield new ProcessingResult(
-                false,
-                $answer,
-                $conversation,
-                $contextFill,
-                $promptTokens,
-                $completionTokens,
-                $totalTokens
-            );
+            yield $this->prepareResult(false, $result, $answer, $conversation);
 
         } while (!$finished);
 
-        yield new ProcessingResult(
-            true,
-            $answer,
-            $conversation,
-            $contextFill,
-            $promptTokens,
-            $completionTokens,
-            $totalTokens
-        );
+        yield $this->prepareResult(true, $result, $answer, $conversation);
+    }
+
+    private function calculateUsage(TokenUsage $usage): void
+    {
+        $this->promptTokens += $usage->sent;
+        $this->completionTokens += $usage->received;
+        $this->totalTokens += $usage->total;
     }
 
     private function prepareAssistantMessage(\Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface $result): AssistantMessage
@@ -188,6 +170,20 @@ class ChatAgent implements ActionContract
             $toolCall->name,
             $toolCall->arguments,
             (string)$toolResult,
+        );
+    }
+
+    private function prepareResult($completed, $result, $answer, $conversation): ProcessingResult
+    {
+        return new ProcessingResult(
+            $completed,
+            $answer,
+            $conversation,
+            $this->chatProcessor->getModelMeta()->name,
+            $this->calculateContextFill($result->usage),
+            $this->promptTokens,
+            $this->completionTokens,
+            $this->totalTokens
         );
     }
 }

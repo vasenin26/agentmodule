@@ -23,6 +23,11 @@ class ChatProcessor implements ChatProcessorInterface
     {
     }
 
+    public function getModelMeta(): ModelMeta
+    {
+        return $this->model;
+    }
+
     public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
         $messages = $this->messageMapper->mapChat($chat);
