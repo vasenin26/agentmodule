@@ -31,12 +31,9 @@ class ChatMapper implements MessageMapper
 
     public function __construct(
         GitRepoProviderInterface $repositoryProvider,
-        UrlParserInterface       $urlParser = null,
         ToolsProviderInterface   $toolsService = null
     )
     {
-        $urlParser = $urlParser ?? new ExtractRepoUrl();
-
         $this->mappers = [
             new UserMapper(),
             new UserTaskMapper(),
@@ -44,7 +41,7 @@ class ChatMapper implements MessageMapper
             new AssistantMapper(),
             new SystemMapper(),
             new ToolMapper(),
-            new GitFileMapper($repositoryProvider, $urlParser),
+            new GitFileMapper($repositoryProvider),
         ];
 
         if ($toolsService !== null) {

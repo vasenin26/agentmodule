@@ -39,7 +39,6 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             $modelMeta,
             new ChatMapper(
                 $this->repoProvider,
-                null,
                 $tools
             )
         );
@@ -63,7 +62,6 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             $modelMeta,
             new ChatMapper(
                 $this->repoProvider,
-                null,
                 null
             )
         );
