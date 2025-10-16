@@ -61,6 +61,7 @@ class HandledConversation implements Conversation
                 completed: false,
                 answer: null,
                 conversation: $this,
+                modelName: null,
                 contextFill: 0,
                 promptTokens: 0,
                 completionTokens: 0,

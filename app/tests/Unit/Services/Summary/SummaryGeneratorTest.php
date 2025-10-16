@@ -60,6 +60,7 @@ class SummaryGeneratorTest extends TestCase
                 completed: true,
                 answer: 'OK',
                 conversation: new Chat(),
+                modelName: null,
                 contextFill: 0,
             ));
 

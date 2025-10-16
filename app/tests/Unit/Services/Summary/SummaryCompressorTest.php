@@ -28,6 +28,7 @@ class SummaryCompressorTest extends TestCase
                 completed: true,
                 answer: $compressedAnswer,
                 conversation: new Chat(),
+                modelName: null,
                 contextFill: 1,
             ));
 

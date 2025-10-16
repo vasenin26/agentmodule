@@ -55,6 +55,7 @@ class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcess
             true,
             $updateTool->getContent(),
             $conversation,
+            null,
             0,
             ...$tokenCounter->get()
         ));

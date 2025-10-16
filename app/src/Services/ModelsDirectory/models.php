@@ -24,5 +24,9 @@ return [
     'gpt-4.1' => [
         'name' => 'gpt-4.1',
         'context' => 1_047_576,
+    ],
+    'gpt-4.1-nano' => [
+        'name' => 'gpt-4.1-nano',
+        'context' => 1_047_576,
     ]
 ];
