@@ -36,6 +36,9 @@ services:
       target: standalone
     image: agentmodule:standalone
     container_name: agentmodule-standalone
+    volumes:
+      # Персистентное хранение контекста (репозиториев)
+      - agent-context:/home/local/context
     env_file:
       - .env
     environment:
@@ -64,6 +67,9 @@ services:
       target: orchestrated
     image: agentmodule:orchestrated
     container_name: agentmodule-orchestrated
+    volumes:
+      # Персистентное хранение контекста (репозиториев)
+      - agent-context:/home/local/context
     env_file:
       - .env
     environment:
@@ -84,3 +90,14 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
     restart: "no"  # Не рестартовать - one-shot выполнение
     # profiles: [orchestrated]  # Опционально: запускать только по запросу
+
+# ═══════════════════════════════════════════════════════════════
+# Volumes - персистентное хранение данных
+# ═══════════════════════════════════════════════════════════════
+volumes:
+  agent-context:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/context

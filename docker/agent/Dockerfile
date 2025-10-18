@@ -83,7 +83,7 @@ RUN composer install \
     && composer clear-cache
 
 # Создание директорий для данных
-RUN mkdir -p /home/local/repos/default && chown -R local:local /home/local
+RUN mkdir -p /home/local/context && chown -R local:local /home/local
 
 # Переключение на пользователя local для безопасности
 USER local
