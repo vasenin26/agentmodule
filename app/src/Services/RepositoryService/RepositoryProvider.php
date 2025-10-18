@@ -144,6 +144,6 @@ class RepositoryProvider implements GitRepoProviderInterface
         // Убираем .git из пути если есть
         $path = preg_replace('/\.git$/', '', $path);
 
-        return '/home/local/repos/' . $this->reposFolder . '/' . $domain . '/' . $path;
+        return '/home/local/context/repos/' . $this->reposFolder . '/' . $domain . '/' . $path;
     }
 }
