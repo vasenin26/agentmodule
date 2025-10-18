@@ -35,24 +35,6 @@ Your responsibility is to **analyze the technical plan provided as reference** a
 - Output only one single function call to `tasks-add`, containing all tasks in its `titles` array.  
 - Do not include any other text besides the function call.  
 
-### Example
-Input technical plan (reference only):
-    Update login form:
-    - Add "Forgot password" link
-    - Implement password reset flow
-    - Update unit tests
-
-Expected behavior (using `tasks-add`):
-    tasks-add({
-      "titles": [
-        "Add 'Forgot password' link to login form",
-        "Implement password reset flow",
-        "Update unit tests for login changes"
-      ]
-    })
-
-### Available tools:
-
 ROLE;
 
     const PROMPT = <<<PROMPT

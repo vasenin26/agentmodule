@@ -31,6 +31,11 @@ class ChatAgentTest extends TestCase
                 return 1_000_000;
             }
 
+            public function getModelMeta(): \Anymodule\Agentmodule\Entity\ModelMeta
+            {
+                return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1_000_000);
+            }
+
             public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 return new class implements ChatResultInterface {
@@ -99,6 +104,11 @@ class ChatAgentTest extends TestCase
                 return 1;
             }
 
+            public function getModelMeta(): \Anymodule\Agentmodule\Entity\ModelMeta
+            {
+                return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1);
+            }
+
             public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 if(count($chat->getMessages()) > $this->contextSize()) {
@@ -145,6 +155,11 @@ class ChatAgentTest extends TestCase
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
+            }
+
+            public function getModelMeta(): \Anymodule\Agentmodule\Entity\ModelMeta
+            {
+                return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
             public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
@@ -225,6 +240,11 @@ class ChatAgentTest extends TestCase
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
+            }
+
+            public function getModelMeta(): \Anymodule\Agentmodule\Entity\ModelMeta
+            {
+                return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
             public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
@@ -316,6 +336,11 @@ class ChatAgentTest extends TestCase
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
+            }
+
+            public function getModelMeta(): \Anymodule\Agentmodule\Entity\ModelMeta
+            {
+                return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
             public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
