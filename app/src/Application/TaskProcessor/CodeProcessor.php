@@ -49,7 +49,15 @@ YYY;
             reposFolder: $this->getTmpTaskFolder($task),
         );
 
-        $toolsBuilder = $this->getEditorTools($task, $taskStorage, $repositoryProvider);
+
+        $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
+
+        if ($task->projectId) {
+            $toolsBuilder->withProject($task->projectId);
+        }
+
+        $toolsBuilder->withGit();
+        $toolsBuilder->withTasks($taskStorage);
 
         $this->getActionRunner($taskStorage, $toolsBuilder->build())->run($conversation, $tokenCounter);
 
@@ -61,9 +69,9 @@ YYY;
             'Result success stored to storage',
         );
 
-        $tools = $this->toolsFactory->createToolsBuilder()
-            ->withGit()
-            ->withTools([$contentTool])
+        $tools = $toolsBuilder->withTools([$contentTool])
+            ->withRepoManagement()
+            ->withEditor()
             ->build();
 
         $agent = $this->chatFactory->createAgent($tools);
@@ -98,21 +106,5 @@ YYY;
             'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
             'plane-tasks' => $this->actionsFactory->createTaskPlanner($addTasksTool, $editorTools),
         ]);
-    }
-
-    private function getEditorTools(Task $task, TasksStorage $taskStorage, RepositoryProvider $repositoryProvider): ToolsBuilder
-    {
-        $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
-
-        if ($task->projectId) {
-            $toolsBuilder->withProject($task->projectId);
-        }
-
-        $toolsBuilder->withGit();
-        $toolsBuilder->withRepoManagement();
-        $toolsBuilder->withEditor();
-        $toolsBuilder->withTasks($taskStorage);
-
-        return $toolsBuilder;
     }
 }
