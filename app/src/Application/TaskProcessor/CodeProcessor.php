@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
@@ -32,6 +33,7 @@ YYY;
         private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ActionRunnerFactoryInterface $actionRunnerFactory,
         private ActionsFactoryInterface      $actionsFactory,
     )
     {
@@ -39,8 +41,6 @@ YYY;
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $tokenCounter = new TokenCounter();
-
         $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $workBranch = $this->getTaskBranch($task);
@@ -59,7 +59,13 @@ YYY;
         $toolsBuilder->withGit();
         $toolsBuilder->withTasks($taskStorage);
 
-        $this->getActionRunner($taskStorage, $toolsBuilder->build())->run($conversation, $tokenCounter);
+        $this->actionRunnerFactory->createForTask(
+            $task,
+            [
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+                'plane-tasks' => $this->actionsFactory->createTaskPlanner(new AddTasks($taskStorage), $toolsBuilder->build()),
+            ]
+        )->run($conversation);
 
         $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
 
@@ -96,15 +102,5 @@ YYY;
     private function getTaskBranch(Task $task): string
     {
         return 'agent/task' . $task->id;
-    }
-
-    private function getActionRunner(TasksStorage $tasksStorage, ToolsProviderInterface $editorTools): ActionRunner
-    {
-        $addTasksTool = new AddTasks($tasksStorage);
-
-        return new ActionRunner([
-            'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
-            'plane-tasks' => $this->actionsFactory->createTaskPlanner($addTasksTool, $editorTools),
-        ]);
     }
 }

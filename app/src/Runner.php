@@ -38,7 +38,7 @@ final readonly class Runner
         while (true) {
             try {
                 Log::info("Getting task..");
-                
+
                 $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'getting');
                 $this->stateStore->push(self::STORE_AGENT_ATTEMPT_KEY, $attemptLimit);
                 $task = $this->api->getTask($agentId);
@@ -54,7 +54,7 @@ final readonly class Runner
 
                 $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'processing');
 
-                $handler = new DocsModule($this->api, $agentId, $task);
+                $handler = new DocsModule($this->api, $agentId, $task->id);
                 $this->processorFactory->createProcessorForTask($task)
                     ->process($task, $handler);
 

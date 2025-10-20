@@ -226,4 +226,20 @@ class AgentApiValidator implements AgentApiValidatorInterface
             $this->validateTokenStats($stats);
         }
     }
+
+    /**
+     * Валидация данных для создания подзадачи
+     */
+    public function validateSubtaskData(string $type, string $agentUuid): void
+    {
+        if (empty(trim($type))) {
+            throw new \InvalidArgumentException('Task type is required');
+        }
+        
+        if (strlen($type) > 255) {
+            throw new \InvalidArgumentException('Task type cannot exceed 255 characters');
+        }
+        
+        $this->validateAgentId($agentUuid);
+    }
 }

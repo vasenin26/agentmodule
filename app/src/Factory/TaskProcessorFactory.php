@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Factory;
 use Anymodule\Agentmodule\Application\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
 use Anymodule\Agentmodule\Application\TaskProcessor\TextProcessor;
+use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
@@ -20,6 +21,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ActionRunnerFactoryInterface $actionRunnerFactory,
         private ActionsFactoryInterface      $actionsFactory,
     )
     {
@@ -33,6 +35,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
                 $this->chatFactory,
                 $this->conversationFactory,
                 $this->taskStorageProvider,
+                $this->actionRunnerFactory,
                 $this->actionsFactory,
             );
         }
@@ -43,6 +46,8 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
                 $this->conversationFactory,
                 $this->taskStorageProvider,
                 $this->chatFactory,
+                $this->actionRunnerFactory,
+                $this->actionsFactory,
             );
         }
 
@@ -51,6 +56,8 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             $this->chatFactory,
             $this->conversationFactory,
             $this->taskStorageProvider,
+            $this->actionRunnerFactory,
+            $this->actionsFactory,
         );
     }
 }

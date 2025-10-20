@@ -40,4 +40,6 @@ interface TaskApiInterface
     public function sendResult(UuidInterface $agentId, int $taskId, ProcessingResult $result): TaskState;
 
     public function setStartProcessing(UuidInterface $agentUuid, int $taskId);
+
+    public function createSubtask(UuidInterface $agentUuid, int $taskId): int;
 }

@@ -7,7 +7,10 @@ namespace Anymodule\Agentmodule\Application\TaskProcessor;
 use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
+use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
+use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
@@ -19,18 +22,15 @@ use Anymodule\Agentmodule\Utils\TokenCounter;
 
 class TextProcessor implements TaskProcessor
 {
-    private ActionRunner $actionRunner;
-
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
         private ChatAgentFactoryInterface    $chatFactory,
         private ConversationFactoryInterface $conversationFactory,
         private TaskStorageProviderInterface $taskStorageProvider,
+        private ActionRunnerFactoryInterface $actionRunnerFactory,
+        private ActionsFactoryInterface      $actionsFactory,
     )
     {
-        $this->actionRunner = new ActionRunner([
-            'search-relevant-files' => new SearchRelevantFiles($chatFactory, $toolsFactory, new ActionInformation()),
-        ]);
     }
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
@@ -47,7 +47,12 @@ class TextProcessor implements TaskProcessor
 
         $chat = $this->conversationFactory->handledConversation($task->messages, $processHandler);
 
-        $this->actionRunner->run($chat, new TokenCounter());
+        $this->actionRunnerFactory->createForTask(
+            $task,
+            [
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+            ]
+        )->run($chat);
 
         $contentTool = new CatchContent(
             'store-result',

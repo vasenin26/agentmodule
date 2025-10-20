@@ -10,6 +10,7 @@ use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTaskById;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\ProcessingAgentTask;
+use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\CreateSubtask;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
@@ -323,5 +324,19 @@ class DocModuleApi implements TaskApiInterface, PageApi
             versionId: $data->versionId,
             previousVersionId: $data->previousVersionId,
         );
+    }
+
+    public function createSubtask(UuidInterface $agentUuid, int $taskId): int
+    {
+        $request = new CreateSubtask(
+            token: $this->token,
+            parentTaskId: $taskId,
+            type: 'documentation',
+            agentUuid: $agentUuid->toString()
+        );
+        
+        $response = $request->exec($this->api);
+        
+        return $response->id;
     }
 }

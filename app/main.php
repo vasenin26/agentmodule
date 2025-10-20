@@ -1,5 +1,7 @@
 <?php
 
+use Anymodule\Agentmodule\Application\AgentMeta;
+use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Runner;
@@ -13,8 +15,7 @@ require __DIR__ . '/vendor/autoload.php';
  */
 $container = require __DIR__ . '/bootstrap/container.php';
 
-$envAgentUuid = getenv('AGENT_UUID');
-$agentUuid = $envAgentUuid ? Uuid::fromString($envAgentUuid) : Uuid::uuid4();
+$agentMeta = $container->get(AgentMetaProviderInterface::class);
 
 $runner = new Runner(
     $container->get(TaskApiInterface::class),
@@ -22,4 +23,4 @@ $runner = new Runner(
     $container->get(TaskProcessorFactoryInterface::class)
 );
 
-$runner->run($agentUuid);
+$runner->run($agentMeta->getAgentUuid());

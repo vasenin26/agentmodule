@@ -1,6 +1,7 @@
 <?php
 
-use Anymodule\Agentmodule\Factory\{ActionsFactory,
+use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
+    ActionsFactory,
     ChatAgentFactory,
     ChatProcessorFactory,
     ConversationFactory,
@@ -8,7 +9,10 @@ use Anymodule\Agentmodule\Factory\{ActionsFactory,
     TaskProcessorFactory,
     ToolServiceFactory
 };
+use Anymodule\Agentmodule\Application\AgentMeta;
+use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
@@ -31,9 +35,20 @@ use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
 use DI\ContainerBuilder;
+use Ramsey\Uuid\Uuid;
+
+
+$envAgentUuid = getenv('AGENT_UUID');
+$agentUuid = $envAgentUuid ? Uuid::fromString($envAgentUuid) : Uuid::uuid4();
+
+$agentMeta = new AgentMeta(
+    $agentUuid,
+);
 
 $builder = new ContainerBuilder();
 $builder->addDefinitions([
+
+    AgentMetaProviderInterface::class => fn() => $agentMeta,
 
     DocModuleApi::class => fn() => new DocModuleApi(
         host: getenv('API_HOST'),
@@ -53,6 +68,7 @@ $builder->addDefinitions([
         new BrokenCompressor()
     ),
 
+    ActionRunnerFactoryInterface::class => DI\autowire(ActionRunnerFactory::class),
     ActionsFactoryInterface::class => DI\autowire(ActionsFactory::class),
     ChatAgentFactoryInterface::class => DI\autowire(ChatAgentFactory::class),
     ChatProcessorFactoryInterface::class => DI\autowire(ChatProcessorFactory::class),

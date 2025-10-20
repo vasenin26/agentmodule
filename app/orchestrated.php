@@ -20,6 +20,7 @@
  *   - 1: Ошибка выполнения
  */
 
+use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\OrchestratedRunner;
@@ -95,12 +96,14 @@ echo "Starting task processing...\n";
 echo "────────────────────────────────────────────────────\n\n";
 
 try {
+    $agentMeta = $container->get(AgentMetaProviderInterface::class);
+
     (new OrchestratedRunner(
         $container->get(TaskApiInterface::class),
         StateStore::run(),
         $container->get(TaskProcessorFactoryInterface::class),
     )
-    )->run($taskId, Uuid::fromString($agentUuid));
+    )->run($taskId, $agentMeta->getAgentUuid());
 } catch (\Throwable $e) {
     Log::exception($e, '❌ Fatal error in orchestrated mode');
 

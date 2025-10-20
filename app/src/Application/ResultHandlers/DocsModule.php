@@ -14,7 +14,7 @@ class DocsModule implements ProcessHandlerInterface
     public function __construct(
         private TaskApiInterface $api,
         private UuidInterface    $agentId,
-        private Task             $task
+        private int              $taskId,
     )
     {
     }
@@ -24,7 +24,7 @@ class DocsModule implements ProcessHandlerInterface
      */
     public function handle(ProcessingResult $result): void
     {
-        $response = $this->api->sendResult($this->agentId, $this->task->id, $result);
+        $response = $this->api->sendResult($this->agentId, $this->taskId, $result);
 
         if ($response->status === 'stopped') {
             throw new AgentTaskStopped();
