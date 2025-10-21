@@ -7,6 +7,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class CatchContent implements ToolInterface
 {
+    const NAME = 'catch-content';
+
     private string $content = '';
 
     public function __construct(

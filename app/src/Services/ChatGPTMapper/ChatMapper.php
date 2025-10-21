@@ -18,12 +18,8 @@ use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Interface\Conversation;
-use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\AssistantMessage;
-use Vasenin26\Conversation\Messages\DisappearingMessage;
-use Vasenin26\Conversation\Messages\InfoMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
-use Vasenin26\Conversation\Messages\UserMessage;
 
 class ChatMapper implements MessageMapper
 {
