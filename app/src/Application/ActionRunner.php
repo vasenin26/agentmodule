@@ -29,7 +29,7 @@ class ActionRunner implements ActionRunnerInterface
             $currentTask = array_pop($awaitRun);
 
             if (!empty($currentTask)) {
-                $taskProcessor = $actions[$currentTask] ?? null;
+                $taskProcessor = $this->actions[$currentTask] ?? null;
 
                 $message = new ServiceMessage($currentTask, '');
                 $link = $conversation->addServiceMessage($message);
@@ -40,7 +40,7 @@ class ActionRunner implements ActionRunnerInterface
                 }
 
                 // Создаем подзадачу для каждого ActionContract
-                $processHandler = $this->subtaskCreator->createSubtask();
+                $processHandler = $this->subtaskCreator->createSubtask($currentTask);
 
                 foreach ($taskProcessor->execute($conversation) as $result) {
                     $link->setMessage($result->answer);

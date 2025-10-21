@@ -18,9 +18,9 @@ class SubtaskCreator implements SubtaskCreatorInterface
     {
     }
 
-    public function createSubtask(): ProcessHandlerInterface
+    public function createSubtask(string $subtaskType): ProcessHandlerInterface
     {
-        $subtaskId = $this->taskApi->createSubtask($this->agentUuid, $this->taskId);
+        $subtaskId = $this->taskApi->createSubtask($this->agentUuid, $this->taskId, $subtaskType);
 
         return new DocsModule(
             $this->taskApi,

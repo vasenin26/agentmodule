@@ -169,7 +169,7 @@ class DocModuleApi implements TaskApiInterface, PageApi
             taskId: $taskId,
             agentId: $agentId->toString(),
             chatMessages: $result->conversation->serialize(),
-            chatContext: $result->context,
+            chatContext: $result->context?->serialize(),
             contextFill: $result->contextFill,
             tokenStats: UpdateAgentTask::createTokenStats(
                 promptTokens: $result->promptTokens,
@@ -327,12 +327,12 @@ class DocModuleApi implements TaskApiInterface, PageApi
         );
     }
 
-    public function createSubtask(UuidInterface $agentUuid, int $taskId): int
+    public function createSubtask(UuidInterface $agentUuid, int $taskId, string $subtaskType): int
     {
         $request = new CreateSubtask(
             token: $this->token,
             parentTaskId: $taskId,
-            type: 'documentation',
+            type: $subtaskType,
             agentUuid: $agentUuid->toString()
         );
         

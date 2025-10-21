@@ -9,4 +9,16 @@ class Context
     )
     {
     }
+
+    public function updateTask(array $list): void
+    {
+        $this->tasks = $list;
+    }
+
+    public function serialize(): array
+    {
+        return [
+            'tasks' => $this->tasks,
+        ];
+    }
 }

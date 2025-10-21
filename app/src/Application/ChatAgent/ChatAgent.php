@@ -181,6 +181,7 @@ class ChatAgent implements ActionContract
             $completed,
             $answer,
             $conversation,
+            null,
             $this->chatProcessor->getModelMeta()->name,
             $this->calculateContextFill($result->getTokenUsage()),
             $this->promptTokens,

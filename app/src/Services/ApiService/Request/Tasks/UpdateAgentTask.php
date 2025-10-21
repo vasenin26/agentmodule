@@ -12,14 +12,14 @@ use Anymodule\Agentmodule\Services\ApiService\Request\Validator\AgentApiValidato
 final readonly class UpdateAgentTask implements RequestInterface
 {
     public function __construct(
-        private string $token,
-        private int $taskId,
-        private string $agentId,
-        private array $chatMessages,
-        private array $chatContext,
-        private float $contextFill,
-        private array $tokenStats,
-        private bool $completed,
+        private string  $token,
+        private int     $taskId,
+        private string  $agentId,
+        private array   $chatMessages,
+        private ?array  $chatContext,
+        private float   $contextFill,
+        private array   $tokenStats,
+        private bool    $completed,
         private ?string $result = null,
         private ?string $modelName = null,
     )
@@ -59,7 +59,7 @@ final readonly class UpdateAgentTask implements RequestInterface
     {
         $response = $client->call($this);
         $data = $response->getData();
-        
+
         if ($response->code !== 200) {
             throw new RequestException(
                 $this->getMethod(),
@@ -67,31 +67,11 @@ final readonly class UpdateAgentTask implements RequestInterface
                 $response->getError()
             );
         }
-        
+
         return new UpdateTaskDTO(
             status: $data['status'] ?? '',
             message: $data['message'] ?? ''
         );
-    }
-
-    /**
-     * Создать сообщение для чата с валидацией
-     */
-    public static function createChatMessage(string $role, string $content, ?string $id = null, ?AgentApiValidator $validator = null): array
-    {
-        $validator = $validator ?? new AgentApiValidator();
-        $validator->validateChatMessageData($role, $content, $id);
-        
-        $message = [
-            'role' => $role,
-            'content' => $content
-        ];
-        
-        if ($id !== null) {
-            $message['id'] = $id;
-        }
-        
-        return $message;
     }
 
     /**
@@ -101,7 +81,7 @@ final readonly class UpdateAgentTask implements RequestInterface
     {
         $validator = $validator ?? new AgentApiValidator();
         $validator->validateTokenStatsData($promptTokens, $completionTokens, $totalTokens);
-        
+
         return [
             'prompt_tokens' => $promptTokens,
             'completion_tokens' => $completionTokens,

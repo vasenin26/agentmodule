@@ -41,6 +41,7 @@ TTT;
             completed: false,
             answer: 'Start generate summary',
             conversation: new Chat(),
+            context: null,
             modelName: null,
             contextFill: 0,
         );

@@ -41,5 +41,5 @@ interface TaskApiInterface
 
     public function setStartProcessing(UuidInterface $agentUuid, int $taskId);
 
-    public function createSubtask(UuidInterface $agentUuid, int $taskId): int;
+    public function createSubtask(UuidInterface $agentUuid, int $taskId, string $subtaskType): int;
 }

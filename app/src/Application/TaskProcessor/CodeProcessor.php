@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
@@ -81,8 +82,15 @@ YYY;
             ->withEditor()
             ->build();
 
+        $context = new Context(
+            $taskStorage->list()
+        );
+
         $agent = $this->chatFactory->createContextAgent($tools);
-        $generator = $agent->execute(new ContextConversation());
+        $generator = $agent->execute(new ContextConversation(
+            $context,
+            $conversation,
+        ));
 
         foreach ($generator as $processingResult) {
             $answer = null;
@@ -90,6 +98,8 @@ YYY;
             if ($contentTool->hasContent()) {
                 $answer = $contentTool->getContent();
             }
+
+            $context->updateTask($taskStorage->list());
 
             $processHandler->handle($processingResult->withAnswer($answer));
         }

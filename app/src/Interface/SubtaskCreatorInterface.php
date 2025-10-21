@@ -6,5 +6,5 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 
 interface SubtaskCreatorInterface
 {
-    public function createSubtask(): ProcessHandlerInterface;
+    public function createSubtask(string $subtaskType): ProcessHandlerInterface;
 }
