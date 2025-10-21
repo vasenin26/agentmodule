@@ -16,6 +16,7 @@ final readonly class UpdateAgentTask implements RequestInterface
         private int $taskId,
         private string $agentId,
         private array $chatMessages,
+        private array $chatContext,
         private float $contextFill,
         private array $tokenStats,
         private bool $completed,
@@ -40,6 +41,7 @@ final readonly class UpdateAgentTask implements RequestInterface
         return [
             'agent_uuid' => $this->agentId,
             'chat' => $this->chatMessages,
+            'context' => $this->chatContext,
             'context_fill' => $this->contextFill,
             'stats' => $this->tokenStats,
             'result' => $this->result,

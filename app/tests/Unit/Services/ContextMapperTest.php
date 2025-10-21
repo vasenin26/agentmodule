@@ -5,7 +5,7 @@ namespace Anymodule\Agentmodule\Tests\Unit\Services;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Container\TaskList;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\ContextMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatContextMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
@@ -15,7 +15,7 @@ use Vasenin26\Conversation\Interface\Conversation;
 
 class ContextMapperTest extends TestCase
 {
-    private ContextMapper $contextMapper;
+    private ChatContextMapper $contextMapper;
     private OpenAIMessageProcessorInterface|MockObject $messageProcessor;
     private MessageMapper|MockObject $messageMapper;
 
@@ -24,7 +24,7 @@ class ContextMapperTest extends TestCase
         $this->messageProcessor = $this->createMock(OpenAIMessageProcessorInterface::class);
         $this->messageMapper = $this->createMock(MessageMapper::class);
         
-        $this->contextMapper = new ContextMapper(
+        $this->contextMapper = new ChatContextMapper(
             $this->messageProcessor,
             $this->messageMapper
         );

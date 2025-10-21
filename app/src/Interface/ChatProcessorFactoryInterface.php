@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Interface;
 
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 
 interface ChatProcessorFactoryInterface
@@ -11,4 +12,6 @@ interface ChatProcessorFactoryInterface
     public function createMainProcessor(ToolsProviderInterface $tools): ChatProcessorInterface;
 
     public function createSummaryProcessor(): ChatProcessorInterface;
+
+    public function createContextProcessor(ToolsProviderInterface $tools): ContextConversationProcessorInterface;
 }

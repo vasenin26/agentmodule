@@ -12,6 +12,7 @@ readonly class TaskDTO implements ResponseInterface
         public string $type,
         public int    $project_id,
         public array  $messages,
+        public array  $context,
         public bool   $resulRequired
     )
     {

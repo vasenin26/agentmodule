@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
@@ -80,8 +81,8 @@ YYY;
             ->withEditor()
             ->build();
 
-        $agent = $this->chatFactory->createAgent($tools);
-        $generator = $agent->execute($conversation);
+        $agent = $this->chatFactory->createContextAgent($tools);
+        $generator = $agent->execute(new ContextConversation());
 
         foreach ($generator as $processingResult) {
             $answer = null;

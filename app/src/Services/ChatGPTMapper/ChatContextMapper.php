@@ -7,8 +7,9 @@ use Anymodule\Agentmodule\Services\ChatGPTMapper\Container\TaskList;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
+use Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper;
 
-class ContextMapper implements \Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper
+class ChatContextMapper implements ContextMapper
 {
 
     public function __construct(

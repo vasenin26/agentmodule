@@ -3,9 +3,12 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\ChatAgent\ChatAgent;
+use Anymodule\Agentmodule\Application\ChatAgent\ContextAgent;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\ContextActionContract;
+use Anymodule\Agentmodule\Interface\ContextConversationProcessorInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface;
@@ -35,6 +38,15 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, Summ
             $this->processorFactory->createSummaryProcessor(),
             new BrokenCompressor(),
             null
+        );
+    }
+
+    public function createContextAgent(ToolsProviderInterface $tools): ContextActionContract
+    {
+        return new ContextAgent(
+            $this->processorFactory->createContextProcessor($tools),
+            $this->compressor,
+            $tools
         );
     }
 }

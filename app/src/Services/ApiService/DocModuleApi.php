@@ -169,6 +169,7 @@ class DocModuleApi implements TaskApiInterface, PageApi
             taskId: $taskId,
             agentId: $agentId->toString(),
             chatMessages: $result->conversation->serialize(),
+            chatContext: $result->context,
             contextFill: $result->contextFill,
             tokenStats: UpdateAgentTask::createTokenStats(
                 promptTokens: $result->promptTokens,

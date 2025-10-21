@@ -65,6 +65,7 @@ final readonly class GetTaskById implements RequestInterface
             type: $data['type'] ?? null,
             project_id: $data['project_id'],
             messages: $data['chat']['messages'] ?? [],
+            context: $data['chat']['context'] ?? [],
             resulRequired: $data['result_required'] ?? true,
         );
 
