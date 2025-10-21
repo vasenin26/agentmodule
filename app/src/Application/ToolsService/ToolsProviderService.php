@@ -42,6 +42,10 @@ class ToolsProviderService implements ToolsProviderInterface
             $params = [];
         }
 
+        if(!array_key_exists($toolName, $this->map)) {
+            return new ToolResult(false, "Tool {$toolName} not found");
+        }
+
         try {
             return $this->map[$toolName]->execute($params);
         } catch (\Throwable $exception) {

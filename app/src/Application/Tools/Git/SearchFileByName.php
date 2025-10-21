@@ -32,11 +32,11 @@ class SearchFileByName implements ToolInterface
         exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
-            return new ToolResult(false, 'Error searching for files', ['code' => 'SEARCH_ERROR']);
+            return new ToolResult(false, "Error searching for files $needle", []);
         }
 
         if (empty($output)) {
-            return null; // ничего не найдено
+            return new ToolResult(false, "Not found for $needle", []);
         }
 
         // Преобразуем абсолютные пути в относительные от корня репозитория
@@ -55,7 +55,7 @@ class SearchFileByName implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Search files by name in repository.',
+                'description' => 'Search files by full name in repository.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -65,7 +65,7 @@ class SearchFileByName implements ToolInterface
                         ],
                         'needle' => [
                             'type' => 'string',
-                            'description' => 'File name',
+                            'description' => 'File name with extension',
                         ]
                     ],
                     'required' => ['url', 'needle'],

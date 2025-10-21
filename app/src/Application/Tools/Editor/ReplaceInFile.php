@@ -13,6 +13,7 @@ class ReplaceInFile implements ToolInterface
      * Normalize a user-provided regex pattern.
      * - If the pattern already contains valid delimiters with optional modifiers at the end, return as-is.
      * - Otherwise, wrap with '~' delimiters and add default 'su' modifiers for multiline + unicode.
+     * - Automatically adds (\s*) at the beginning to capture leading whitespace (spaces, tabs) for preservation.
      * The function does not escape the body, assuming caller wants a regex (not a literal text).
      */
     private function normalizePattern(string $pattern): string
@@ -26,8 +27,9 @@ class ReplaceInFile implements ToolInterface
             return $pattern;
         }
 
-        // Default: wrap as ~...~su so dot matches newlines and unicode is enabled
-        return '~' . $pattern . '~su';
+        // Add (\s*) at the beginning to capture leading whitespace for preservation, then wrap as ~...~su
+        $normalizedPattern = '(\s*)' . $pattern;
+        return '~' . $normalizedPattern . '~su';
     }
     public function __construct(
         private GitRepoProviderInterface $repoProvider
@@ -202,11 +204,11 @@ class ReplaceInFile implements ToolInterface
                         ],
                         'pattern' => [
                             'type' => 'string',
-                            'description' => 'Regex pattern to search for. Accepts either a fully-delimited regex (e.g. ~...~su) or a raw pattern body without delimiters, which will be wrapped automatically as ~...~su.',
+                            'description' => 'Regex pattern to search for. Accepts either a fully-delimited regex (e.g. ~...~su) or a raw pattern body without delimiters, which will be wrapped automatically as ~...~su. Leading whitespace is automatically captured and preserved in replacement using $1.',
                         ],
                         'replacement' => [
                             'type' => 'string',
-                            'description' => 'Replacement text',
+                            'description' => 'Replacement text. Use $1 to preserve leading whitespace from the original line.',
                         ],
                         'create_if_not_exists' => [
                             'type' => 'boolean',
