@@ -26,11 +26,12 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
+    ChatGPTMapper\Interface\OpenAIMessageProcessorInterface,
+    ChatGPTMapper\Processor\OpenAiResultProcessor,
     RepositoryService\RepositoryProvider,
     Summary\Interface\SummaryAgentFactoryInterface,
     Summary\SummaryCompressor,
-    Summary\SummaryGenerator
-};
+    Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
@@ -83,6 +84,8 @@ $builder->addDefinitions([
     ChatSummaryGeneratorInterface::class => DI\autowire(SummaryGenerator::class),
     ConversationCompressorInterface::class => fn($c) => $c->get(SummaryCompressor::class),
     TaskStorageProviderInterface::class => DI\autowire(TaskStorageProvider::class),
+
+    OpenAIMessageProcessorInterface::class => DI\autowire(OpenAiResultProcessor::class),
 
 ]);
 

@@ -12,18 +12,4 @@ interface MessageMapper
     public function mapChat(Conversation $chat): array;
 
     public function prepareAssistantMessage(CreateResponse $result): OpenAiResult;
-
-    public function mapToUserMessage(string $string): Message;
-
-    public function mapToToolMessage(
-        bool $success,
-        string $id,
-        string $toolName,
-        string $props,
-        string $result
-    ): Message;
-
-    public function mapToHelpInstructionMessage(string $content): Message;
-
-    public function mapToInfoMessage(string $content): Message;
 }
