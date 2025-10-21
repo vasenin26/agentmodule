@@ -2,11 +2,8 @@
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
-use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
-use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
-use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
@@ -17,9 +14,7 @@ use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Utils\TokenCounter;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -43,7 +38,7 @@ YYY;
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
+        $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context($task->context['tasks'] ?? []));
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $workBranch = $this->getTaskBranch($task);
         $repositoryProvider = new RepositoryProvider(

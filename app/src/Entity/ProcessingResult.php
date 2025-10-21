@@ -12,7 +12,7 @@ readonly class ProcessingResult
         public Conversation $conversation,
         public ?Context     $context = null,
         public ?string      $modelName,
-        public float        $contextFill,
+        public ?float       $contextFill = 0,
         public ?int         $promptTokens = null,
         public ?int         $completionTokens = null,
         public ?int         $totalTokens = null,

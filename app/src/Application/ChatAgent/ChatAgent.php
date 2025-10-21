@@ -143,7 +143,9 @@ class ChatAgent implements ActionContract
         try {
             $toolResult = $this->tools->callTool($toolCall->name, $toolCall->arguments);
 
-            Log::info("Tool result: {$toolResult->message}");
+            if (!empty($toolResult)) {
+                Log::info("Tool result: {$toolResult->message}");
+            }
         } catch (\Throwable $exception) {
             Log::info("Tool error: {$exception->getMessage()}");
 

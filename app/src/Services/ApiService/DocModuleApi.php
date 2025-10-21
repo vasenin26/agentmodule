@@ -66,6 +66,7 @@ class DocModuleApi implements TaskApiInterface, PageApi
             type: $taskData->type,
             conversationId: $taskData->chat_id,
             messages: $taskData->messages,
+            context: $taskData->context,
             projectId: $taskData->project_id,
             resultRequired: $taskData->resulRequired
         );
@@ -132,6 +133,7 @@ class DocModuleApi implements TaskApiInterface, PageApi
             type: $taskData->type,
             conversationId: $taskData->chat_id,
             messages: $taskData->messages,
+            context: $taskData->context,
             projectId: $taskData->project_id,
             resultRequired: $taskData->resulRequired
         );

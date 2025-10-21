@@ -9,7 +9,7 @@ class CompleteTask implements ToolInterface
 {
     const NAME = 'tasks-complete';
 
-    public function __construct(private TasksStorage $storage)
+    public function __construct(private TaskStorageInterface $storage)
     {
     }
 

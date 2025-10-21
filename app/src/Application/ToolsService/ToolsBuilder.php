@@ -2,8 +2,9 @@
 
 namespace Anymodule\Agentmodule\Application\ToolsService;
 
-use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
+use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 
 class ToolsBuilder
 {
@@ -54,7 +55,7 @@ class ToolsBuilder
         ]);
     }
 
-    public function withTasks(TasksStorage $tasksStorage): ToolsBuilder
+    public function withTasks(TaskStorageInterface $tasksStorage): ToolsBuilder
     {
         return $this->withTools([
             $this->toolsFactory->tasksList($tasksStorage),

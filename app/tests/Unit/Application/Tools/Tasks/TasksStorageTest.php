@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Application\Tools\Tasks;
 
-use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 use PHPUnit\Framework\TestCase;
 
 class TasksStorageTest extends TestCase

@@ -4,12 +4,13 @@ namespace Anymodule\Agentmodule\Application\Tools\Tasks;
 
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 
 class AddTasks implements ToolInterface
 {
     const NAME = 'tasks-add';
 
-    public function __construct(private TasksStorage $storage)
+    public function __construct(private TaskStorageInterface $storage)
     {
     }
 

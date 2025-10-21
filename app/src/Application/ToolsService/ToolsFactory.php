@@ -36,10 +36,11 @@ use Anymodule\Agentmodule\Application\Tools\SendResult;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
-use Anymodule\Agentmodule\Application\Tools\Tasks\TasksStorage;
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 
 class ToolsFactory
 {
@@ -170,17 +171,17 @@ class ToolsFactory
         return new InsertOrReplace($this->gitRepoProvider);
     }
 
-    public function tasksList(TasksStorage $tasksStorage): ToolInterface
+    public function tasksList(TaskStorageInterface $tasksStorage): ToolInterface
     {
         return new ListTasks($tasksStorage);
     }
 
-    public function tasksAdd(TasksStorage $tasksStorage): ToolInterface
+    public function tasksAdd(TaskStorageInterface $tasksStorage): ToolInterface
     {
         return new AddTasks($tasksStorage);
     }
 
-    public function tasksComplete(TasksStorage $tasksStorage): ToolInterface
+    public function tasksComplete(TaskStorageInterface $tasksStorage): ToolInterface
     {
         return new CompleteTask($tasksStorage);
     }

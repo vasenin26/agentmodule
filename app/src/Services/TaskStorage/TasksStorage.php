@@ -1,10 +1,11 @@
 <?php
 
-namespace Anymodule\Agentmodule\Application\Tools\Tasks;
+namespace Anymodule\Agentmodule\Services\TaskStorage;
 
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Utils\Log;
 
-class TasksStorage
+class TasksStorage implements TaskStorageInterface
 {
     /**
      * Per-instance in-memory state.

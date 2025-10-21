@@ -9,6 +9,7 @@ readonly class Task
         public ?string $type,
         public int $conversationId,
         public array $messages,
+        public array $context,
         public int $projectId,
         public bool $resultRequired,
     )
