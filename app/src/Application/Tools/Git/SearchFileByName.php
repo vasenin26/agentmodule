@@ -39,7 +39,14 @@ class SearchFileByName implements ToolInterface
             return null; // ничего не найдено
         }
 
-        return new ToolResult(true, 'Search: files found', ['files' => array_values($output)]);
+        // Преобразуем абсолютные пути в относительные от корня репозитория
+        $relativePaths = [];
+        foreach ($output as $absolutePath) {
+            $relativePath = str_replace($repoPath . '/', '', $absolutePath);
+            $relativePaths[] = $relativePath;
+        }
+
+        return new ToolResult(true, 'Search: files found', ['files' => array_values($relativePaths)]);
     }
 
     public function getProps(): array

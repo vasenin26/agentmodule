@@ -11,7 +11,7 @@ readonly class ProcessingResult
         public ?string      $answer,
         public Conversation $conversation,
         public ?Context     $context = null,
-        public ?string      $modelName,
+        public ?string      $modelName = null,
         public ?float       $contextFill = 0,
         public ?int         $promptTokens = null,
         public ?int         $completionTokens = null,
