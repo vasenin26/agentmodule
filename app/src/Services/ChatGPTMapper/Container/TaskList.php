@@ -11,7 +11,7 @@ Below is your current task list. This is your working plan. Each task has a stat
 - `[todo]` — not started yet\n- `[current]` — currently active task\n- `[done]` — task completed
 You must continue working according to this plan. Focus on the `[current]` task. 
 When it's completed, mark it as `[done]`, then move to the next `[todo]` task and mark it as `[current]`.
-Current task list:
+Current task list: \n\n
 INT;
 
 
@@ -45,7 +45,7 @@ INT;
                 $status = 'current';
             }
 
-            $list[] = "[$status] $title";
+            $list[] = "- [$status] $title";
         }
 
         return [

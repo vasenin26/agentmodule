@@ -20,7 +20,9 @@ use Vasenin26\Conversation\Messages\DisappearingMessage;
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     const CODE_WORK_PROMPT = <<<YYY
-Before you begin, check your task list against the tool. 
+Complete the work according to the current task list.
+Mark tasks as completed after completion. 
+Use `tasks-complete` for mark task completed.
 Save the task description after completion.
 YYY;
 
@@ -102,11 +104,11 @@ YYY;
 
     private function getTmpTaskFolder(Task $task): string
     {
-        return 'task_' . $task->id;
+        return 'task_' . $task->conversationId;
     }
 
     private function getTaskBranch(Task $task): string
     {
-        return 'agent/task' . $task->id;
+        return 'agent/task' . $task->conversationId;
     }
 }

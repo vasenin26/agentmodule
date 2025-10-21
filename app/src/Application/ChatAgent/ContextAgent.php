@@ -37,7 +37,6 @@ class ContextAgent implements ContextActionContract
 
     public function execute(ContextConversation $conversation): \Generator
     {
-        $contextChat = $conversation->conversation;
         $compressed = false;
 
         do {
@@ -58,6 +57,7 @@ class ContextAgent implements ContextActionContract
                 }
 
                 $contextChat = $this->compressor->compress($conversation->conversation);
+                $conversation = new ContextConversation($conversation->context, $contextChat);
                 $compressed = true;
             }
         } while (true);

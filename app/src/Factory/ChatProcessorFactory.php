@@ -79,7 +79,8 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
 
-        $modelMeta = $this->modelsProvider->get('summary');
+        $modelName = getenv('OPENAI_MODEL');
+        $modelMeta = $this->modelsProvider->get($modelName);
 
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
