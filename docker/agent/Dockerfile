@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install zip sockets \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git config --system push.autoSetupRemote true
+
 # Установка Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
