@@ -7,10 +7,10 @@ use Anymodule\Agentmodule\Utils\Log;
 class TaskList
 {
     const INSTRUCTION = <<<INT
-Below is your current task list. This is your working plan. Each task has a status indicator:
+Below is my current task list. This is my working plan. Each task has a status indicator:
 - `[todo]` — not started yet\n- `[current]` — currently active task\n- `[done]` — task completed
-You must continue working according to this plan. Focus on the `[current]` task. 
-When it's completed, mark it as `[done]`, then move to the next `[todo]` task and mark it as `[current]`.
+I must continue working according to this plan. Focus on the `[current]` task. 
+When it's completed, i'll it as `[done]`, then move to the next `[todo]`.
 Current task list: \n\n
 INT;
 

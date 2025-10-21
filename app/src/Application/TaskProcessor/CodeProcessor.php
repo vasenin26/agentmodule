@@ -16,6 +16,7 @@ use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
+use Vasenin26\Conversation\Messages\UserMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
@@ -66,7 +67,9 @@ YYY;
             ]
         )->run($conversation);
 
-        $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
+        if ($this->hasNoUserAnswer($conversation)) {
+            $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
+        }
 
         $contentTool = new CatchContent(
             'store-description',
@@ -110,5 +113,19 @@ YYY;
     private function getTaskBranch(Task $task): string
     {
         return 'agent/task' . $task->conversationId;
+    }
+
+    private function hasNoUserAnswer(\Vasenin26\Conversation\Interface\Conversation $conversation): bool
+    {
+        $messages = $conversation->getMessages();
+
+        if(empty($messages)) {
+            return false;
+        }
+
+        $lastElementArray = array_slice($messages, -1);
+        $lastElement = $lastElementArray[0];
+
+        return !($lastElement instanceof UserMessage);
     }
 }
