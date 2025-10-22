@@ -15,6 +15,7 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
 
@@ -26,6 +27,12 @@ Mark tasks as completed after completion.
 Use tool `tasks-complete` for mark task completed.
 Save the task description after completion.
 YYY;
+
+    const REMEMBER_FINISH_TASKS = <<<TTT
+You have uncompleted tasks.
+Complete all tasks.
+Mark completed tasks using `tasks-complete` tool.
+TTT;
 
 
     public function __construct(
@@ -67,7 +74,9 @@ YYY;
             ]
         )->run($conversation);
 
-        if ($this->hasNoUserAnswer($conversation)) {
+        $needAnswer = $this->hasNoUserAnswer($conversation);
+
+        if (!$needAnswer) {
             $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
         }
 
@@ -87,22 +96,37 @@ YYY;
         );
 
         $agent = $this->chatFactory->createContextAgent($tools);
-        $generator = $agent->execute(new ContextConversation(
-            $context,
-            $conversation,
-        ));
 
-        foreach ($generator as $processingResult) {
-            $answer = null;
+        do {
+            $finished = true;
 
-            if ($contentTool->hasContent()) {
-                $answer = $contentTool->getContent();
+            $generator = $agent->execute(new ContextConversation(
+                $context,
+                $conversation,
+            ));
+
+            foreach ($generator as $processingResult) {
+                $answer = null;
+
+                if ($contentTool->hasContent()) {
+                    $answer = $contentTool->getContent();
+                }
+
+                $context->updateTask($taskStorage->list());
+
+                $processHandler->handle($processingResult->withAnswer($answer));
             }
 
-            $context->updateTask($taskStorage->list());
+            if (!$needAnswer) {
+                if ($taskStorage->getStats()['remaining'] > 0) {
+                    $finished = false;
 
-            $processHandler->handle($processingResult->withAnswer($answer));
-        }
+                    Log::info("Remember uncompleted tasks.");
+                    $conversation->addMessage(new DisappearingMessage(self::REMEMBER_FINISH_TASKS));
+                }
+            }
+
+        } while (!$finished);
     }
 
     private function getTmpTaskFolder(Task $task): string
@@ -119,13 +143,13 @@ YYY;
     {
         $messages = $conversation->getMessages();
 
-        if(empty($messages)) {
+        if (empty($messages)) {
             return false;
         }
 
         $lastElementArray = array_slice($messages, -1);
         $lastElement = $lastElementArray[0];
 
-        return !($lastElement instanceof UserMessage);
+        return $lastElement instanceof UserMessage;
     }
 }

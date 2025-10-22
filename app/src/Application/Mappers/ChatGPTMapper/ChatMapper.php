@@ -29,7 +29,7 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatMapper implements MessageMapper
 {
-    const ANY_MESSAGE_ALIVE_LIMIT = 20;
+    const ANY_MESSAGE_ALIVE_LIMIT = 15;
 
     const SHORT_TIME_LIVE_MESSAGES = [
         AddTasks::NAME,
