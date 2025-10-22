@@ -4,7 +4,6 @@ namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Interface\Url\UrlParserInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
