@@ -52,6 +52,7 @@ class ToolsBuilder
             $this->toolsFactory->editorEditFile(),
             $this->toolsFactory->editorReplaceInFile(),
             $this->toolsFactory->editorInsertOrReplace(),
+            $this->toolsFactory->editorChangeLine(),
         ]);
     }
 

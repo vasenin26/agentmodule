@@ -23,8 +23,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install zip sockets \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git config --system push.autoSetupRemote true
-
 # Установка Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
@@ -90,6 +88,8 @@ RUN mkdir -p /home/local/context && chown -R local:local /home/local
 # Переключение на пользователя local для безопасности
 USER local
 
+RUN git config --global push.autoSetupRemote true
+
 # Точка входа - main.php (текущий Runner с циклом)
 CMD ["php", "main.php"]
 
@@ -120,6 +120,8 @@ RUN mkdir -p /home/local/context && chown -R local:local /home/local
 
 # Переключение на пользователя local для безопасности
 USER local
+
+RUN git config --global push.autoSetupRemote true
 
 # Точка входа - orchestrated.php (новый OrchestratedRunner, одна задача)
 CMD ["php", "orchestrated.php"]

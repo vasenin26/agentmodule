@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Optimizators;
+namespace Anymodule\Agentmodule\Services\ChatGPTMapper\Optimizators\Editor;
 
 use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\ToolResultOptimizationInterface;

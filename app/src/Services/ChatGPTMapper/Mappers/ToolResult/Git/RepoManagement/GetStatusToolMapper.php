@@ -21,13 +21,42 @@ class GetStatusToolMapper implements ToolMapperInterface
         if(!$message->success) return $result['message'] ?? 'Can\'t get status';
 
         $payload = $result['payload'] ?? null;
-        $status = $payload['status'] ?? null;
 
-        if(empty($status)) {
+        if(empty($payload)) {
             return 'No status information found';
         }
 
-        // Возвращаем только status, убираем branch, clean, ahead, behind
-        return $status;
+        $output = '';
+
+        // Добавляем информацию о файлах
+        if (isset($payload['modified']) && !empty($payload['modified'])) {
+            $output .= "Modified files:\n";
+            foreach ($payload['modified'] as $file) {
+                $output .= "  " . $file . "\n";
+            }
+        }
+
+        if (isset($payload['staged']) && !empty($payload['staged'])) {
+            $output .= "Staged files:\n";
+            foreach ($payload['staged'] as $file) {
+                $output .= "  " . $file . "\n";
+            }
+        }
+
+        if (isset($payload['untracked']) && !empty($payload['untracked'])) {
+            $output .= "Untracked files:\n";
+            foreach ($payload['untracked'] as $file) {
+                $output .= "  " . $file . "\n";
+            }
+        }
+
+        if (isset($payload['deleted']) && !empty($payload['deleted'])) {
+            $output .= "Deleted files:\n";
+            foreach ($payload['deleted'] as $file) {
+                $output .= "  " . $file . "\n";
+            }
+        }
+
+        return trim($output) ?: 'No changes detected';
     }
 }

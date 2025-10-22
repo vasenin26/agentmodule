@@ -10,26 +10,44 @@ class ReplaceInFile implements ToolInterface
 {
     const NAME = 'editor-replace-in-file';
     /**
-     * Normalize a user-provided regex pattern.
-     * - If the pattern already contains valid delimiters with optional modifiers at the end, return as-is.
-     * - Otherwise, wrap with '~' delimiters and add default 'su' modifiers for multiline + unicode.
-     * - Automatically adds (\s*) at the beginning to capture leading whitespace (spaces, tabs) for preservation.
-     * The function does not escape the body, assuming caller wants a regex (not a literal text).
+     * Perform simple string replacement with whitespace preservation.
+     * For method chaining patterns (starting with ->), preserves leading whitespace.
+     * For other patterns, preserves leading whitespace using $1 placeholder.
      */
-    private function normalizePattern(string $pattern): string
+    private function performStringReplacement(string $content, string $search, string $replacement): array
     {
-        // Detect if pattern is already delimited: ^(delimiter).*\1(modifiers)?$
-        // Allowed delimiters here: ~ # / @ % ! ; ` \|
-        // Use a conservative check to avoid false positives.
-        $isDelimited = (bool) preg_match('/^([~#\/@%!;`\|]).*\1[imsxuADSUXJ]*$/', $pattern);
-
-        if ($isDelimited) {
-            return $pattern;
+        $replacements = 0;
+        $newContent = $content;
+        
+        // For method chaining patterns (starting with ->), preserve leading whitespace
+        if (strpos($search, '->') === 0) {
+            // Find all occurrences and preserve their leading whitespace
+            $lines = explode("\n", $content);
+            $modified = false;
+            
+            foreach ($lines as $lineIndex => $line) {
+                if (strpos($line, $search) !== false) {
+                    // Find the position of the search string
+                    $pos = strpos($line, $search);
+                    // Extract leading whitespace
+                    $leadingWhitespace = substr($line, 0, $pos);
+                    // Create replacement with preserved whitespace
+                    $newLine = $leadingWhitespace . $replacement;
+                    $lines[$lineIndex] = $newLine;
+                    $replacements++;
+                    $modified = true;
+                }
+            }
+            
+            if ($modified) {
+                $newContent = implode("\n", $lines);
+            }
+        } else {
+            // For regular patterns, use simple string replacement
+            $newContent = str_replace($search, $replacement, $content, $replacements);
         }
-
-        // Add (\s*) at the beginning to capture leading whitespace for preservation, then wrap as ~...~su
-        $normalizedPattern = '(\s*)' . $pattern;
-        return '~' . $normalizedPattern . '~su';
+        
+        return [$newContent, $replacements];
     }
     public function __construct(
         private GitRepoProviderInterface $repoProvider
@@ -39,7 +57,7 @@ class ReplaceInFile implements ToolInterface
     public function execute(array $args): ?ToolResult
     {
         try {
-            ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement, 'create_if_not_exists' => $createIfNotExists] = $args + ['create_if_not_exists' => false];
+            ['url' => $url, 'path' => $path, 'pattern' => $pattern, 'replacement' => $replacement] = $args;
 
             // Basic input validation and normalization
             if (!is_string($url) || $url === '' || !is_string($path) || $path === '') {
@@ -66,22 +84,7 @@ class ReplaceInFile implements ToolInterface
 
             // Проверяем, что файл существует
             if (!file_exists($fullFilePath)) {
-                if ($createIfNotExists) {
-                    // Создаем директорию если она не существует
-                    $dir = dirname($fullFilePath);
-                    if (!is_dir($dir)) {
-                        if (!mkdir($dir, 0755, true)) {
-                            return new ToolResult(false, 'Failed to create directory: ' . dirname($path), ['code' => 'DIRECTORY_CREATE_FAILED']);
-                        }
-                    }
-                    
-                    // Создаем пустой файл
-                    if (!touch($fullFilePath)) {
-                        return new ToolResult(false, 'Failed to create file: ' . $path, ['code' => 'FILE_CREATE_FAILED']);
-                    }
-                } else {
-                    return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
-                }
+                return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
             }
 
             // Проверяем, что файл доступен для записи
@@ -95,53 +98,18 @@ class ReplaceInFile implements ToolInterface
                 return new ToolResult(false, 'Failed to read file: ' . $path, ['code' => 'READ_FAILED']);
             }
 
-            // Если файл был создан только что, content будет пустым
-            $isNewFile = $createIfNotExists && $content === '';
-
-            // Создаем резервную копию файла только если это не новый файл
-            $backupPath = null;
-            if (!$isNewFile) {
-                $backupPath = $fullFilePath . '.backup.' . date('Y-m-d_H-i-s');
-                if (!copy($fullFilePath, $backupPath)) {
-                    return new ToolResult(false, 'Failed to create backup of file: ' . $path, ['code' => 'BACKUP_FAILED']);
-                }
-            }
-
-            // Normalize/prepare regex pattern: accept either fully-delimited regex or raw body
-            $finalPattern = $this->normalizePattern($pattern);
-
-            // Выполняем замену
+            // Выполняем простую замену строк
             $originalContent = $content;
-            $replacementCount = 0;
-            $newContent = preg_replace($finalPattern, $replacement, $content, -1, $replacementCount);
-
-            // Handle regex errors (e.g., invalid delimiter, compilation failure)
-            if ($newContent === null) {
-                if ($backupPath) {
-                    // roll back backup if we created it earlier (we haven't written yet, but stay consistent)
-                    unlink($backupPath);
-                }
-
-                $regexError = function_exists('preg_last_error_msg') ? preg_last_error_msg() : 'Regex error';
-                return new ToolResult(false, 'Failed to apply regex: ' . $regexError, [
-                    'code' => 'REGEX_ERROR',
-                    'pattern_provided' => $pattern,
-                    'pattern_final' => $finalPattern,
-                ]);
-            }
+            [$newContent, $replacementCount] = $this->performStringReplacement($content, $pattern, $replacement);
 
             // Проверяем, была ли выполнена замена
             if ($originalContent === $newContent) {
-                // Удаляем резервную копию, так как изменений не было
-                if ($backupPath) {
-                    unlink($backupPath);
-                }
                 
                 return new ToolResult(true, 'No matches found for pattern', [
                     'file_path' => $path,
-                    'pattern' => $finalPattern,
+                    'pattern' => $pattern,
+                    'replacement' => $replacement,
                     'replacements_made' => 0,
-                    'file_created' => $isNewFile,
                 ]);
             }
 
@@ -149,32 +117,14 @@ class ReplaceInFile implements ToolInterface
             $result = file_put_contents($fullFilePath, $newContent);
 
             if ($result === false) {
-                // Восстанавливаем файл из резервной копии в случае ошибки
-                if ($backupPath) {
-                    copy($backupPath, $fullFilePath);
-                    unlink($backupPath);
-                } else {
-                    // Если это был новый файл, удаляем его
-                    unlink($fullFilePath);
-                }
-                
                 return new ToolResult(false, 'Failed to write content to file: ' . $path, ['code' => 'WRITE_FAILED']);
             }
 
-            // Количество замен вычислено через preg_replace(..., -1, $replacementCount)
-            $replacementsCount = $replacementCount;
-
-            // Удаляем резервную копию после успешной записи
-            if ($backupPath) {
-                unlink($backupPath);
-            }
-
-            return new ToolResult(true, $isNewFile ? 'File created successfully' : 'File updated successfully', [
+            return new ToolResult(true, 'File updated successfully', [
                 'file_path' => $path,
-                'pattern' => $finalPattern,
+                'pattern' => $pattern,
                 'replacement' => $replacement,
-                'replacements_made' => $replacementsCount,
-                'file_created' => $isNewFile,
+                'replacements_made' => $replacementCount,
                 'bytes_written' => $result,
                 'content_length' => strlen((string) $newContent),
             ]);
@@ -190,7 +140,7 @@ class ReplaceInFile implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Replace text in file using a regex pattern or a raw text pattern. If the pattern does not include delimiters, it will be wrapped automatically with ~...~ and modifiers su for multiline Unicode support.',
+                'description' => 'Replace text in file using simple string matching. Searches for exact string matches and replaces them with the specified replacement text. For method chaining patterns (starting with ->), automatically preserves leading whitespace. Example: search for "хочу" and replace with "не хочу" in "я хочу какать" to get "я не хочу какать".',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -204,17 +154,12 @@ class ReplaceInFile implements ToolInterface
                         ],
                         'pattern' => [
                             'type' => 'string',
-                            'description' => 'Regex pattern to search for. Accepts either a fully-delimited regex (e.g. ~...~su) or a raw pattern body without delimiters, which will be wrapped automatically as ~...~su. Leading whitespace is automatically captured and preserved in replacement using $1.',
+                            'description' => 'Exact string to search for. Will be replaced with the replacement text. For method chaining patterns (starting with ->), leading whitespace is automatically preserved. Example: "->orderBy(\'created_at\', \'desc\')" to find and replace method calls.',
                         ],
                         'replacement' => [
                             'type' => 'string',
-                            'description' => 'Replacement text. Use $1 to preserve leading whitespace from the original line.',
+                            'description' => 'Replacement text. For method chaining patterns (starting with ->), leading whitespace is automatically preserved. For other patterns, use exact replacement text.',
                         ],
-                        'create_if_not_exists' => [
-                            'type' => 'boolean',
-                            'description' => 'Create file if it does not exist. If true, creates the file and any necessary directories.',
-                            'default' => false
-                        ]
                     ],
                     'required' => ['url', 'path', 'pattern', 'replacement'],
                 ]

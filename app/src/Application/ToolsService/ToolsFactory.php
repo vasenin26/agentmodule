@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Application\ToolsService;
 
 
 use Anymodule\Agentmodule\Application\Tools\CurrentTime;
+use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
 use Anymodule\Agentmodule\Application\Tools\Editor\EditFile;
 use Anymodule\Agentmodule\Application\Tools\Editor\InsertOrReplace;
 use Anymodule\Agentmodule\Application\Tools\Editor\ReplaceInFile;
@@ -169,6 +170,11 @@ class ToolsFactory
     public function editorInsertOrReplace(): ToolInterface
     {
         return new InsertOrReplace($this->gitRepoProvider);
+    }
+
+    public function editorChangeLine(): ToolInterface
+    {
+        return new ChangeLine($this->gitRepoProvider);
     }
 
     public function tasksList(TaskStorageInterface $tasksStorage): ToolInterface

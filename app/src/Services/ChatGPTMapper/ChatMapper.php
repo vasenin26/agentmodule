@@ -2,21 +2,25 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
-use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
+use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
+use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
+use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
+use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\CallToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\DisappearingMessageMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Optimizators\ReadFileOptimization;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserTaskMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Optimizators\Editor\ReadFileOptimization;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
+use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -26,6 +30,13 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 class ChatMapper implements MessageMapper
 {
     const LAST_MESSAGES_LIMIT = 10;
+
+    const SHORT_TIME_LIVE_MESSAGES = [
+        AddTasks::NAME,
+        ListTasks::NAME,
+        CompleteTask::NAME,
+        ChangeLine::NAME,
+    ];
 
     private $mappers = [];
     private $toolOptimisers = [];
@@ -47,7 +58,7 @@ class ChatMapper implements MessageMapper
         ];
 
         $this->toolOptimisers = [
-            new ReadFileOptimization()
+            new ReadFileOptimization(),
         ];
 
         if ($toolsService !== null) {
@@ -135,12 +146,14 @@ class ChatMapper implements MessageMapper
 
     private function optimizeOldToolCalls(Conversation $chat): Conversation
     {
-        $wrongFunctionCalls = [];
+        $irrelevantFunctionCalls = [];
         $result = new Chat();
+        $optimisedCounter = 0;
+        $removedAssistantMessagesCounter = 0;
 
         $oldMessagesCount = count($chat->getMessages()) - self::LAST_MESSAGES_LIMIT;
 
-        if($oldMessagesCount <= 0) {
+        if ($oldMessagesCount <= 0) {
             return $chat;
         }
 
@@ -150,20 +163,21 @@ class ChatMapper implements MessageMapper
         foreach ($slice as $message) {
             if ($message instanceof ToolMessage) {
                 $oldToolsIds[] = $message->id;
-                if ($message->success === false) {
-                    $wrongFunctionCalls[] = $message->id;
+                if ($message->success === false || in_array($message->name, self::SHORT_TIME_LIVE_MESSAGES)) {
+                    $irrelevantFunctionCalls[] = $message->id;
                 }
             }
         }
 
         foreach ($chat->getMessages() as $message) {
             if ($message instanceof ToolMessage) {
-                if (in_array($message->id, $wrongFunctionCalls)) {
+                if (in_array($message->id, $irrelevantFunctionCalls)) {
                     continue;
                 } else if (in_array($message->id, $oldToolsIds)) {
                     foreach ($this->toolOptimisers as $optimiser) {
-                        if($optimiser->supports($message)) {
+                        if ($optimiser->supports($message)) {
                             $message = $optimiser->optimize($message);
+                            $optimisedCounter++;
                             break;
                         }
                     }
@@ -171,13 +185,26 @@ class ChatMapper implements MessageMapper
             }
 
             if ($message instanceof AssistantMessage) {
-                $message = $this->removeForgetFunctionCalls($message, $wrongFunctionCalls);
+                $message = $this->removeForgetFunctionCalls($message, $irrelevantFunctionCalls);
                 if ($message === null) {
+                    $removedAssistantMessagesCounter++;
                     continue;
                 }
             }
 
             $result->addMessage($message);
+        }
+
+        if (!empty($irrelevantFunctionCalls)) {
+            Log::info("Found " . count($irrelevantFunctionCalls) . " irrelevant tool calls");
+        }
+
+        if ($removedAssistantMessagesCounter > 0) {
+            Log::info('Removed ' . $removedAssistantMessagesCounter . ' assistant messages');
+        }
+
+        if ($optimisedCounter > 0) {
+            Log::info('Optimised ' . $optimisedCounter . ' old tool calls');
         }
 
         return $result;

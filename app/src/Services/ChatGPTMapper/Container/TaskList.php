@@ -7,9 +7,9 @@ use Anymodule\Agentmodule\Utils\Log;
 class TaskList
 {
     const INSTRUCTION = <<<INT
-Below is my current task list. This is my working plan. Each task has a status indicator:
+Below is your current task list. This is your working plan. Each task has a status indicator:
 - `[todo]` — not started yet\n- `[current]` — currently active task\n- `[done]` — task completed
-I must continue working according to this plan. Focus on the `[current]` task. 
+You must continue working according to this plan. Focus on the `[current]` task. 
 When it's completed, i'll it as `[done]`, then move to the next `[todo]`.
 Current task list: \n\n
 INT;
@@ -49,7 +49,7 @@ INT;
         }
 
         return [
-            "role" => "assistant",
+            "role" => "user",
             "content" => self::INSTRUCTION . join("\n", $list),
         ];
     }
