@@ -13,6 +13,7 @@ use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\UserMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Optimizators\Editor\ReadFileOptimization;
 use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
+use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
@@ -25,6 +26,7 @@ use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatMapper implements MessageMapper
@@ -159,12 +161,29 @@ class ChatMapper implements MessageMapper
 
         $slice = array_slice($chat->getMessages(), 0, $oldMessagesCount);
         $oldToolsIds = [];
+        $fileReads = [];
 
         foreach ($slice as $message) {
             if ($message instanceof ToolMessage) {
                 $oldToolsIds[] = $message->id;
                 if ($message->success === false || in_array($message->name, self::SHORT_TIME_LIVE_MESSAGES)) {
                     $irrelevantFunctionCalls[] = $message->id;
+                    continue;
+                }
+
+                if ($message->name === ReadFile::NAME) {
+                    $filePath = $this->getFilePath($message);
+
+                    foreach ($fileReads as $toolId => $uri) {
+                        if ($uri === $filePath) {
+                            Log::info("Found file [$uri] read duplicate");
+                            if (!in_array($toolId, $irrelevantFunctionCalls)) {
+                                $irrelevantFunctionCalls[] = $toolId;
+                            }
+                        }
+                    }
+
+                    $fileReads[$message->id] = $filePath;
                 }
             }
         }
@@ -231,5 +250,12 @@ class ChatMapper implements MessageMapper
             $message->content,
             $resultCalls
         );
+    }
+
+    private function getFilePath(ToolMessage $message): string
+    {
+        $args = json_decode($message->args, true);
+
+        return $args['url'] . ':' . $args['path'];
     }
 }

@@ -51,7 +51,7 @@ class ToolsBuilder
         return $this->withTools([
             $this->toolsFactory->editorEditFile(),
             $this->toolsFactory->editorReplaceInFile(),
-            $this->toolsFactory->editorInsertOrReplace(),
+//            $this->toolsFactory->editorInsertOrReplace(),
             $this->toolsFactory->editorChangeLine(),
         ]);
     }
