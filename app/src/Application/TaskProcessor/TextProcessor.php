@@ -20,7 +20,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
-class TextProcessor implements TaskProcessor
+final class TextProcessor implements TaskProcessor
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,

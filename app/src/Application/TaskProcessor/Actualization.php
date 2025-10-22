@@ -22,7 +22,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
-class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,

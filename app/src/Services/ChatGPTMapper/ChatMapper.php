@@ -17,18 +17,21 @@ use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use OpenAI\Responses\Chat\CreateResponse;
+use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatMapper implements MessageMapper
 {
+    const LAST_MESSAGES_LIMIT = 10;
+
     private $mappers = [];
 
     public function __construct(
         private OpenAIMessageProcessorInterface $AIMessageProcessor,
-        GitRepoProviderInterface $repositoryProvider,
-        ToolsProviderInterface   $toolsService = null,
+        GitRepoProviderInterface                $repositoryProvider,
+        ?ToolsProviderInterface                 $toolsService = null,
     )
     {
         $this->mappers = [
@@ -47,6 +50,14 @@ class ChatMapper implements MessageMapper
     }
 
     public function mapChat(Conversation $chat): array
+    {
+        $chat = $this->forgotWrongFunctionCalls($chat);
+        $messages = $this->processMessages($chat);
+
+        return $messages;
+    }
+
+    private function processMessages(Conversation $chat): array
     {
         $chatMessages = $chat->getMessages();
         $resultMessages = [];
@@ -114,5 +125,69 @@ class ChatMapper implements MessageMapper
                 break;
             }
         } while (next($clone));
+    }
+
+    private function forgotWrongFunctionCalls(Conversation $chat): Conversation
+    {
+        $wrongFunctionCalls = [];
+        $result = new Chat();
+
+        $oldMessagesCount = count($chat->getMessages()) - self::LAST_MESSAGES_LIMIT;
+
+        if($oldMessagesCount <= 0) {
+            return $chat;
+        }
+
+        $slice = array_slice($chat->getMessages(), 0, $oldMessagesCount);
+
+        foreach ($slice as $message) {
+            if ($message instanceof ToolMessage) {
+                if ($message->success === false) {
+                    $wrongFunctionCalls[] = $message->id;
+                }
+            }
+        }
+
+        foreach ($chat->getMessages() as $message) {
+            if ($message instanceof ToolMessage) {
+                if (in_array($message->id, $wrongFunctionCalls)) {
+                    continue;
+                }
+            }
+
+            if ($message instanceof AssistantMessage) {
+                $message = $this->removeForgetFunctionCalls($message, $wrongFunctionCalls);
+                if ($message === null) {
+                    continue;
+                }
+            }
+
+            $result->addMessage($message);
+        }
+
+        return $result;
+    }
+
+    private function removeForgetFunctionCalls(AssistantMessage $message, array $wrongFunctionCalls): ?AssistantMessage
+    {
+        $functionCalls = $message->toolCallsArray;
+        $resultCalls = [];
+
+        foreach ($functionCalls as $functionCall) {
+            if (in_array($functionCall['id'], $wrongFunctionCalls)) {
+                continue;
+            }
+
+            $resultCalls[] = $functionCall;
+        }
+
+        if (empty($resultCalls) && empty($message->content)) {
+            return null;
+        }
+
+        return new AssistantMessage(
+            $message->content,
+            $resultCalls
+        );
     }
 }
