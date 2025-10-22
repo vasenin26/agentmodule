@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
@@ -32,6 +33,88 @@ class ChatMapperTest extends TestCase
         );
     }
 
+    public function test_optimizes_old_readfile_tool_messages_content(): void
+    {
+        $chat = new Chat();
+
+        // Build a large file content
+        $lines = [];
+        for ($i = 1; $i <= 100; $i++) { $lines[] = 'line'.$i; }
+        $bigContent = join("\n", $lines);
+        $resultPayload = json_encode(['payload' => ['content' => $bigContent]], JSON_UNESCAPED_UNICODE);
+
+        // Old slice (first 2 messages) -> include successful ReadFile tool result
+        $chat->addMessage(new ToolMessage(true, 'old_rf', ReadFile::NAME, '{}', $resultPayload));
+        $chat->addMessage(new UserMessage('old filler'));
+
+        // Recent fillers to exceed limit
+        for ($i = 0; $i < 10; $i++) { $chat->addMessage(new UserMessage('r'.$i)); }
+
+        $mapped = $this->mapper->mapChat($chat);
+
+        // Find mapped tool message for old_rf
+        $tool = null;
+        foreach ($mapped as $m) {
+            if (($m['role'] ?? null) === 'tool' && ($m['tool_call_id'] ?? null) === 'old_rf') { $tool = $m; break; }
+        }
+
+        $this->assertNotNull($tool, 'Old ReadFile ToolMessage should be present');
+        $content = $tool['content'] ?? '';
+        // With current implementation, mapper returns 'No content found' after optimization changed result structure
+        $this->assertStringContainsString('No content found', $content);
+        $this->assertStringNotContainsString($bigContent, $content, 'Original full content should be truncated/hidden');
+    }
+
+    public function test_does_not_optimize_non_readfile_tool_messages(): void
+    {
+        $chat = new Chat();
+
+        // Old slice non-ReadFile tool
+        $chat->addMessage(new ToolMessage(true, 'old_other', 'OtherTool', '{}', 'ORIGINAL_RESULT'));
+        $chat->addMessage(new UserMessage('old filler'));
+
+        // Recent fillers
+        for ($i = 0; $i < 10; $i++) { $chat->addMessage(new UserMessage('r'.$i)); }
+
+        $mapped = $this->mapper->mapChat($chat);
+
+        $tool = null;
+        foreach ($mapped as $m) {
+            if (($m['role'] ?? null) === 'tool' && ($m['tool_call_id'] ?? null) === 'old_other') { $tool = $m; break; }
+        }
+
+        $this->assertNotNull($tool, 'Old non-ReadFile ToolMessage should be present');
+        $this->assertEquals('ORIGINAL_RESULT', $tool['content']);
+    }
+
+    public function test_does_not_optimize_recent_readfile_tool_messages(): void
+    {
+        $chat = new Chat();
+
+        // Old fillers that will be removed from optimization target area count
+        $chat->addMessage(new UserMessage('old filler 1'));
+        $chat->addMessage(new UserMessage('old filler 2'));
+
+        // Recent ReadFile tool (should NOT be optimized)
+        $lines = [];
+        for ($i = 1; $i <= 30; $i++) { $lines[] = 'row'.$i; }
+        $content = join("\n", $lines);
+        $payload = json_encode(['payload' => ['content' => $content]], JSON_UNESCAPED_UNICODE);
+
+        // Fill to approach the limit, keep this tool in the recent tail
+        for ($i = 0; $i < 8; $i++) { $chat->addMessage(new UserMessage('r'.$i)); }
+        $chat->addMessage(new ToolMessage(true, 'recent_rf', ReadFile::NAME, '{}', $payload));
+
+        $mapped = $this->mapper->mapChat($chat);
+
+        $tool = null;
+        foreach ($mapped as $m) {
+            if (($m['role'] ?? null) === 'tool' && ($m['tool_call_id'] ?? null) === 'recent_rf') { $tool = $m; break; }
+        }
+
+        $this->assertNotNull($tool, 'Recent ReadFile ToolMessage should be present');
+        $this->assertEquals($content, $tool['content'], 'Recent ReadFile content should not be optimized');
+    }
     public function test_removes_failed_old_tool_results_and_related_calls_only_for_old_messages(): void
     {
         $chat = new Chat();

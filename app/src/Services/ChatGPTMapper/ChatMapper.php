@@ -145,9 +145,11 @@ class ChatMapper implements MessageMapper
         }
 
         $slice = array_slice($chat->getMessages(), 0, $oldMessagesCount);
+        $oldToolsIds = [];
 
         foreach ($slice as $message) {
             if ($message instanceof ToolMessage) {
+                $oldToolsIds[] = $message->id;
                 if ($message->success === false) {
                     $wrongFunctionCalls[] = $message->id;
                 }
@@ -158,7 +160,7 @@ class ChatMapper implements MessageMapper
             if ($message instanceof ToolMessage) {
                 if (in_array($message->id, $wrongFunctionCalls)) {
                     continue;
-                } else {
+                } else if (in_array($message->id, $oldToolsIds)) {
                     foreach ($this->toolOptimisers as $optimiser) {
                         if($optimiser->supports($message)) {
                             $message = $optimiser->optimize($message);

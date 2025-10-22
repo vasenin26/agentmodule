@@ -18,12 +18,17 @@ class ReadFileOptimization implements ToolResultOptimizationInterface
     {
         $result = $message->result;
         $data = json_decode($result, true);
-        $content = $data["content"];
+        $payload = $data["payload"] ?? [];
+        $content = $payload["content"] ?? '';
 
-        $explode = explode("\n", $content);
-        $fullLength = count($explode);
-        $slice = array_slice($explode, 0, 50);
-        $length = count($slice);
+        if ($content === '') {
+            return $message; // nothing to optimize
+        }
+
+        $lines = explode("\n", $content);
+        $fullLength = count($lines);
+        $slice = array_slice($lines, 0, 50);
+        $shown = count($slice);
         $cutContent = join("\n", $slice);
 
         return new ToolMessage(
@@ -31,10 +36,17 @@ class ReadFileOptimization implements ToolResultOptimizationInterface
             $message->id,
             $message->name,
             $message->args,
-            "This is cut content of file."
-            . " These are the first 10 of 100 lines.\n"
-            . "``` $cutContent ``` \n"
-            . "read file again for getting full content"
+            json_encode([
+                    'message' => 'Optimized file',
+                    'payload' => [
+                        'content' =>
+                            "This is cut content of file."
+                            . " These are the first {$shown} of {$fullLength} lines.\n"
+                            . "``` $cutContent ``` \n"
+                            . "read file again for getting full content"
+                    ]
+                ]
+            )
         );
     }
 }
