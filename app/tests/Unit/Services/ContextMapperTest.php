@@ -2,15 +2,13 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services;
 
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatContextMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Container\TaskList;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatContextMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
-use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Interface\Conversation;
 
 class ContextMapperTest extends TestCase

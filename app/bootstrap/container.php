@@ -1,5 +1,8 @@
 <?php
 
+use Anymodule\Agentmodule\Application\AgentMeta;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Processor\OpenAiResultProcessor;
 use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ActionsFactory,
     ChatAgentFactory,
@@ -7,9 +10,7 @@ use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ConversationFactory,
     PageContextProviderFactory,
     TaskProcessorFactory,
-    ToolServiceFactory
-};
-use Anymodule\Agentmodule\Application\AgentMeta;
+    ToolServiceFactory};
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
@@ -26,8 +27,6 @@ use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
-    ChatGPTMapper\Interface\OpenAIMessageProcessorInterface,
-    ChatGPTMapper\Processor\OpenAiResultProcessor,
     RepositoryService\RepositoryProvider,
     Summary\Interface\SummaryAgentFactoryInterface,
     Summary\SummaryCompressor,

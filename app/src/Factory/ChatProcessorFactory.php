@@ -3,13 +3,13 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatContextMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ContextConversationProcessorInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatContextMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Services\OpenAIChat\ChatProcessor;
 use Anymodule\Agentmodule\Services\OpenAIChat\ContextConversationProcessor;

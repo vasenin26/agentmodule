@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\ChatMapper;
-use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Chat;
