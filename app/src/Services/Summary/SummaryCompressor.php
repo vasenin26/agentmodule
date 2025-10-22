@@ -3,13 +3,13 @@
 namespace Anymodule\Agentmodule\Services\Summary;
 
 use Anymodule\Agentmodule\Application\Conversation\ConversationSlice;
-use Anymodule\Agentmodule\Application\Messages\SliceMessage;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
+use Vasenin26\Conversation\Messages\SliceMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\UserTaskMessage;
 

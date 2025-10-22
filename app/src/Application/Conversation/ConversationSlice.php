@@ -2,11 +2,13 @@
 
 namespace Anymodule\Agentmodule\Application\Conversation;
 
+use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Interface\MessageLinkInterface;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\ServiceMessage;
+use Vasenin26\Conversation\Messages\SliceMessage;
 
 class ConversationSlice implements Conversation
 {
@@ -17,6 +19,32 @@ class ConversationSlice implements Conversation
     )
     {
         $this->slice = new Chat();
+    }
+
+    public static function slice(Conversation $chat): ConversationSlice
+    {
+        Log::info("Create conversation slice");
+
+        $slice = new self($chat);
+        $lastSlicePosition = 0;
+
+        foreach ($chat->getMessages() as $idx => $message) {
+            if($message instanceof SliceMessage) {
+                $lastSlicePosition = $idx;
+            }
+        }
+
+        Log::info("Conversation last slice index: {$lastSlicePosition}");
+
+        foreach ([...$chat->getInstructions(), ...$chat->getServices()] as $idx => $message) {
+            $slice->push($message);
+        }
+
+        foreach (array_slice($chat->getMessages(), $lastSlicePosition) as $message) {
+            $slice->push($message);
+        }
+
+        return $slice;
     }
 
     public function push(Message $message): void
