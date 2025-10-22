@@ -36,11 +36,11 @@ class ConversationSlice implements Conversation
 
         Log::info("Conversation last slice index: {$lastSlicePosition}");
 
-        foreach ([...$chat->getInstructions(), ...$chat->getServices()] as $idx => $message) {
+        foreach ([...iterator_to_array($chat->getInstructions()), ...iterator_to_array($chat->getServices())] as $idx => $message) {
             $slice->push($message);
         }
 
-        foreach (array_slice($chat->getMessages(), $lastSlicePosition) as $message) {
+        foreach (array_slice(iterator_to_array($chat->getMessages()), $lastSlicePosition) as $message) {
             $slice->push($message);
         }
 

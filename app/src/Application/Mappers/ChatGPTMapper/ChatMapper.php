@@ -29,7 +29,7 @@ use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatMapper implements MessageMapper
 {
-    const LAST_MESSAGES_LIMIT = 10;
+    const ANY_MESSAGE_ALIVE_LIMIT = 20;
 
     const SHORT_TIME_LIVE_MESSAGES = [
         AddTasks::NAME,
@@ -151,7 +151,7 @@ class ChatMapper implements MessageMapper
         $optimisedCounter = 0;
         $removedAssistantMessagesCounter = 0;
 
-        $oldMessagesCount = count($chat->getMessages()) - self::LAST_MESSAGES_LIMIT;
+        $oldMessagesCount = count($chat->getMessages()) - self::ANY_MESSAGE_ALIVE_LIMIT;
 
         if ($oldMessagesCount <= 0) {
             return $chat;

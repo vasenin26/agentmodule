@@ -5,7 +5,6 @@ namespace Anymodule\Agentmodule\Factory;
 use Anymodule\Agentmodule\Application\Conversation\ConversationSlice;
 use Anymodule\Agentmodule\Application\Conversation\HandledConversation;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
-use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Factory\ConversationFactory as Vasenin26ConversationFactory;
 use Vasenin26\Conversation\Interface\Conversation;
 

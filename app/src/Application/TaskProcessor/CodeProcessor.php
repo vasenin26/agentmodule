@@ -23,7 +23,7 @@ final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\T
     const CODE_WORK_PROMPT = <<<YYY
 Complete the work according to the current task list.
 Mark tasks as completed after completion. 
-Use `tasks-complete` for mark task completed.
+Use tool `tasks-complete` for mark task completed.
 Save the task description after completion.
 YYY;
 
