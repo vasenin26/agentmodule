@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
@@ -13,6 +14,7 @@ use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\GitFileMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\SystemMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Services\ChatGPTMapper\Mappers\UserMapper;
+use Anymodule\Agentmodule\Services\ChatGPTMapper\Optimizators\ReadFileOptimization;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
 use OpenAI\Responses\Chat\CreateResponse;
@@ -26,6 +28,7 @@ class ChatMapper implements MessageMapper
     const LAST_MESSAGES_LIMIT = 10;
 
     private $mappers = [];
+    private $toolOptimisers = [];
 
     public function __construct(
         private OpenAIMessageProcessorInterface $AIMessageProcessor,
@@ -43,6 +46,10 @@ class ChatMapper implements MessageMapper
             new GitFileMapper($repositoryProvider),
         ];
 
+        $this->toolOptimisers = [
+            new ReadFileOptimization()
+        ];
+
         if ($toolsService !== null) {
             $this->mappers[] = new CallToolMapper($toolsService);
         }
@@ -50,7 +57,7 @@ class ChatMapper implements MessageMapper
 
     public function mapChat(Conversation $chat): array
     {
-        $chat = $this->forgotWrongFunctionCalls($chat);
+        $chat = $this->optimizeOldToolCalls($chat);
         $messages = $this->processMessages($chat);
 
         return $messages;
@@ -126,7 +133,7 @@ class ChatMapper implements MessageMapper
         } while (next($clone));
     }
 
-    private function forgotWrongFunctionCalls(Conversation $chat): Conversation
+    private function optimizeOldToolCalls(Conversation $chat): Conversation
     {
         $wrongFunctionCalls = [];
         $result = new Chat();
@@ -151,6 +158,13 @@ class ChatMapper implements MessageMapper
             if ($message instanceof ToolMessage) {
                 if (in_array($message->id, $wrongFunctionCalls)) {
                     continue;
+                } else {
+                    foreach ($this->toolOptimisers as $optimiser) {
+                        if($optimiser->supports($message)) {
+                            $message = $optimiser->optimize($message);
+                            break;
+                        }
+                    }
                 }
             }
 
