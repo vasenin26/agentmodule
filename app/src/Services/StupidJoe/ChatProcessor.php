@@ -30,6 +30,6 @@ class ChatProcessor implements ChatProcessorInterface
 
     public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
-        return $this->stupidProcessorService->generateResponse($tools, 'chat', $chat);
+        return $this->stupidProcessorService->generateResponse($tools, $this->modelMeta, $chat);
     }
 }

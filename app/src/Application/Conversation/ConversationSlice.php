@@ -39,7 +39,11 @@ class ConversationSlice implements Conversation
         Log::info("Conversation last slice index: {$lastSlicePosition}");
 
         foreach ($chat->getMessages() as $message) {
-            if ($message instanceof UserTaskMessage || $message instanceof SystemMessage) {
+            if (
+                $message instanceof SystemMessage or
+                $message instanceof ServiceMessage or
+                $message instanceof UserTaskMessage
+            ) {
                 $slice->push($message);
             }
         }

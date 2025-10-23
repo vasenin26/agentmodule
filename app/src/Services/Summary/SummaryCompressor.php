@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
+use Vasenin26\Conversation\Messages\ServiceMessage;
 use Vasenin26\Conversation\Messages\SliceMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\UserTaskMessage;
@@ -31,6 +32,7 @@ final readonly class SummaryCompressor implements ConversationCompressorInterfac
         foreach ($conversation->getMessages() as $message) {
             if (
                 $message instanceof SystemMessage or
+                $message instanceof ServiceMessage or
                 $message instanceof UserTaskMessage
             ) {
                 $compressed->push($message);
