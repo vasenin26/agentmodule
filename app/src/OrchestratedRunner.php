@@ -80,7 +80,7 @@ final class OrchestratedRunner
             $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'processing');
 
             // Создать handler для обработки результата
-            $handler = new DocsModule($this->api, $agentUuid, $task);
+            $handler = new DocsModule($this->api, $agentUuid, $task->id);
             
             // Обработать задачу через соответствующий процессор
             $this->processorFactory->createProcessorForTask($task)

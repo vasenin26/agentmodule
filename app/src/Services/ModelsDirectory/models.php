@@ -11,7 +11,7 @@ return [
     ],
     'gpt-5' => [
         'name' => 'gpt-5',
-        'context' => 400_000
+        'context' => 150_000
     ],
     'gpt-5-mini' => [
         'name' => 'gpt-5-mini',
@@ -19,7 +19,7 @@ return [
     ],
     'gpt-5-nano' => [
         'name' => 'gpt-5-nano',
-        'context' => 400_000,
+        'context' => 150_000,
     ],
     'gpt-4.1' => [
         'name' => 'gpt-4.1',
