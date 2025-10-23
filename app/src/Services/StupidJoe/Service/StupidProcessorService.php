@@ -7,21 +7,21 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 
 class StupidProcessorService
 {
-    public function generateResponse(?ToolsProviderInterface $tools, string $context = 'general'): StupidResult
+    public function generateResponse(?ToolsProviderInterface $tools, string $context = 'general', mixed $contextData = null): StupidResult
     {
         // Генерируем случайную белеберду
         $nonsense = $this->generateNonsense($context);
         
-        // Возвращаем результат с случайным количеством токенов
-        $sent = rand(10, 100);
-        $received = rand(5, 50);
-        $total = $sent + $received;
-        
         // С вероятностью 70% вызываем случайный инструмент
         $toolCalls = [];
-        if ($tools && rand(1, 100) <= 98) {
+        if ($tools && rand(1, 100) <= 70) {
             $toolCalls = $this->generateRandomToolCall($tools, $context);
         }
+        
+        // Вычисляем реальное количество токенов на основе контекста
+        $sent = $this->calculateSentTokens($contextData);
+        $received = $this->calculateReceivedTokens($nonsense, $toolCalls);
+        $total = $sent + $received;
         
         return new StupidResult($nonsense, $sent, $received, $total, $toolCalls);
     }
@@ -146,5 +146,35 @@ class StupidProcessorService
             'неразборчиво',
             'какая-то фигня'
         ];
+    }
+    
+    private function calculateSentTokens(mixed $contextData): int
+    {
+        if ($contextData === null) {
+            return rand(10, 100); // Fallback к случайному значению
+        }
+        
+        // Сериализуем контекст здесь, а не в процессоре
+        $serializedContext = json_encode($contextData);
+        $charCount = strlen($serializedContext);
+        
+        // Примерное соотношение: 1 токен ≈ 4 символа для русского текста
+        return max(1, intval($charCount / 4));
+    }
+    
+    private function calculateReceivedTokens(string $nonsense, array $toolCalls): int
+    {
+        // Подсчитываем токены в ответе
+        $responseText = $nonsense;
+        
+        // Добавляем токены от вызовов инструментов
+        foreach ($toolCalls as $toolCall) {
+            $responseText .= ' ' . $toolCall['name'] . ' ' . $toolCall['arguments'];
+        }
+        
+        $charCount = strlen($responseText);
+        
+        // Примерное соотношение: 1 токен ≈ 4 символа для русского текста
+        return max(1, intval($charCount / 4));
     }
 }

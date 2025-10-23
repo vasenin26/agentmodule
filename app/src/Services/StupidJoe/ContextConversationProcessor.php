@@ -31,6 +31,6 @@ class ContextConversationProcessor implements ContextConversationProcessorInterf
 
     public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
     {
-        return $this->stupidProcessorService->generateResponse($tools, 'general');
+        return $this->stupidProcessorService->generateResponse($tools, 'general', $contextConversation);
     }
 }
