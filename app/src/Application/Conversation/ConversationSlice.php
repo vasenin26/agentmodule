@@ -9,6 +9,8 @@ use Vasenin26\Conversation\Interface\MessageLinkInterface;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\ServiceMessage;
 use Vasenin26\Conversation\Messages\SliceMessage;
+use Vasenin26\Conversation\Messages\SystemMessage;
+use Vasenin26\Conversation\Messages\UserTaskMessage;
 
 class ConversationSlice implements Conversation
 {
@@ -29,15 +31,17 @@ class ConversationSlice implements Conversation
         $lastSlicePosition = 0;
 
         foreach ($chat->getMessages() as $idx => $message) {
-            if($message instanceof SliceMessage) {
+            if ($message instanceof SliceMessage) {
                 $lastSlicePosition = $idx;
             }
         }
 
         Log::info("Conversation last slice index: {$lastSlicePosition}");
 
-        foreach ([...iterator_to_array($chat->getInstructions()), ...iterator_to_array($chat->getServices())] as $idx => $message) {
-            $slice->push($message);
+        foreach ($chat->getMessages() as $message) {
+            if ($message instanceof UserTaskMessage || $message instanceof SystemMessage) {
+                $slice->push($message);
+            }
         }
 
         foreach (array_slice(iterator_to_array($chat->getMessages()), $lastSlicePosition) as $message) {

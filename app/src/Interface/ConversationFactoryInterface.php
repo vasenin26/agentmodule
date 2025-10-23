@@ -8,4 +8,5 @@ interface ConversationFactoryInterface
 {
     public function fromMessages(array $messages): Conversation;
     public function handledConversation(array $messages, ProcessHandlerInterface $handler): Conversation;
+    public function slicedConversation(array $messages): Conversation;
 }

@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Interface;
 
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
-use Anymodule\Agentmodule\Entity\ContextConversation;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 
 interface ChatProcessorFactoryInterface
