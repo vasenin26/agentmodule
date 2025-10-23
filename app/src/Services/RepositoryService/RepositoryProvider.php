@@ -37,18 +37,22 @@ class RepositoryProvider implements GitRepoProviderInterface
             $git = new Git();
 
             if (is_dir($fullPath)) {
+                Log::info("Open repository $fullPath");
                 $repo = $git->open($fullPath);
             } else {
+                Log::info("Clone repository $url to $fullPath");
                 $repo = $git->cloneRepository($url, $fullPath);
             }
 
             if (!$this->branch || ($repo->getCurrentBranchName() === $this->branch)) {
                 try {
+                    Log::info("Pull $this->branch");
                     $repo->pull();
                 } catch (GitException $e) {
                     Log::info($e->getMessage());
                 }
             } else {
+                Log::info("Create branch $this->branch");
                 $repo->createBranch($this->branch, true);
             }
 
