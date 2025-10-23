@@ -19,7 +19,7 @@ class StupidProcessorService
         
         // С вероятностью 70% вызываем случайный инструмент
         $toolCalls = [];
-        if ($tools && rand(1, 100) <= 70) {
+        if ($tools && rand(1, 100) <= 98) {
             $toolCalls = $this->generateRandomToolCall($tools, $context);
         }
         
@@ -102,9 +102,8 @@ class StupidProcessorService
             }
         }
         
-        // С вероятностью 50% добавляем необязательные параметры
         foreach ($properties as $paramName => $paramMeta) {
-            if (!in_array($paramName, $required) && rand(1, 100) <= 50) {
+            if (!in_array($paramName, $required) && rand(1, 100) <= 98) {
                 $args[$paramName] = $this->generateRandomValue($paramMeta, $context);
             }
         }

@@ -11,7 +11,7 @@ use Anymodule\Agentmodule\Services\GigaChat\Interface\GigaChatMapperInterface;
 use Anymodule\Agentmodule\Services\GigaChat\Interface\GigaClientInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Utils\Log;
-use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 
 class GigaProcessor implements ChatProcessorInterface
 {
@@ -33,7 +33,7 @@ class GigaProcessor implements ChatProcessorInterface
         return $this->modelMeta;
     }
 
-    public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+    public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
         $messages = $this->mapper->mapChat($chat);
 

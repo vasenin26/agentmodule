@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Entity\ModelMeta;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService;
-use Vasenin26\Conversation\Chat;
+use Vasenin26\Conversation\Interface\Conversation;
 
 class ChatProcessor implements ChatProcessorInterface
 {
@@ -28,7 +28,7 @@ class ChatProcessor implements ChatProcessorInterface
         return $this->modelMeta;
     }
 
-    public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+    public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
         return $this->stupidProcessorService->generateResponse($tools, 'chat');
     }

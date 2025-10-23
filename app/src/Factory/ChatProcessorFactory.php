@@ -33,6 +33,11 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
 
         $modelMeta = $this->modelsProvider->get($modelName);
 
+        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
+            $modelMeta,
+            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+        );
+
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
             ->withBaseUri($apiHost)
@@ -57,6 +62,11 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
 
         $modelMeta = $this->modelsProvider->get('summary');
 
+        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
+            $modelMeta,
+            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+        );
+
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
             ->withBaseUri($apiHost)
@@ -76,11 +86,18 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
 
     public function createContextProcessor(ToolsProviderInterface $tools): ContextConversationProcessorInterface
     {
+
+
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
 
         $modelName = getenv('OPENAI_MODEL');
         $modelMeta = $this->modelsProvider->get($modelName);
+
+        return new \Anymodule\Agentmodule\Services\StupidJoe\ContextConversationProcessor(
+            $modelMeta,
+            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+        );
 
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
