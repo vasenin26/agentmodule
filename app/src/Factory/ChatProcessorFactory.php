@@ -25,7 +25,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
     {
     }
 
-    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ChatProcessorInterface
+    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface
     {
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
@@ -49,13 +49,13 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             $modelMeta,
             new ChatMapper(
                 $this->openAIMessageProcessor,
-                $repoProvider,
+                $repositoryProvider,
                 $tools
             )
         );
     }
 
-    public function createSummaryProcessor(): ChatProcessorInterface
+    public function createSummaryProcessor(GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface
     {
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
@@ -78,16 +78,14 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             $modelMeta,
             new ChatMapper(
                 $this->openAIMessageProcessor,
-                $this->repoProvider,
+                $repositoryProvider,
                 null
             )
         );
     }
 
-    public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextConversationProcessorInterface
+    public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface
     {
-
-
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
 
@@ -112,7 +110,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
                 $this->openAIMessageProcessor,
                 new ChatMapper(
                     $this->openAIMessageProcessor,
-                    $repoProvider,
+                    $repositoryProvider,
                     null
                 )
             )

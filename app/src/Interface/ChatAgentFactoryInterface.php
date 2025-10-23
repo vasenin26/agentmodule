@@ -8,7 +8,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 
 interface ChatAgentFactoryInterface
 {
-    public function createAgent(ToolsProviderInterface $tools): ActionContract;
+    public function createAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ActionContract;
 
-    public function createContextAgent(ToolsProviderInterface $tools): ContextActionContract;
+    public function createContextAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract;
 }

@@ -57,7 +57,6 @@ TTT;
             reposFolder: $this->getTmpTaskFolder($task),
         );
 
-
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($repositoryProvider);
 
         if ($task->projectId) {
@@ -71,7 +70,7 @@ TTT;
             $task,
             [
                 'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
-                'plane-tasks' => $this->actionsFactory->createTaskPlanner(new AddTasks($taskStorage), $toolsBuilder->build()),
+                'plane-tasks' => $this->actionsFactory->createTaskPlanner(new AddTasks($taskStorage), $toolsBuilder->build(), $repositoryProvider),
             ]
         )->run($conversation);
 

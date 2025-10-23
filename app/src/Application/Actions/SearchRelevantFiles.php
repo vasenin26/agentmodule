@@ -64,7 +64,7 @@ EIO;
                 new AddFileToList($fileList),
             ])->build();
 
-        $agent = $this->chatAgentFactory->createAgent($tools);
+        $agent = $this->chatAgentFactory->createAgent($tools, $this->repoProvider);
         $generator = $agent->execute($chat);
 
         yield new ProcessingResult(

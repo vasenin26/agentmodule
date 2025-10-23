@@ -30,11 +30,11 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
             $this->chatFactory,
             $this->toolsFactory,
             new ActionInformation(),
-            $repoProvider
+            $repoProvider,
         );
     }
 
-    public function createTaskPlanner(ToolInterface $addTasksTool, ToolsProviderInterface $availableTools): ActionContract
+    public function createTaskPlanner(ToolInterface $addTasksTool, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract
     {
         $availableToolsDescription = [];
 
@@ -54,6 +54,7 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
             $addTasksTool,
             $availableToolsDescription,
             new ActionInformation(),
+            $repoProvider,
         );
     }
 }

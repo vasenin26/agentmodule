@@ -67,7 +67,7 @@ final class TextProcessor implements TaskProcessor
 
         $tools = $toolsBuilder->withTools([$contentTool])->build();
 
-        $agent = $this->chatFactory->createAgent($tools);
+        $agent = $this->chatFactory->createAgent($tools, $repositoryProvider);
         $generator = $agent->execute($chat);
 
         foreach ($generator as $processingResult) {

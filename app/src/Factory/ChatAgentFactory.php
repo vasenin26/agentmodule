@@ -23,28 +23,28 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, Summ
     {
     }
 
-    public function createAgent(ToolsProviderInterface $tools): ActionContract
+    public function createAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         return new ChatAgent(
-            $this->processorFactory->createMainProcessor($tools),
+            $this->processorFactory->createMainProcessor($tools, $repositoryProvider),
             $this->compressor,
             $tools
         );
     }
 
-    public function createSummaryAgent(): ActionContract
+    public function createSummaryAgent(GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         return new ChatAgent(
-            $this->processorFactory->createSummaryProcessor(),
+            $this->processorFactory->createSummaryProcessor($repositoryProvider),
             new BrokenCompressor(),
             null
         );
     }
 
-    public function createContextAgent(ToolsProviderInterface $tools): ContextActionContract
+    public function createContextAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract
     {
         return new ContextAgent(
-            $this->processorFactory->createContextProcessor($tools),
+            $this->processorFactory->createContextProcessor($tools, $repositoryProvider),
             $this->compressor,
             $tools
         );

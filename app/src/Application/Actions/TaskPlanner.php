@@ -7,8 +7,10 @@ use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Log;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Vasenin26\Conversation\Chat;
@@ -56,7 +58,8 @@ PROMPT;
         private ToolServiceFactoryInterface $toolServiceFactory,
         private ToolInterface               $addTasksTool,
         private array                       $availableTools,
-        private ActionInformation           $actionInformationMapper
+        private ActionInformation           $actionInformationMapper,
+        private GitRepoProviderInterface    $repoProvider,
     )
     {
     }
@@ -82,7 +85,7 @@ PROMPT;
                 $this->addTasksTool
             ])->build();
 
-        $agent = $this->chatAgentFactory->createAgent($tools);
+        $agent = $this->chatAgentFactory->createAgent($tools, $this->repoProvider);
         $generator = $agent->execute($chat);
 
         yield new ProcessingResult(

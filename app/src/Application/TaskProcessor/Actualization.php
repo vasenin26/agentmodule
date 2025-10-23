@@ -76,7 +76,7 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
     private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         $tools = $this->getTools($task, $updateTool, $repositoryProvider);
-        return new ProcessChat($this->chatAgentFactory->createAgent($tools));
+        return new ProcessChat($this->chatAgentFactory->createAgent($tools, $repositoryProvider));
     }
 
     private function getTools(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ToolsProviderService

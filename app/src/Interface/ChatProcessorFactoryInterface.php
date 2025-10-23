@@ -10,9 +10,9 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 interface ChatProcessorFactoryInterface
 {
 
-    public function createMainProcessor(ToolsProviderInterface $tools): ChatProcessorInterface;
+    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface;
 
-    public function createSummaryProcessor(): ChatProcessorInterface;
+    public function createSummaryProcessor(GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface;
 
-    public function createContextProcessor(ToolsProviderInterface $tools): ContextConversationProcessorInterface;
+    public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface;
 }
