@@ -154,11 +154,11 @@ class ReplaceInFile implements ToolInterface
                         ],
                         'pattern' => [
                             'type' => 'string',
-                            'description' => 'Exact string to search for. Will be replaced with the replacement text. For method chaining patterns (starting with ->), leading whitespace is automatically preserved. Example: "->orderBy(\'created_at\', \'desc\')" to find and replace method calls.',
+                            'description' => 'Exact string to search for. No escaping of special characters required.',
                         ],
                         'replacement' => [
                             'type' => 'string',
-                            'description' => 'Replacement text. For method chaining patterns (starting with ->), leading whitespace is automatically preserved. For other patterns, use exact replacement text.',
+                            'description' => 'Replacement text. No escaping of special characters required.',
                         ],
                     ],
                     'required' => ['url', 'path', 'pattern', 'replacement'],
