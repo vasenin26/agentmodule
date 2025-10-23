@@ -47,6 +47,8 @@ If the technical plan contains unsupported actions, break them into smaller supp
 Record all tasks exclusively via the function `tasks-add`.  
 Output only one function call to `tasks-add`, containing all tasks in its `titles` array.  
 Do not include any additional text, comments, or explanations.
+
+Say Ok when all needed tasks was added.
 PROMPT;
 
     public function __construct(
