@@ -3,7 +3,7 @@
 return [
     'llm-studio' => [
         'name' => 'llm-studio',
-        'context' => 15000
+        'context' => 10000
     ],
     'summary' => [
         'name' => 'gpt-4.1',

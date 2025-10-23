@@ -85,7 +85,7 @@ class ConversationSlice implements Conversation
 
     public function getServices(): \Generator
     {
-        return $this->slice->getServices();
+        return $this->conversation->getServices();
     }
 
     public function serialize(): array
