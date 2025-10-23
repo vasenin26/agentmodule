@@ -33,10 +33,10 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
 
         $modelMeta = $this->modelsProvider->get($modelName);
 
-        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
-            $modelMeta,
-            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
-        );
+//        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
+//            $modelMeta,
+//            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+//        );
 
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
@@ -62,10 +62,10 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
 
         $modelMeta = $this->modelsProvider->get('summary');
 
-        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
-            $modelMeta,
-            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
-        );
+//        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
+//            $modelMeta,
+//            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+//        );
 
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
