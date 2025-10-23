@@ -29,6 +29,7 @@ INT;
         foreach ($this->tasks as $task) {
             $status = 'todo';
 
+            $id = $task['id'] ?? null;
             $title = $task['title'] ?? null;
             $done = $task['done'] ?? false;
 
@@ -45,7 +46,7 @@ INT;
                 $status = 'current';
             }
 
-            $list[] = "- [$status] $title";
+            $list[] = "- [id: $id] [$status] $title";
         }
 
         return [
