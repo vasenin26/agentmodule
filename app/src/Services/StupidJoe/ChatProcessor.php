@@ -2,16 +2,15 @@
 
 namespace Anymodule\Agentmodule\Services\StupidJoe;
 
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
-use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;
-use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\ModelMeta;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService;
+use Vasenin26\Conversation\Chat;
 
-class ContextConversationProcessor implements ContextConversationProcessorInterface
+class ChatProcessor implements ChatProcessorInterface
 {
-
     public function __construct(
         private ModelMeta $modelMeta,
         private StupidProcessorService $stupidProcessorService,
@@ -29,8 +28,8 @@ class ContextConversationProcessor implements ContextConversationProcessorInterf
         return $this->modelMeta;
     }
 
-    public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
+    public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
     {
-        return $this->stupidProcessorService->generateResponse($tools, 'general');
+        return $this->stupidProcessorService->generateResponse($tools, 'chat');
     }
 }
