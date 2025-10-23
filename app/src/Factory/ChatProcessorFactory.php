@@ -94,10 +94,10 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         $modelName = getenv('OPENAI_MODEL');
         $modelMeta = $this->modelsProvider->get($modelName);
 
-        return new \Anymodule\Agentmodule\Services\StupidJoe\ContextConversationProcessor(
-            $modelMeta,
-            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
-        );
+//        return new \Anymodule\Agentmodule\Services\StupidJoe\ContextConversationProcessor(
+//            $modelMeta,
+//            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
+//        );
 
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
