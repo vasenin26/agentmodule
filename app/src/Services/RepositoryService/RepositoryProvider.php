@@ -46,14 +46,23 @@ class RepositoryProvider implements GitRepoProviderInterface
 
             if (!$this->branch || ($repo->getCurrentBranchName() === $this->branch)) {
                 try {
-                    Log::info("Pull $this->branch");
-                    $repo->pull();
+                    if (!$repo->hasChanges()) {
+                        Log::info("Pull $this->branch");
+                        $repo->pull();
+                    } else {
+                        Log::info("Repo has changes");
+                    }
                 } catch (GitException $e) {
                     Log::info($e->getMessage());
                 }
             } else {
-                Log::info("Create branch $this->branch");
-                $repo->createBranch($this->branch, true);
+                if (in_array($this->branch, $repo->getBranches() ?? [])) {
+                    Log::info("Checkout branch $this->branch");
+                    $repo->checkout($this->branch);
+                } else {
+                    Log::info("Create branch $this->branch");
+                    $repo->createBranch($this->branch, true);
+                }
             }
 
         } catch (\Exception $exception) {
