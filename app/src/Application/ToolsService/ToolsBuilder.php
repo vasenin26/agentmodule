@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Application\ToolsService;
 
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 
 class ToolsBuilder
@@ -30,29 +31,29 @@ class ToolsBuilder
         ]);
     }
 
-    public function withGit(string $prefix = 'git'): ToolsBuilder
+    public function withGit(GitRepoProviderInterface $repoProvider): ToolsBuilder
     {
         return $this->withTools([
-            $this->toolsFactory->gitReadFile(),
-            $this->toolsFactory->gitReadFileLines(),
-            $this->toolsFactory->gitGrepFile(),
-            $this->toolsFactory->gitSearchFileByName(),
-            $this->toolsFactory->gitReadDir(),
-            $this->toolsFactory->gitAnalyzeStructure(),
-            $this->toolsFactory->gitGetDependencies(),
-            $this->toolsFactory->gitSearchPattern(),
-            $this->toolsFactory->gitFindConfigFiles(),
-            $this->toolsFactory->gitAnalyzeClasses(),
+            $this->toolsFactory->gitReadFile($repoProvider),
+            $this->toolsFactory->gitReadFileLines($repoProvider),
+            $this->toolsFactory->gitGrepFile($repoProvider),
+            $this->toolsFactory->gitSearchFileByName($repoProvider),
+            $this->toolsFactory->gitReadDir($repoProvider),
+            $this->toolsFactory->gitAnalyzeStructure($repoProvider),
+            $this->toolsFactory->gitGetDependencies($repoProvider),
+            $this->toolsFactory->gitSearchPattern($repoProvider),
+            $this->toolsFactory->gitFindConfigFiles($repoProvider),
+            $this->toolsFactory->gitAnalyzeClasses($repoProvider),
         ]);
     }
 
-    public function withEditor(string $prefix = 'editor'): ToolsBuilder
+    public function withEditor(GitRepoProviderInterface $repoProvider, string $prefix = 'editor'): ToolsBuilder
     {
         return $this->withTools([
-            $this->toolsFactory->editorEditFile(),
-            $this->toolsFactory->editorReplaceInFile(),
-//            $this->toolsFactory->editorInsertOrReplace(),
-            $this->toolsFactory->editorChangeLine(),
+            $this->toolsFactory->editorEditFile($repoProvider),
+            $this->toolsFactory->editorReplaceInFile($repoProvider),
+            $this->toolsFactory->editorInsertOrReplace($repoProvider),
+            $this->toolsFactory->editorChangeLine($repoProvider),
         ]);
     }
 
@@ -65,17 +66,17 @@ class ToolsBuilder
         ]);
     }
 
-    public function withRepoManagement(string $prefix = 'git'): ToolsBuilder
+    public function withRepoManagement(GitRepoProviderInterface $repoProvider, string $prefix = 'git'): ToolsBuilder
     {
         return $this->withTools([
-            $this->toolsFactory->gitGetCurrentBranch(),
-            $this->toolsFactory->gitPull(),
-            $this->toolsFactory->gitResetHard(),
-            $this->toolsFactory->gitAddFile(),
-            $this->toolsFactory->gitUnstageFile(),
-            $this->toolsFactory->gitCommit(),
-            $this->toolsFactory->gitPush(),
-            $this->toolsFactory->gitGetStatus(),
+            $this->toolsFactory->gitGetCurrentBranch($repoProvider),
+            $this->toolsFactory->gitPull($repoProvider),
+            $this->toolsFactory->gitResetHard($repoProvider),
+            $this->toolsFactory->gitAddFile($repoProvider),
+            $this->toolsFactory->gitUnstageFile($repoProvider),
+            $this->toolsFactory->gitCommit($repoProvider),
+            $this->toolsFactory->gitPush($repoProvider),
+            $this->toolsFactory->gitGetStatus($repoProvider),
         ]);
     }
 

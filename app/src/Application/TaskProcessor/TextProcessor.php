@@ -17,6 +17,7 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
@@ -37,9 +38,13 @@ final class TextProcessor implements TaskProcessor
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
+        $repositoryProvider = new RepositoryProvider(
+            branch: null
+        );
+
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
-            $toolsBuilder->withGit();
+            $toolsBuilder->withGit($repositoryProvider);
         }
 
         $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
@@ -50,7 +55,7 @@ final class TextProcessor implements TaskProcessor
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
             ]
         )->run($chat);
 

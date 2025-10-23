@@ -55,7 +55,7 @@ PROMPT;
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
         private ToolInterface               $addTasksTool,
-        private array                       $awailableTools,
+        private array                       $availableTools,
         private ActionInformation           $actionInformationMapper
     )
     {
@@ -78,7 +78,6 @@ PROMPT;
 
         $fileList = [];
         $tools = $this->toolServiceFactory->createToolsBuilder()
-            ->withGit()
             ->withTools([
                 $this->addTasksTool
             ])->build();
@@ -129,7 +128,7 @@ PROMPT;
     {
         $roleWithToolsList = self::ROLE
             . "\n\n```json\n"
-            . json_encode($this->awailableTools, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            . json_encode($this->availableTools, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
             . "\n```";
 
         return new SystemMessage($roleWithToolsList);

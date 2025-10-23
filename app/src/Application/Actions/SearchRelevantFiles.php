@@ -6,6 +6,7 @@ use Anymodule\Agentmodule\Application\Tools\Utils\AddFileToList;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
@@ -36,6 +37,7 @@ EIO;
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
         private ActionInformation           $actionInformationMapper,
+        private GitRepoProviderInterface    $repoProvider
     )
     {
     }
@@ -57,7 +59,7 @@ EIO;
 
         $fileList = [];
         $tools = $this->toolServiceFactory->createToolsBuilder()
-            ->withGit()
+            ->withGit($this->repoProvider)
             ->withTools([
                 new AddFileToList($fileList),
             ])->build();

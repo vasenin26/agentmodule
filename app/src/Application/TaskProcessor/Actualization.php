@@ -15,10 +15,12 @@ use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
@@ -40,15 +42,19 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $tokenCounter = new TokenCounter();
 
+        $repositoryProvider = new RepositoryProvider(
+            branch: null
+        );
+
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
             ]
         )->run($conversation);
 
         $updateTool = new UpdateArticle();
-        $defaultProcessor = $this->getDefaultChatProcessor($task, $updateTool);
+        $defaultProcessor = $this->getDefaultChatProcessor($task, $updateTool, $repositoryProvider);
 
         foreach ($defaultProcessor->execute($conversation) as $result) {
             if ($result->completed) {
@@ -67,13 +73,13 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
         ));
     }
 
-    private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool): ActionContract
+    private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
-        $tools = $this->getTools($task, $updateTool);
+        $tools = $this->getTools($task, $updateTool, $repositoryProvider);
         return new ProcessChat($this->chatAgentFactory->createAgent($tools));
     }
 
-    private function getTools(Task $task, ToolInterface $updateTool): ToolsProviderService
+    private function getTools(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ToolsProviderService
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
 
@@ -82,7 +88,7 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
 
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);
-            $toolsBuilder->withGit();
+            $toolsBuilder->withGit($repositoryProvider);
         }
 
         $toolsBuilder->withTools([

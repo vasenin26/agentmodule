@@ -51,6 +51,7 @@ TTT;
         $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context($task->context['tasks'] ?? []));
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $workBranch = $this->getTaskBranch($task);
+
         $repositoryProvider = new RepositoryProvider(
             branch: $workBranch,
             reposFolder: $this->getTmpTaskFolder($task),
@@ -63,13 +64,13 @@ TTT;
             $toolsBuilder->withProject($task->projectId);
         }
 
-        $toolsBuilder->withGit();
+        $toolsBuilder->withGit($repositoryProvider);
         $toolsBuilder->withTasks($taskStorage);
 
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles(),
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
                 'plane-tasks' => $this->actionsFactory->createTaskPlanner(new AddTasks($taskStorage), $toolsBuilder->build()),
             ]
         )->run($conversation);
@@ -87,15 +88,15 @@ TTT;
         );
 
         $tools = $toolsBuilder->withTools([$contentTool])
-            ->withRepoManagement()
-            ->withEditor()
+            ->withRepoManagement($repositoryProvider)
+            ->withEditor($repositoryProvider)
             ->build();
 
         $context = new Context(
             $taskStorage->list()
         );
 
-        $agent = $this->chatFactory->createContextAgent($tools);
+        $agent = $this->chatFactory->createContextAgent($tools, $repositoryProvider);
 
         do {
             $finished = true;

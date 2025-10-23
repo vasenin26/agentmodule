@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Interface;
 
 
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 
 interface ChatAgentFactoryInterface

@@ -25,7 +25,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
     {
     }
 
-    public function createMainProcessor(ToolsProviderInterface $tools): ChatProcessorInterface
+    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ChatProcessorInterface
     {
         $apiHost = getenv('OPENAI_API_HOST');
         $apiKey = getenv('OPENAI_API_KEY');
@@ -49,7 +49,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
             $modelMeta,
             new ChatMapper(
                 $this->openAIMessageProcessor,
-                $this->repoProvider,
+                $repoProvider,
                 $tools
             )
         );
@@ -84,7 +84,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         );
     }
 
-    public function createContextProcessor(ToolsProviderInterface $tools): ContextConversationProcessorInterface
+    public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextConversationProcessorInterface
     {
 
 
@@ -112,7 +112,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
                 $this->openAIMessageProcessor,
                 new ChatMapper(
                     $this->openAIMessageProcessor,
-                    $this->repoProvider,
+                    $repoProvider,
                     null
                 )
             )

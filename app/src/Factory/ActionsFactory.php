@@ -7,6 +7,7 @@ use Anymodule\Agentmodule\Application\Actions\TaskPlanner;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
@@ -23,12 +24,13 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
     {
     }
 
-    public function createSearchRelevantFiles(): ActionContract
+    public function createSearchRelevantFiles(GitRepoProviderInterface $repoProvider): ActionContract
     {
         return new SearchRelevantFiles(
             $this->chatFactory,
             $this->toolsFactory,
             new ActionInformation(),
+            $repoProvider
         );
     }
 

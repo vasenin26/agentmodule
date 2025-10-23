@@ -62,55 +62,55 @@ class ToolsFactory
         return new CurrentTime();
     }
 
-    public function gitReadFile(): ToolInterface
+    public function gitReadFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ReadFile($this->gitRepoProvider);
+        return new ReadFile($repositoryProvider);
     }
 
-    public function gitReadFileLines(): ToolInterface
+    public function gitReadFileLines(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ReadFileLines($this->gitRepoProvider);
+        return new ReadFileLines($repositoryProvider);
     }
 
-    public function gitGrepFile(): ToolInterface
+    public function gitGrepFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new GrepFile($this->gitRepoProvider);
+        return new GrepFile($repositoryProvider);
     }
 
-    public function gitSearchFileByName(): ToolInterface
+    public function gitSearchFileByName(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new SearchFileByName($this->gitRepoProvider);
+        return new SearchFileByName($repositoryProvider);
     }
 
-    public function gitReadDir(): ToolInterface
+    public function gitReadDir(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ReadDir($this->gitRepoProvider);
+        return new ReadDir($repositoryProvider);
     }
 
     // Новые Git утилиты
-    public function gitAnalyzeStructure(): ToolInterface
+    public function gitAnalyzeStructure(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new AnalyzeStructure($this->gitRepoProvider);
+        return new AnalyzeStructure($repositoryProvider);
     }
 
-    public function gitGetDependencies(): ToolInterface
+    public function gitGetDependencies(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new GetDependencies($this->gitRepoProvider);
+        return new GetDependencies($repositoryProvider);
     }
 
-    public function gitSearchPattern(): ToolInterface
+    public function gitSearchPattern(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new SearchPattern($this->gitRepoProvider);
+        return new SearchPattern($repositoryProvider);
     }
 
-    public function gitFindConfigFiles(): ToolInterface
+    public function gitFindConfigFiles(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new FindConfigFiles($this->gitRepoProvider);
+        return new FindConfigFiles($repositoryProvider);
     }
 
-    public function gitAnalyzeClasses(): ToolInterface
+    public function gitAnalyzeClasses(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new AnalyzeClasses($this->gitRepoProvider);
+        return new AnalyzeClasses($repositoryProvider);
     }
 
     // Page утилиты (требуют projectId)
@@ -157,24 +157,24 @@ class ToolsFactory
     }
 
     // Editor утилиты
-    public function editorEditFile(): ToolInterface
+    public function editorEditFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new EditFile($this->gitRepoProvider);
+        return new EditFile($repositoryProvider);
     }
 
-    public function editorReplaceInFile(): ToolInterface
+    public function editorReplaceInFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ReplaceInFile($this->gitRepoProvider);
+        return new ReplaceInFile($repositoryProvider);
     }
 
-    public function editorInsertOrReplace(): ToolInterface
+    public function editorInsertOrReplace(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new InsertOrReplace($this->gitRepoProvider);
+        return new InsertOrReplace($repositoryProvider);
     }
 
-    public function editorChangeLine(): ToolInterface
+    public function editorChangeLine(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ChangeLine($this->gitRepoProvider);
+        return new ChangeLine($repositoryProvider);
     }
 
     public function tasksList(TaskStorageInterface $tasksStorage): ToolInterface
@@ -193,43 +193,43 @@ class ToolsFactory
     }
 
     // Repo Management утилиты
-    public function gitGetCurrentBranch(): ToolInterface
+    public function gitGetCurrentBranch(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new GetCurrentBranch($this->gitRepoProvider);
+        return new GetCurrentBranch($repositoryProvider);
     }
 
-    public function gitPull(): ToolInterface
+    public function gitPull(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new Pull($this->gitRepoProvider);
+        return new Pull($repositoryProvider);
     }
 
-    public function gitResetHard(): ToolInterface
+    public function gitResetHard(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ResetHard($this->gitRepoProvider);
+        return new ResetHard($repositoryProvider);
     }
 
-    public function gitAddFile(): ToolInterface
+    public function gitAddFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new AddFile($this->gitRepoProvider);
+        return new AddFile($repositoryProvider);
     }
 
-    public function gitUnstageFile(): ToolInterface
+    public function gitUnstageFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new UnstageFile($this->gitRepoProvider);
+        return new UnstageFile($repositoryProvider);
     }
 
-    public function gitCommit(): ToolInterface
+    public function gitCommit(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new Commit($this->gitRepoProvider);
+        return new Commit($repositoryProvider);
     }
 
-    public function gitPush(): ToolInterface
+    public function gitPush(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new Push($this->gitRepoProvider);
+        return new Push($repositoryProvider);
     }
 
-    public function gitGetStatus(): ToolInterface
+    public function gitGetStatus(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new GetStatus($this->gitRepoProvider);
+        return new GetStatus($repositoryProvider);
     }
 }
