@@ -2,16 +2,9 @@
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
-use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\Actions\ProcessChat;
-use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
-use Anymodule\Agentmodule\Application\Tools\CatchContent;
-use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
-use Anymodule\Agentmodule\Application\Tools\Utils\UpdateArticle;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTask;
-use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTechplane;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
-use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
@@ -20,12 +13,9 @@ use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
-use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
-use Anymodule\Agentmodule\Utils\TokenCounter;
 
 final class TaskGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
