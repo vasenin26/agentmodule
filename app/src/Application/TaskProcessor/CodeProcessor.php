@@ -107,7 +107,7 @@ TTT;
 
             $generator = $agent->execute(new ContextConversation(
                 $context,
-                $conversation,
+                $conversation->conversation,
             ));
 
             foreach ($generator as $processingResult) {

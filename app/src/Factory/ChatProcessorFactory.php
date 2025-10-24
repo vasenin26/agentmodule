@@ -20,7 +20,6 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
     public function __construct(
         private OpenAIMessageProcessorInterface $openAIMessageProcessor,
         private ModelsProvider                  $modelsProvider,
-        private GitRepoProviderInterface        $repoProvider,
     )
     {
     }

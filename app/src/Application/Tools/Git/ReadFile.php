@@ -21,7 +21,7 @@ class ReadFile implements ToolInterface
     //read file from git repository
     public function execute(array $args): ?ToolResult
     {
-        list('url' => $url, 'path' => $path) = $args;
+        list('url' => $url, 'path' => $path, 'line' => $line) = $args + ['line' => true];
 
         Log::info('Read path: ' . $path);
         Log::info('Read url: ' . $url);
@@ -33,6 +33,17 @@ class ReadFile implements ToolInterface
 
         if ($content === false) {
             return new ToolResult(false, 'File not found: ' . $path, ['code' => 'FILE_NOT_FOUND']);
+        }
+
+        if($line) {
+            $lines = explode("\n", $content);
+            $result = [];
+
+            foreach ($lines as $idx => $line) {
+                $result[] = 'L' . ($idx+1) . ':' . $line;
+            }
+
+            $content = join("\n", $result);
         }
 
         return new ToolResult(true, 'Git: read file ok', [
@@ -58,7 +69,11 @@ class ReadFile implements ToolInterface
                         'path' => [
                             'type' => 'string',
                             'description' => 'Path to file',
-                        ]
+                        ],
+                        'line' => [
+                            'type' => 'boolean',
+                            'description' => 'If true, prepend each line with its 1-based line number.',
+                        ],
                     ],
                     'required' => ['url', 'path'],
                 ]

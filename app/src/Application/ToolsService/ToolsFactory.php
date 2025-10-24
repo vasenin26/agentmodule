@@ -5,7 +5,9 @@ namespace Anymodule\Agentmodule\Application\ToolsService;
 
 use Anymodule\Agentmodule\Application\Tools\CurrentTime;
 use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
+use Anymodule\Agentmodule\Application\Tools\Editor\DeleteLines;
 use Anymodule\Agentmodule\Application\Tools\Editor\EditFile;
+use Anymodule\Agentmodule\Application\Tools\Editor\InsertLines;
 use Anymodule\Agentmodule\Application\Tools\Editor\InsertOrReplace;
 use Anymodule\Agentmodule\Application\Tools\Editor\ReplaceInFile;
 use Anymodule\Agentmodule\Application\Tools\Git\AnalyzeClasses;
@@ -175,6 +177,16 @@ class ToolsFactory
     public function editorChangeLine(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
         return new ChangeLine($repositoryProvider);
+    }
+
+    public function editorDeleteLines(GitRepoProviderInterface $repositoryProvider): ToolInterface
+    {
+        return new DeleteLines($repositoryProvider);
+    }
+
+    public function editorInsertLines(GitRepoProviderInterface $repositoryProvider): ToolInterface
+    {
+        return new InsertLines($repositoryProvider);
     }
 
     public function tasksList(TaskStorageInterface $tasksStorage): ToolInterface

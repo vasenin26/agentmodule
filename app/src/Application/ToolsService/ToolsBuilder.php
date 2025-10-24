@@ -26,8 +26,8 @@ class ToolsBuilder
             $this->toolsFactory->pageGetProjectPages($projectId),
             $this->toolsFactory->pageGetHierarchyTree($projectId),
             $this->toolsFactory->pageGetRelatedPages($projectId),
-            $this->toolsFactory->pageGetActualizationInfo($projectId),
-            $this->toolsFactory->pageGetTaskHistory($projectId),
+//            $this->toolsFactory->pageGetActualizationInfo($projectId),
+//            $this->toolsFactory->pageGetTaskHistory($projectId),
         ]);
     }
 
@@ -43,17 +43,19 @@ class ToolsBuilder
             $this->toolsFactory->gitGetDependencies($repoProvider),
             $this->toolsFactory->gitSearchPattern($repoProvider),
             $this->toolsFactory->gitFindConfigFiles($repoProvider),
-            $this->toolsFactory->gitAnalyzeClasses($repoProvider),
+//            $this->toolsFactory->gitAnalyzeClasses($repoProvider),
         ]);
     }
 
     public function withEditor(GitRepoProviderInterface $repoProvider, string $prefix = 'editor'): ToolsBuilder
     {
         return $this->withTools([
-            $this->toolsFactory->editorEditFile($repoProvider),
-            $this->toolsFactory->editorReplaceInFile($repoProvider),
-            $this->toolsFactory->editorInsertOrReplace($repoProvider),
+            $this->toolsFactory->editorDeleteLines($repoProvider),
             $this->toolsFactory->editorChangeLine($repoProvider),
+//            $this->toolsFactory->editorEditFile($repoProvider),
+            $this->toolsFactory->editorInsertLines($repoProvider),
+//            $this->toolsFactory->editorReplaceInFile($repoProvider),
+            $this->toolsFactory->editorInsertOrReplace($repoProvider),
         ]);
     }
 

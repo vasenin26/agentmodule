@@ -10,6 +10,9 @@ use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\C
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\{ReplaceInFileToolMapper};
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\EditFileToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\InsertOrReplaceToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\ChangeLineToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\DeleteLinesToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Editor\InsertLinesToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Git\{AnalyzeStructureToolMapper,
     RepoManagement\ResetHardToolMapper};
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Git\AnalyzeClassesToolMapper;
@@ -86,6 +89,9 @@ class ToolMapper implements MessageMapperInterface
             new ResetHardToolMapper(),
             new UnstageFileToolMapper(),
             new EditFileToolMapper(),
+            new ChangeLineToolMapper(),
+            new DeleteLinesToolMapper(),
+            new InsertLinesToolMapper(),
             new AnalyzeClassesToolMapper(),
             new GetAttachedFilesToolMapper(),
             new GetActualizationInfoToolMapper(),
