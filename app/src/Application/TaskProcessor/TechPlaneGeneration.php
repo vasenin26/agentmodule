@@ -5,8 +5,10 @@ namespace Anymodule\Agentmodule\Application\TaskProcessor;
 use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\Actions\ProcessChat;
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
+use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateArticle;
+use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTechplane;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
@@ -24,7 +26,7 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
-final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
@@ -39,13 +41,12 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
 
     public function supports(Task $task): bool
     {
-        return $task->type === 'actualization';
+        return $task->type === 'tech';
     }
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
-        $tokenCounter = new TokenCounter();
 
         $repositoryProvider = new RepositoryProvider(
             branch: null
@@ -58,24 +59,19 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
             ]
         )->run($conversation);
 
-        $updateTool = new UpdateArticle();
-        $defaultProcessor = $this->getDefaultChatProcessor($task, $updateTool, $repositoryProvider);
+        $contentTool = new CatchContent(
+            'store-techplane',
+            'Сохраняет технический план в хранилище.',
+            'Техплан сохранён.',
+        );
+
+        $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
         foreach ($defaultProcessor->execute($conversation) as $result) {
-            if ($result->completed) {
-                $tokenCounter->combine($result);
+            if ($contentTool->hasContent()) {
+                $processHandler->handle($result->withAnswer($contentTool->getContent()));
             }
         }
-
-        $processHandler->handle(new ProcessingResult(
-            true,
-            $updateTool->getContent(),
-            $conversation,
-            null,
-            null,
-            0,
-            ...$tokenCounter->get()
-        ));
     }
 
     private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ActionContract
@@ -87,9 +83,6 @@ final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskP
     private function getTools(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ToolsProviderService
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
-
-        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->conversationId);
-        $toolsBuilder->withTasks($taskStorage);
 
         if ($task->projectId) {
             $toolsBuilder->withProject($task->projectId);

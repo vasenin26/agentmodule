@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
+use Anymodule\Agentmodule\Application\TaskProcessor\TechPlaneGeneration;
 use Anymodule\Agentmodule\Application\TaskProcessor\TextProcessor;
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
@@ -16,6 +17,8 @@ use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface
 {
+    private array $processors = [];
+
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
         private ChatAgentFactoryInterface    $chatFactory,
@@ -25,32 +28,63 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         private ActionsFactoryInterface      $actionsFactory,
     )
     {
+        $this->processors = [
+            $this->createCodeProcessor(),
+            $this->createActualizationProcessor(),
+            $this->createTechplaneProcessor(),
+            $this->createTextProcessor()
+        ];
     }
 
     public function createProcessorForTask(\Anymodule\Agentmodule\Entity\Task $task): TaskProcessor
     {
-        if ($task->type == 'code') {
-            return new CodeProcessor(
-                $this->toolsFactory,
-                $this->chatFactory,
-                $this->conversationFactory,
-                $this->taskStorageProvider,
-                $this->actionRunnerFactory,
-                $this->actionsFactory,
-            );
+        foreach ($this->processors as $processor) {
+            if ($processor->supports($task)) {
+                return $processor;
+            }
         }
 
-        if ($task->type == 'actualization') {
-            return new Actualization(
-                $this->toolsFactory,
-                $this->conversationFactory,
-                $this->taskStorageProvider,
-                $this->chatFactory,
-                $this->actionRunnerFactory,
-                $this->actionsFactory,
-            );
-        }
+        throw new \Exception('Task not supported');
+    }
 
+    private function createCodeProcessor(): TaskProcessor
+    {
+        return new CodeProcessor(
+            $this->toolsFactory,
+            $this->chatFactory,
+            $this->conversationFactory,
+            $this->taskStorageProvider,
+            $this->actionRunnerFactory,
+            $this->actionsFactory,
+        );
+    }
+
+    private function createActualizationProcessor(): TaskProcessor
+    {
+        return new Actualization(
+            $this->toolsFactory,
+            $this->conversationFactory,
+            $this->taskStorageProvider,
+            $this->chatFactory,
+            $this->actionRunnerFactory,
+            $this->actionsFactory,
+        );
+    }
+
+    private function createTechplaneProcessor(): TaskProcessor
+    {
+        return new TechPlaneGeneration(
+            $this->toolsFactory,
+            $this->conversationFactory,
+            $this->taskStorageProvider,
+            $this->chatFactory,
+            $this->actionRunnerFactory,
+            $this->actionsFactory,
+        );
+    }
+
+    private function createTextProcessor(): TaskProcessor
+    {
         return new TextProcessor(
             $this->toolsFactory,
             $this->chatFactory,

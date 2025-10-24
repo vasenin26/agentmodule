@@ -46,6 +46,11 @@ TTT;
     {
     }
 
+    public function supports(Task $task): bool
+    {
+        return $task->type === 'code';
+    }
+
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context($task->context['tasks'] ?? []));

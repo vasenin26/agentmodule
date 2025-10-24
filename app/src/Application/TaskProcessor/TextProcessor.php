@@ -34,6 +34,11 @@ final class TextProcessor implements TaskProcessor
     {
     }
 
+    public function supports(Task $task): bool
+    {
+        return true;
+    }
+
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $toolsBuilder = $this->toolsFactory->createToolsBuilder();
