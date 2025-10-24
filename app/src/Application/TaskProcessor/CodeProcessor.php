@@ -79,7 +79,7 @@ TTT;
             ]
         )->run($conversation);
 
-        $needAnswer = $this->hasNoUserAnswer($conversation);
+        $needAnswer = $conversation->hasNoUserAnswer();
 
         if (!$needAnswer) {
             $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
@@ -142,19 +142,5 @@ TTT;
     private function getTaskBranch(Task $task): string
     {
         return 'agent/task' . $task->conversationId;
-    }
-
-    private function hasNoUserAnswer(\Vasenin26\Conversation\Interface\Conversation $conversation): bool
-    {
-        $messages = $conversation->getMessages();
-
-        if (empty($messages)) {
-            return false;
-        }
-
-        $lastElementArray = array_slice($messages, -1);
-        $lastElement = $lastElementArray[0];
-
-        return $lastElement instanceof UserMessage;
     }
 }

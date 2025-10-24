@@ -16,9 +16,17 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
+use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final class TaskGenerationProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
+
+    const TASK_PROMPT = <<<TTT
+Тебе нужно собрать необходимую информацию и сохранить в хранилище описание задачи и заголовок.
+Сохрани полное описание задачи в хранилище. 
+После успешного сохранения в хранилище, напиши короткую сводку о сохранённой задаче.
+TTT;
+
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
         private ConversationFactoryInterface $conversationFactory,
@@ -51,12 +59,18 @@ final class TaskGenerationProcessor implements \Anymodule\Agentmodule\Interface\
 
         $contentTool = new UpdateTask();
 
+        if (!$conversation->hasNoUserAnswer()) {
+            $conversation->addMessage(new DisappearingMessage(self::TASK_PROMPT));
+        }
+
         $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
-        foreach ($defaultProcessor->execute($conversation) as $result) {
+        foreach ($defaultProcessor->execute($conversation->conversation) as $result) {
             if ($contentTool->hasContent()) {
                 $processHandler->handle($result->withAnswer($contentTool->getContent()));
                 $contentTool->flush();
+            } else {
+                $processHandler->handle($result);
             }
         }
     }

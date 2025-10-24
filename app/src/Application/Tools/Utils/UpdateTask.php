@@ -9,6 +9,7 @@ class UpdateTask implements ToolInterface
 {
     const NAME = 'update-article';
 
+
     private ?string $title = null;
     private ?string $content = null;
 

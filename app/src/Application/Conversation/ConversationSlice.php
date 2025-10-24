@@ -92,4 +92,9 @@ class ConversationSlice implements Conversation
     {
         return $this->conversation->serialize();
     }
+
+    public function hasNoUserAnswer(): bool
+    {
+        return $this->conversation->hasNoUserAnswer();
+    }
 }

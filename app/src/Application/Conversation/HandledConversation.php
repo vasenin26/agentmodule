@@ -13,7 +13,7 @@ use Vasenin26\Conversation\Messages\ServiceMessage;
 class HandledConversation implements Conversation
 {
     public function __construct(
-        private Conversation             $conversation,
+        public readonly Conversation     $conversation,
         private ?ProcessHandlerInterface $handler,
     )
     {
@@ -69,5 +69,10 @@ class HandledConversation implements Conversation
                 totalTokens: 0
             ));
         }
+    }
+
+    public function hasNoUserAnswer(): bool
+    {
+        return $this->conversation->hasNoUserAnswer();
     }
 }
