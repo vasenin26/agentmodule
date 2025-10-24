@@ -84,7 +84,7 @@ class ChangeLine implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Replace content in a specific line of a file or replace entire file content.',
+                'description' => 'Replace the content of a specific line in a file with new content (optimal for targeted edits).',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -98,11 +98,11 @@ class ChangeLine implements ToolInterface
                         ],
                         'content' => [
                             'type' => 'string',
-                            'description' => 'New content to write to the file',
+                            'description' => 'New content to write into the specified line (replaces existing content of that line).',
                         ],
                         'line' => [
                             'type' => 'number',
-                            'description' => 'Target line number to replace. If not provided, replaces entire file content.',
+                            'description' => 'Target line number to replace (1-based index).',
                         ]
                     ],
                     'required' => ['url', 'path', 'content', 'line'],

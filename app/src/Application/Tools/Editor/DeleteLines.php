@@ -12,7 +12,8 @@ class DeleteLines implements ToolInterface
 
     public function __construct(
         private GitRepoProviderInterface $repoProvider
-    ) {
+    )
+    {
     }
 
     public function execute(array $args): ?ToolResult
@@ -58,7 +59,7 @@ class DeleteLines implements ToolInterface
             if ($originalContent === $newContent) {
                 // Удаляем резервную копию, так как изменений не было
                 unlink($backupPath);
-                
+
                 return new ToolResult(true, 'No changes made to file', [
                     'file_path' => $path,
                     'lines_deleted' => 0,
@@ -73,7 +74,7 @@ class DeleteLines implements ToolInterface
                 // Восстанавливаем файл из резервной копии в случае ошибки
                 copy($backupPath, $fullFilePath);
                 unlink($backupPath);
-                
+
                 return new ToolResult(false, 'Failed to write content to file: ' . $path, ['code' => 'WRITE_FAILED']);
             }
 
@@ -100,13 +101,13 @@ class DeleteLines implements ToolInterface
     {
         $lines = explode("\n", $content);
         $totalLines = count($lines);
-        
+
         // Сортируем номера строк в убывающем порядке для корректного удаления
         $sortedLineNumbers = array_unique($lineNumbers);
         rsort($sortedLineNumbers);
-        
+
         $deletedCount = 0;
-        
+
         foreach ($sortedLineNumbers as $lineNumber) {
             // Проверяем, что номер строки валидный (1-based)
             if ($lineNumber >= 1 && $lineNumber <= $totalLines) {
@@ -116,7 +117,7 @@ class DeleteLines implements ToolInterface
                 $totalLines--; // Уменьшаем общее количество строк
             }
         }
-        
+
         return implode("\n", $lines);
     }
 
@@ -133,7 +134,7 @@ class DeleteLines implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Delete specific lines from a file by their 1-based line numbers. Lines are deleted in reverse order to maintain correct line numbers.',
+                'description' => "Delete specific lines from a file by their 1-based line numbers",
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [

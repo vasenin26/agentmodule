@@ -152,38 +152,44 @@ class InsertLines implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Insert or replace lines into a file at a specific 1-based line number with different insertion modes: before, after, or replace.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'url' => [
-                            'type' => 'string',
-                            'description' => 'Git repository URL',
-                        ],
-                        'path' => [
-                            'type' => 'string',
-                            'description' => 'Path to the target file within the repository',
-                        ],
-                        'lines' => [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'string'
-                            ],
-                            'description' => 'Array of lines to insert into the file',
-                        ],
-                        'line_number' => [
-                            'type' => 'integer',
-                            'description' => '1-based line number where to insert the lines',
-                        ],
-                        'insert_mode' => [
-                            'type' => 'string',
-                            'description' => 'Insertion mode: before (insert before the line), after (insert after the line), replace (replace the line with first new line, then insert remaining lines after)',
-                            'enum' => ['before', 'after', 'replace'],
-                            'default' => 'after'
-                        ]
+                'description' => <<<DDD
+Insert or replace lines in a file at a specific 1-based line number. 
+Choose an insertion mode: 
+- "before" to insert before the line;
+- "after" to insert after; 
+- "replace" replace the specified line with all new lines, inserting them in place of the original line;
+DDD,
+                'properties' => [
+                    'url' => [
+                        'type' => 'string',
+                        'description' => 'Git repository URL.',
                     ],
-                    'required' => ['url', 'path', 'lines', 'line_number'],
-                ]
+                    'path' => [
+                        'type' => 'string',
+                        'description' => 'Path to the target file within the repository.',
+                    ],
+                    'lines' => [
+                        'type' => 'array',
+                        'items' => ['type' => 'string'],
+                        'description' => 'Array of lines to insert; each element is a separate line in the file.',
+                    ],
+                    'line_number' => [
+                        'type' => 'integer',
+                        'description' => '1-based line number where to insert the lines.',
+                    ],
+                    'insert_mode' => [
+                        'type' => 'string',
+                        'enum' => ['before', 'after', 'replace'],
+                        'default' => 'after',
+                        'description' => <<<MMM
+Insertion mode: 
+- "before" inserts lines before the specified line; 
+- "after" inserts lines after;
+- "replace" replace the specified line with all new lines, inserting them in place of the original line;
+MMM,
+                    ],
+                ],
+                'required' => ['url', 'path', 'lines', 'line_number'],
             ]
         ];
     }

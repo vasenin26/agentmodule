@@ -106,7 +106,7 @@ class EditFile implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Edit file in repository',
+                'description' => 'Replaces the entire content of the file with new content. This operation is not recommended for large files due to performance and memory limitations.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [

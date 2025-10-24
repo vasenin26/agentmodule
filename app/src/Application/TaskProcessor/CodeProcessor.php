@@ -68,14 +68,24 @@ TTT;
             $toolsBuilder->withProject($task->projectId);
         }
 
-        $toolsBuilder->withGit($repositoryProvider);
-        $toolsBuilder->withTasks($taskStorage);
+        $contentTool = new CatchContent(
+            'store-description',
+            'Saves a description of the work done.',
+            'Result success stored to storage',
+        );
+
+        $tools = $toolsBuilder->withGit($repositoryProvider)
+            ->withTasks($taskStorage)
+            ->withTools([$contentTool])
+            ->withRepoManagement($repositoryProvider)
+            ->withEditor($repositoryProvider)
+            ->build();
 
         $this->actionRunnerFactory->createForTask(
             $task,
             [
                 'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
-                'plane-tasks' => $this->actionsFactory->createTaskPlanner(new AddTasks($taskStorage), $toolsBuilder->build(), $repositoryProvider),
+                'plane-tasks' => $this->actionsFactory->createTaskPlanner($taskStorage, $tools, $repositoryProvider),
             ]
         )->run($conversation);
 
@@ -84,17 +94,6 @@ TTT;
         if (!$needAnswer) {
             $conversation->addMessage(new DisappearingMessage(self::CODE_WORK_PROMPT));
         }
-
-        $contentTool = new CatchContent(
-            'store-description',
-            'Saves a description of the work done.',
-            'Result success stored to storage',
-        );
-
-        $tools = $toolsBuilder->withTools([$contentTool])
-            ->withRepoManagement($repositoryProvider)
-            ->withEditor($repositoryProvider)
-            ->build();
 
         $context = new Context(
             $taskStorage->list()

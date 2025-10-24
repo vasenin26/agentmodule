@@ -21,7 +21,7 @@ class ReadFile implements ToolInterface
     //read file from git repository
     public function execute(array $args): ?ToolResult
     {
-        list('url' => $url, 'path' => $path, 'line' => $line) = $args + ['line' => true];
+        list('url' => $url, 'path' => $path, 'line' => $line) = $args + ['line' => false];
 
         Log::info('Read path: ' . $path);
         Log::info('Read url: ' . $url);

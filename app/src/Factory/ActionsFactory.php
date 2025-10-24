@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Actions\TaskPlanner;
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
@@ -34,7 +35,7 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
         );
     }
 
-    public function createTaskPlanner(ToolInterface $addTasksTool, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract
+    public function createTaskPlanner(TaskStorageInterface $taskStorage, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract
     {
         $availableToolsDescription = [];
 
@@ -51,7 +52,7 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
         return new TaskPlanner(
             $this->chatFactory,
             $this->toolsFactory,
-            $addTasksTool,
+            $taskStorage,
             $availableToolsDescription,
             new ActionInformation(),
             $repoProvider,
