@@ -17,7 +17,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 
-final class TaskGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+final class TaskGenerationProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,

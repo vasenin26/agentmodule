@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
+use Anymodule\Agentmodule\Application\TaskProcessor\TaskGenerationProcessor;
 use Anymodule\Agentmodule\Application\TaskProcessor\TechPlaneGeneration;
 use Anymodule\Agentmodule\Application\TaskProcessor\TextProcessor;
 use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
@@ -32,6 +33,7 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             $this->createCodeProcessor(),
             $this->createActualizationProcessor(),
             $this->createTechplaneProcessor(),
+            $this->createTaskDescriptionProcessor(),
             $this->createTextProcessor()
         ];
     }
@@ -76,7 +78,6 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
         return new TechPlaneGeneration(
             $this->toolsFactory,
             $this->conversationFactory,
-            $this->taskStorageProvider,
             $this->chatFactory,
             $this->actionRunnerFactory,
             $this->actionsFactory,
@@ -90,6 +91,17 @@ class TaskProcessorFactory implements TaskProcessorFactoryInterface
             $this->chatFactory,
             $this->conversationFactory,
             $this->taskStorageProvider,
+            $this->actionRunnerFactory,
+            $this->actionsFactory,
+        );
+    }
+
+    private function createTaskDescriptionProcessor(): TaskProcessor
+    {
+        return new TaskGenerationProcessor(
+            $this->toolsFactory,
+            $this->conversationFactory,
+            $this->chatFactory,
             $this->actionRunnerFactory,
             $this->actionsFactory,
         );
