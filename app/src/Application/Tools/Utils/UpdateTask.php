@@ -32,11 +32,11 @@ class UpdateTask implements ToolInterface
                     'properties' => [
                         'title' => [
                             'type' => 'string',
-                            'description' => 'Заголовок.',
+                            'description' => 'Заголовок без дополнительных сведений.',
                         ],
                         'content' => [
                             'type' => 'string',
-                            'description' => 'Данные для сохранения.',
+                            'description' => 'Описание задачи.',
                         ]
                     ]
                 ]
