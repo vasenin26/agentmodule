@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
 class UpdateTask implements ToolInterface
 {
-    const NAME = 'update-article';
+    const NAME = 'update-task';
 
 
     private ?string $title = null;
@@ -27,7 +27,7 @@ class UpdateTask implements ToolInterface
             'type' => 'function',
             'function' => [
                 'name' => $this->getName(),
-                'description' => 'Сохраняет содержимое задачи в хранилище. Если поле не заполнено значение для не будет обновлено в хранилище',
+                'description' => 'Сохраняет описание задачи в хранилище. Если поле не заполнено значение для не будет обновлено в хранилище',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
