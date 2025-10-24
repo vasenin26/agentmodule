@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\Actions\ProcessChat;
+use Anymodule\Agentmodule\Application\Actions\TipsProcessor;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTask;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\Task;
@@ -16,7 +17,6 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final class TaskGenerationProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
@@ -58,11 +58,6 @@ TTT;
         )->run($conversation);
 
         $contentTool = new UpdateTask();
-
-        if (!$conversation->hasNoUserAnswer()) {
-            $conversation->addMessage(new DisappearingMessage(self::TASK_PROMPT));
-        }
-
         $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
         foreach ($defaultProcessor->execute($conversation->conversation) as $result) {
@@ -78,7 +73,7 @@ TTT;
     private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         $tools = $this->getTools($task, $updateTool, $repositoryProvider);
-        return new ProcessChat($this->chatAgentFactory->createAgent($tools, $repositoryProvider));
+        return new TipsProcessor($this->chatAgentFactory->createAgent($tools, $repositoryProvider), self::TASK_PROMPT);
     }
 
     private function getTools(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ToolsProviderService

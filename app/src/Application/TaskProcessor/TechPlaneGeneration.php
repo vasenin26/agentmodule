@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Application\TaskProcessor;
 use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\Actions\ProcessChat;
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
+use Anymodule\Agentmodule\Application\Actions\TipsProcessor;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateArticle;
@@ -28,6 +29,14 @@ use Anymodule\Agentmodule\Utils\TokenCounter;
 
 final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
+
+    const TASK_PROMPT = <<<TTT
+Тебе нужно собрать необходимую информацию и сохранить в хранилище технический план (техплан).
+Сохрани полное описание техплана в хранилище используя `store-techplane`. 
+После успешного сохранения в хранилище, напиши короткую сводку о сохранённом техплане.
+TTT;
+
+
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
         private ConversationFactoryInterface $conversationFactory,
@@ -78,7 +87,7 @@ final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task
     private function getDefaultChatProcessor(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         $tools = $this->getTools($task, $updateTool, $repositoryProvider);
-        return new ProcessChat($this->chatAgentFactory->createAgent($tools, $repositoryProvider));
+        return new TipsProcessor($this->chatAgentFactory->createAgent($tools, $repositoryProvider), self::TASK_PROMPT);
     }
 
     private function getTools(Task $task, ToolInterface $updateTool, GitRepoProviderInterface $repositoryProvider): ToolsProviderService
