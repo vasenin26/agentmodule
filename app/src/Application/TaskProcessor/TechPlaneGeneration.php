@@ -66,9 +66,11 @@ final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task
 
         $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
-        foreach ($defaultProcessor->execute($conversation) as $result) {
+        foreach ($defaultProcessor->execute($conversation->conversation) as $result) {
             if ($contentTool->hasContent()) {
                 $processHandler->handle($result->withAnswer($contentTool->getContent()));
+            } else {
+                $processHandler->handle($result);
             }
         }
     }
