@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateArticle;
+use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTask;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTechplane;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
@@ -26,7 +27,7 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 
-final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
+final class TaskGeneration implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     public function __construct(
         private ToolServiceFactoryInterface  $toolsFactory,
@@ -40,7 +41,7 @@ final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task
 
     public function supports(Task $task): bool
     {
-        return $task->type === 'tech';
+        return $task->type === 'task';
     }
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
@@ -58,17 +59,14 @@ final class TechPlaneGeneration implements \Anymodule\Agentmodule\Interface\Task
             ]
         )->run($conversation);
 
-        $contentTool = new CatchContent(
-            'store-techplane',
-            'Сохраняет технический план в хранилище.',
-            'Техплан сохранён.',
-        );
+        $contentTool = new UpdateTask();
 
         $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
         foreach ($defaultProcessor->execute($conversation) as $result) {
             if ($contentTool->hasContent()) {
                 $processHandler->handle($result->withAnswer($contentTool->getContent()));
+                $contentTool->flush();
             }
         }
     }
