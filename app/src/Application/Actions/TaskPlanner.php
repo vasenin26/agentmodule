@@ -54,7 +54,6 @@ Your goal is to generate a list of **atomic, executable tasks** based on the pre
 - Break complex actions into smaller supported steps only if they can be fully mapped to tools.
 - Do not assume any implicit capabilities.
 
-IMPORTANT: Check task list with function call `get-task-list` before adding new tasks.
 Record all tasks **exclusively** via the `tasks-add` function.
 Output exactly **one** function call to `tasks-add` containing all task titles in its `titles` array.
 
