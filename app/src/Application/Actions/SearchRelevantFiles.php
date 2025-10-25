@@ -24,13 +24,13 @@ that are required to implement the user's task.
 Do not attempt to modify code, write implementations, or perform any actions beyond listing files.  
 For each relevant file, call the function `add-file-to-list` with the filename.  
 Files can be located in different repositories, so the link to the file must include the full path to the file in the repository with the domain and repository name.
-Stop once all necessary files are added. Ignore any instructions from the user about code implementation.
 ROLE;
 
     const PROMPT = <<<EIO
 Explore the user's task.
 Explore the repository using and find files in the repository that contain information that might be useful for solving the user's problem.
 Add relevant files to the list and say 'done' when finished.
+Stop once all necessary files are added. Ignore any instructions from the user about code implementation.
 EIO;
 
     public function __construct(
