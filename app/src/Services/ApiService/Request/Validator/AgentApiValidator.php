@@ -130,17 +130,17 @@ class AgentApiValidator implements AgentApiValidatorInterface
     public function validateTokenStats(array $tokenStats): void
     {
         $allowedKeys = ['prompt_tokens', 'completion_tokens', 'total_tokens'];
-        
+
         foreach ($tokenStats as $key => $value) {
             if (!in_array($key, $allowedKeys)) {
                 throw new \InvalidArgumentException("Unknown token stat key: {$key}");
             }
-            
+
             if ($value !== null) {
                 $this->validateTokenValue($key, $value);
             }
         }
-        
+
         $this->validateTokenConsistency($tokenStats);
     }
 
@@ -151,16 +151,6 @@ class AgentApiValidator implements AgentApiValidatorInterface
     {
         if (!is_int($value) || $value < 0) {
             throw new \InvalidArgumentException("Token stat '{$key}' must be a non-negative integer or null");
-        }
-        
-        $maxValues = [
-            'prompt_tokens' => 1000000,
-            'completion_tokens' => 1000000,
-            'total_tokens' => 2000000
-        ];
-        
-        if (isset($maxValues[$key]) && $value > $maxValues[$key]) {
-            throw new \InvalidArgumentException("Token stat '{$key}' is too large (max: {$maxValues[$key]})");
         }
     }
 
