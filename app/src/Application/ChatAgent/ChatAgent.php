@@ -13,7 +13,6 @@ use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Utils\Log;
-use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
@@ -34,6 +33,10 @@ class ChatAgent implements ActionContract
 
     public function execute(Conversation $conversation): \Generator
     {
+        $this->promptTokens = 0;
+        $this->completionTokens = 0;
+        $this->totalTokens = 0;
+
         $contextChat = $conversation;
         $compressed = false;
 
@@ -46,6 +49,7 @@ class ChatAgent implements ActionContract
 
                 break;
             } catch (ContextOverloadException $exception) {
+                Log::info("Context overloaded");
                 if ($compressed) {
                     throw new CompressorException(
                         'Failed to compress messages',
@@ -62,10 +66,6 @@ class ChatAgent implements ActionContract
 
     private function process(Conversation $conversation): \Generator
     {
-        $this->promptTokens = 0;
-        $this->completionTokens = 0;
-        $this->totalTokens = 0;
-
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
         $answer = null;

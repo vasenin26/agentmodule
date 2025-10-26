@@ -33,6 +33,10 @@ class ContextAgent implements ContextActionContract
 
     public function execute(ContextConversation $conversation): \Generator
     {
+        $this->promptTokens = 0;
+        $this->completionTokens = 0;
+        $this->totalTokens = 0;
+
         $compressed = false;
 
         do {
@@ -61,9 +65,6 @@ class ContextAgent implements ContextActionContract
 
     private function process(ContextConversation $contextConversation): \Generator
     {
-        $this->promptTokens = 0;
-        $this->completionTokens = 0;
-        $this->totalTokens = 0;
 
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
@@ -79,6 +80,8 @@ class ContextAgent implements ContextActionContract
             $contextConversation->conversation->addMessage($answerMessage);
 
             Log::info("LLM ok");
+
+            $this->calculateUsage($result->getTokenUsage());
 
             yield $this->prepareResult(false, $result, $answer, $contextConversation);
 
@@ -99,8 +102,6 @@ class ContextAgent implements ContextActionContract
                     $contextConversation->conversation->addMessage($toolResult);
                 }
             }
-
-            $this->calculateUsage($result->getTokenUsage());
 
             Log::info("Process handler");
 

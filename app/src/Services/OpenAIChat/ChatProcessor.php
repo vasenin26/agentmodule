@@ -61,6 +61,9 @@ class ChatProcessor implements ChatProcessorInterface
         $result = $this->messageMapper->prepareAssistantMessage($result);
         $usage = $result->getTokenUsage();
 
+        $context = $this->contextSize();
+        Log::info("Context: $context Usage:  $usage->sent / $usage->received / $usage->total");
+
         if ($usage->total > $this->contextSize()) {
             throw new ContextOverloadException();
         }
