@@ -43,7 +43,9 @@ class ActionRunner implements ActionRunnerInterface
                 $processHandler = $this->subtaskCreator->createSubtask($currentTask);
 
                 foreach ($taskProcessor->execute($conversation) as $result) {
-                    $link->setMessage($result->answer);
+                    if ($result->answer) {
+                        $link->setMessage($result->answer);
+                    }
 
                     if ($result->payload) {
                         $link->setPayload($result->payload);
