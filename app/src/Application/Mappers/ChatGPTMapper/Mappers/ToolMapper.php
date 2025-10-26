@@ -42,7 +42,6 @@ use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\P
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Tasks\{CompleteTaskToolMapper};
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Tasks\AddTasksToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Utils\{AddFileToListToolMapper};
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Utils\UpdateArticleToolMapper;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
@@ -82,7 +81,6 @@ class ToolMapper implements MessageMapperInterface
             new GetProjectPagesToolMapper(),
             new GetHierarchyTreeToolMapper(),
             new AnalyzeStructureToolMapper(),
-            new UpdateArticleToolMapper(),
             new GrepFileToolMapper(),
             new SearchPatternToolMapper(),
             new CompleteTaskToolMapper(),
