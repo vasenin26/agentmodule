@@ -68,7 +68,6 @@ class ContextAgent implements ContextActionContract
 
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
-        $answer = null;
         $finished = false;
 
         do {
@@ -83,13 +82,12 @@ class ContextAgent implements ContextActionContract
 
             $this->calculateUsage($result->getTokenUsage());
 
-            yield $this->prepareResult(false, $result, $answer, $contextConversation);
+            yield $this->prepareResult(false, $result, $contextConversation);
 
             $toolCalls = iterator_to_array($result->getToolCalls());
 
             if (empty($toolCalls)) {
                 Log::info("LLM finished");
-                $answer = $answerMessage->content;
                 $finished = true;
             } else {
                 foreach ($toolCalls as $toolCall) {
@@ -105,11 +103,11 @@ class ContextAgent implements ContextActionContract
 
             Log::info("Process handler");
 
-            yield $this->prepareResult(false, $result, $answer, $contextConversation);
+            yield $this->prepareResult(false, $result, $contextConversation);
 
         } while (!$finished);
 
-        yield $this->prepareResult(true, $result, $answer, $contextConversation);
+        yield $this->prepareResult(true, $result, $contextConversation);
     }
 
     private function calculateUsage(TokenUsage $usage): void
@@ -179,7 +177,7 @@ class ContextAgent implements ContextActionContract
     {
         return new ProcessingResult(
             $completed,
-            $answer,
+            null,
             $contextConversation->conversation,
             $contextConversation->context,
             $this->processor->getModelMeta()->name,

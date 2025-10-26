@@ -68,7 +68,6 @@ class ChatAgent implements ActionContract
     {
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
-        $answer = null;
         $finished = false;
 
         do {
@@ -81,13 +80,12 @@ class ChatAgent implements ActionContract
 
             Log::info("LLM ok");
 
-            yield $this->prepareResult(false, $result, $answer, $conversation);
+            yield $this->prepareResult(false, $result, $conversation);
 
             $toolCalls = iterator_to_array($result->getToolCalls());
 
             if (empty($toolCalls)) {
                 Log::info("LLM finished");
-                $answer = $answerMessage->content;
                 $finished = true;
             } else {
                 foreach ($toolCalls as $toolCall) {
@@ -105,11 +103,11 @@ class ChatAgent implements ActionContract
 
             Log::info("Process handler");
 
-            yield $this->prepareResult(false, $result, $answer, $conversation);
+            yield $this->prepareResult(false, $result, $conversation);
 
         } while (!$finished);
 
-        yield $this->prepareResult(true, $result, $answer, $conversation);
+        yield $this->prepareResult(true, $result, $conversation);
     }
 
     private function calculateUsage(TokenUsage $usage): void
@@ -181,7 +179,7 @@ class ChatAgent implements ActionContract
     {
         return new ProcessingResult(
             $completed,
-            $answer,
+            null,
             $conversation,
             null,
             $this->chatProcessor->getModelMeta()->name,
