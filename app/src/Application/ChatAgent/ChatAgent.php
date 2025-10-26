@@ -175,7 +175,7 @@ class ChatAgent implements ActionContract
         );
     }
 
-    private function prepareResult(bool $completed, ChatResultInterface $result, ?string $answer, Conversation $conversation): ProcessingResult
+    private function prepareResult(bool $completed, ChatResultInterface $result, Conversation $conversation): ProcessingResult
     {
         return new ProcessingResult(
             $completed,

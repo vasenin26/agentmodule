@@ -173,7 +173,7 @@ class ContextAgent implements ContextActionContract
         );
     }
 
-    private function prepareResult(bool $completed, ChatResultInterface $result, ?string $answer, ContextConversation $contextConversation): ProcessingResult
+    private function prepareResult(bool $completed, ChatResultInterface $result, ContextConversation $contextConversation): ProcessingResult
     {
         return new ProcessingResult(
             $completed,
