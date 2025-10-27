@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Processor;
+namespace Anymodule\Agentmodule\Services\OpenAIChat\Mapper;
 
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;

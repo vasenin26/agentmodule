@@ -2,7 +2,6 @@
 
 use Anymodule\Agentmodule\Application\AgentMeta;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Processor\OpenAiResultProcessor;
 use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ActionsFactory,
     ChatAgentFactory,
@@ -32,6 +31,7 @@ use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     Summary\SummaryCompressor,
     Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
+use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultProcessor;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
 use DI\ContainerBuilder;
