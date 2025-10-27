@@ -36,7 +36,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1_000_000);
             }
 
-            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 return new class implements ChatResultInterface {
                     public function getProcessorAnswer(): ?ProcessorAnswer
@@ -109,7 +109,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1);
             }
 
-            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 if(count($chat->getMessages()) > $this->contextSize()) {
                     throw new ContextOverloadException();
@@ -162,7 +162,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());
@@ -247,7 +247,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());
@@ -343,7 +343,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Chat $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
                 $messageCount = count($chat->getMessages());

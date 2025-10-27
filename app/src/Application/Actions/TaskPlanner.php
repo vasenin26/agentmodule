@@ -6,6 +6,8 @@ use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
+use Anymodule\Agentmodule\Entity\Context;
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
@@ -62,6 +64,7 @@ Respond with “Ok” only after the function call has been emitted.
 PROMPT;
 
     public function __construct(
+        private string                      $modelName,
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
         private TaskStorageInterface        $taskStorage,
@@ -94,8 +97,8 @@ PROMPT;
                 new ListTasks($this->taskStorage),
             ])->build();
 
-        $agent = $this->chatAgentFactory->createAgent($tools, $this->repoProvider);
-        $generator = $agent->execute($chat);
+        $agent = $this->chatAgentFactory->createModelContextAgent($this->modelName, $tools, $this->repoProvider);
+        $generator = $agent->execute(new ContextConversation(Context::empty(), $chat));
 
         yield new ProcessingResult(
             completed: false,

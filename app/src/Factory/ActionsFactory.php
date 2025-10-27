@@ -64,6 +64,7 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
         }
 
         return new TaskPlanner(
+            $this->defineTypeModel($projectId, TaskTypes::TaskPlaning->value),
             $this->chatFactory,
             $this->toolsFactory,
             $taskStorage,

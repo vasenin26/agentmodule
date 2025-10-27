@@ -86,8 +86,14 @@ class SummaryCompressorTest extends TestCase
         $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(\Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService::class));
         $toolServiceFactory->shouldReceive('createToolsBuilder')->andReturn($toolsBuilder);
 
+        // Создаем мок для SummaryAgentFactoryInterface
+        $summaryAgentFactory = Mockery::mock(\Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface::class);
+        $actionMock = Mockery::mock(\Anymodule\Agentmodule\Interface\ActionContract::class);
+        $actionMock->shouldReceive('execute')->once()->andReturn((function() { yield; })());
+        $summaryAgentFactory->shouldReceive('createSummaryAgent')->once()->andReturn($actionMock);
+        
         // Создаем РЕАЛЬНЫЙ SummaryGenerator
-        $summaryGenerator = new \Anymodule\Agentmodule\Services\Summary\SummaryGenerator($agentFactory, $toolServiceFactory);
+        $summaryGenerator = new \Anymodule\Agentmodule\Services\Summary\SummaryGenerator($summaryAgentFactory);
         
         // Создаем SummaryCompressor с реальным SummaryGenerator
         $compressor = new SummaryCompressor($summaryGenerator);

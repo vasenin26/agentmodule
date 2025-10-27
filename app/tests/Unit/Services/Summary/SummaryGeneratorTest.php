@@ -2,12 +2,8 @@
 
 namespace Anymodule\Agentmodule\Tests\Unit\Services\Summary;
 
-use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
-use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\Summary\SummaryGenerator;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -65,16 +61,11 @@ class SummaryGeneratorTest extends TestCase
                 contextFill: 0,
             ));
 
-        $agentFactory = Mockery::mock(ChatAgentFactoryInterface::class);
-        $agentFactory->shouldReceive('createAgent')->andReturn($agent);
-
-        $toolsBuilder = Mockery::mock(ToolsBuilder::class);
-        $toolsBuilder->shouldReceive('build')->andReturn(Mockery::mock(ToolsProviderService::class));
-
-        $toolService = Mockery::mock(ToolServiceFactoryInterface::class);
-        $toolService->shouldReceive('createToolsBuilder')->once()->andReturn($toolsBuilder);
-
-        $generator = new SummaryGenerator($agentFactory, $toolService);
+        // Создаем мок для SummaryAgentFactoryInterface
+        $summaryAgentFactory = Mockery::mock(\Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface::class);
+        $summaryAgentFactory->shouldReceive('createSummaryAgent')->once()->andReturn($agent);
+        
+        $generator = new SummaryGenerator($summaryAgentFactory);
 
         $result = iterator_to_array($generator->generate($chat));
 

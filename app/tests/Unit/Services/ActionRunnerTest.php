@@ -5,6 +5,7 @@ namespace Anymodule\Agentmodule\Tests\Unit\Services;
 use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
+use Anymodule\Agentmodule\Interface\SubtaskCreatorInterface;
 use Anymodule\Agentmodule\Utils\TokenCounter;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Interface\Conversation;
@@ -53,7 +54,8 @@ class ActionRunnerTest extends TestCase
                 totalTokens: 3
             )));
 
-        $runner = new ActionRunner([$actionKey => $action]);
+        $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
+        $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
         $counter = new TokenCounter();
 
         $runner->run($conversation, $counter);
@@ -77,7 +79,8 @@ class ActionRunnerTest extends TestCase
         $action->expects($this->never())
             ->method('execute');
 
-        $runner = new ActionRunner([$actionKey => $action]);
+        $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
+        $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
         $counter = new TokenCounter();
 
         $runner->run($conversation, $counter);
@@ -143,6 +146,11 @@ class ActionRunnerTest extends TestCase
                 };
             }
 
+            public function hasNoUserAnswer(): bool
+            {
+                return true; // Mock implementation
+            }
+
             public function isServiceCompletedByKey(string $key): bool
             {
                 foreach ($this->services as $row) {
@@ -172,7 +180,8 @@ class ActionRunnerTest extends TestCase
                 totalTokens: 0
             )));
 
-        $runner = new ActionRunner([$actionKey => $action]);
+        $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
+        $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
         $counter = new TokenCounter();
 
         $runner->run($conversation, $counter);
