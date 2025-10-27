@@ -6,6 +6,7 @@ use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Page;
 use Anymodule\Agentmodule\Entity\PageVersion;
 use Anymodule\Agentmodule\Entity\TaskState;
+use Anymodule\Agentmodule\Interface\ProjectApiInterface;
 use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageVersion;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTaskById;
@@ -13,13 +14,12 @@ use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\ProcessingAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\CreateSubtask;
 use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageVersionDTO;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\Git\GitTokenProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
-use Anymodule\Agentmodule\Interface\TokenProviderInterface;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\GetTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Tasks\UpdateAgentTask;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPage;
+use Anymodule\Agentmodule\Services\ApiService\Request\Projects\GetPreferredModels;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetAllProjectPages;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageHierarchy;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageChildren;
@@ -28,15 +28,10 @@ use Anymodule\Agentmodule\Services\ApiService\Request\Pages\FindRelatedPages;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageWithActualization;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetPageFiles;
 use Anymodule\Agentmodule\Services\ApiService\Request\Pages\GetTaskHistory;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageDTO;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageListDTO;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageHierarchyDTO;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\PageFilesDTO;
-use Anymodule\Agentmodule\Services\ApiService\Response\Pages\TaskHistoryDTO;
 use Anymodule\Agentmodule\Utils\Log;
 use Ramsey\Uuid\UuidInterface;
 
-class DocModuleApi implements TaskApiInterface, PageApi
+class DocModuleApi implements TaskApiInterface, PageApi, ProjectApiInterface
 {
     private ApiClient $api;
 
@@ -341,5 +336,19 @@ class DocModuleApi implements TaskApiInterface, PageApi
         $response = $request->exec($this->api);
         
         return $response->id;
+    }
+
+    // Project details implementation
+
+    public function getPreferredModels(int $projectId): array
+    {
+        $request = new GetPreferredModels($this->token, $projectId);
+        $response = $request->exec($this->api);
+
+        if (is_null($response)) {
+            return [];
+        }
+
+        return $response->getModelsAsArray();
     }
 }
