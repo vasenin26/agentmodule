@@ -6,7 +6,7 @@ use Anymodule\Agentmodule\Application\ToolsService\ToolsBuilder;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\Summary\SummaryGenerator;
 use Mockery;

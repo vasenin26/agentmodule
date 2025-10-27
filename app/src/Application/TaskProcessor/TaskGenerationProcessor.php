@@ -2,16 +2,15 @@
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
-use Anymodule\Agentmodule\Application\Actions\ProcessChat;
 use Anymodule\Agentmodule\Application\Actions\TipsProcessor;
 use Anymodule\Agentmodule\Application\Tools\Utils\UpdateTask;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
-use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionRunnerFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;

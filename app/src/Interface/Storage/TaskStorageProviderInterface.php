@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Storage;
 
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Entity\Context;

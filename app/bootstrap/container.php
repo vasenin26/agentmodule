@@ -11,20 +11,20 @@ use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     PageContextProviderFactory,
     TaskProcessorFactory,
     ToolServiceFactory};
-use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
-use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
-use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionRunnerFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
-use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     RepositoryService\RepositoryProvider,

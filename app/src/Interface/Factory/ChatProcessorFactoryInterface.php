@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Factory;
 
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;

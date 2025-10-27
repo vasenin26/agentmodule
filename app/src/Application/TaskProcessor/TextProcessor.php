@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
-use Anymodule\Agentmodule\Application\ActionRunner;
-use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
-use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Entity\Task;
-use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
-use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionRunnerFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
-use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
-use Anymodule\Agentmodule\Utils\TokenCounter;
 
 final class TextProcessor implements TaskProcessor
 {

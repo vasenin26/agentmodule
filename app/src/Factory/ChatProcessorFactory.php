@@ -7,7 +7,7 @@ use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationPro
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatContextMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
-use Anymodule\Agentmodule\Interface\ChatProcessorFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;

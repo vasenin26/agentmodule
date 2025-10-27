@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services;
 
-use Anymodule\Agentmodule\Interface\StateStoreInterface;
+use Anymodule\Agentmodule\Interface\Storage\StateStoreInterface;
 use Anymodule\Agentmodule\Utils\Log;
 
 /**

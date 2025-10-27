@@ -76,7 +76,7 @@ class SummaryCompressorTest extends TestCase
         // и демонстрирует проблему с большими контекстами
         
         // Создаем мок для ChatAgentFactory, который будет выбрасывать исключение
-        $agentFactory = Mockery::mock(\Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface::class);
+        $agentFactory = Mockery::mock(\Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface::class);
         $agentFactory->shouldReceive('createAgent')
             ->andThrow(new \Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException());
 

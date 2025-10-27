@@ -4,9 +4,9 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Application\SubtaskCreator;
-use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\ActionRunnerInterface;
 use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionRunnerFactoryInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 
 class ActionRunnerFactory implements ActionRunnerFactoryInterface

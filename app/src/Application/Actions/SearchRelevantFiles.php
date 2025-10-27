@@ -5,7 +5,7 @@ namespace Anymodule\Agentmodule\Application\Actions;
 use Anymodule\Agentmodule\Application\Tools\Utils\AddFileToList;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Utils\Log;

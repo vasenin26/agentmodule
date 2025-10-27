@@ -1,8 +1,9 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Factory;
 
 use Anymodule\Agentmodule\Application\Conversation\HandledConversation;
+use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Vasenin26\Conversation\Interface\Conversation;
 
 interface ConversationFactoryInterface

@@ -4,7 +4,7 @@ namespace Anymodule\Agentmodule\Services;
 
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Entity\Context;
-use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Services\TaskStorage\MemoStorage;
 use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
 

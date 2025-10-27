@@ -7,13 +7,13 @@ use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
 use Anymodule\Agentmodule\Application\TaskProcessor\TaskGenerationProcessor;
 use Anymodule\Agentmodule\Application\TaskProcessor\TechPlaneGeneration;
 use Anymodule\Agentmodule\Application\TaskProcessor\TextProcessor;
-use Anymodule\Agentmodule\Interface\ActionRunnerFactoryInterface;
-use Anymodule\Agentmodule\Interface\ActionsFactoryInterface;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
-use Anymodule\Agentmodule\Interface\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionRunnerFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
-use Anymodule\Agentmodule\Interface\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 
 class TaskProcessorFactory implements TaskProcessorFactoryInterface

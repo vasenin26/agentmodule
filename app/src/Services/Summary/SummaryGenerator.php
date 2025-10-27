@@ -3,9 +3,7 @@
 namespace Anymodule\Agentmodule\Services\Summary;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
-use Anymodule\Agentmodule\Interface\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface;
 use Vasenin26\Conversation\Chat;

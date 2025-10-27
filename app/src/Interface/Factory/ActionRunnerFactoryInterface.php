@@ -1,6 +1,8 @@
 <?php
 
-namespace Anymodule\Agentmodule\Interface;
+namespace Anymodule\Agentmodule\Interface\Factory;
+
+use Anymodule\Agentmodule\Interface\ActionRunnerInterface;
 
 interface ActionRunnerFactoryInterface
 {
