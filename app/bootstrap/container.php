@@ -22,6 +22,7 @@ use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\ProjectApiInterface;
 use Anymodule\Agentmodule\Interface\ProjectSettingsProviderInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
@@ -82,6 +83,7 @@ $builder->addDefinitions([
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),
     TaskApiInterface::class => fn($c) => $c->get(DocModuleApi::class),
+    ProjectApiInterface::class => fn($c) => $c->get(DocModuleApi::class),
 
     ChatSummaryGeneratorInterface::class => DI\autowire(SummaryGenerator::class),
     ConversationCompressorInterface::class => fn($c) => $c->get(SummaryCompressor::class),
