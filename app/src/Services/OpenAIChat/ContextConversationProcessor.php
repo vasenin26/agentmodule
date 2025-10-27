@@ -62,7 +62,8 @@ readonly class ContextConversationProcessor implements ContextConversationProces
         $usage = $result->getTokenUsage();
 
         $context = $this->contextSize();
-        Log::info("Model: {$this->model->name} Usage: $usage->sent / $usage->received / $usage->total  Context: $context");
+        $modelName = $this->model->name;
+        Log::info("Model: $modelName Usage: $usage->sent / $usage->received / $usage->total  Context: $context");
 
         if ($usage->total > $this->contextSize()) {
             throw new ContextOverloadException();
