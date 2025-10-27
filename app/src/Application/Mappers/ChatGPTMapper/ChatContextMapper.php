@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Container\TaskList;
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper;
@@ -14,8 +14,8 @@ class ChatContextMapper implements ContextMapper
 {
 
     public function __construct(
-        private OpenAIMessageProcessorInterface $messageProcessor,
-        private MessageMapper                   $messageMapper,
+        private OpenAIMessageMapperInterface $messageProcessor,
+        private MessageMapper                $messageMapper,
     )
     {
     }

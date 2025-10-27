@@ -2,10 +2,10 @@
 
 namespace Anymodule\Agentmodule\Services\OpenAIChat\Mapper;
 
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 
-class OpenAiResultProcessor implements OpenAIMessageProcessorInterface
+class OpenAiResultMapper implements OpenAIMessageMapperInterface
 {
     public function prepareAssistantMessage(\OpenAI\Responses\Chat\CreateResponse $result): OpenAiResult
     {

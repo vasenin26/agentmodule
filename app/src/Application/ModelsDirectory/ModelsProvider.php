@@ -1,9 +1,9 @@
 <?php
 
-namespace Anymodule\Agentmodule\Services\ModelsDirectory;
+namespace Anymodule\Agentmodule\Application\ModelsDirectory;
 
+use Anymodule\Agentmodule\Application\ModelsDirectory\Exception\ModelNotFound;
 use Anymodule\Agentmodule\Entity\ModelMeta;
-use Anymodule\Agentmodule\Services\ModelsDirectory\Exception\ModelNotFound;
 
 class ModelsProvider
 {

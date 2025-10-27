@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper;
 
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\CallToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\DisappearingMessageMapper;
@@ -44,9 +44,9 @@ class ChatMapper implements MessageMapper
     private $toolOptimisers = [];
 
     public function __construct(
-        private OpenAIMessageProcessorInterface $AIMessageProcessor,
-        GitRepoProviderInterface                $repositoryProvider,
-        ?ToolsProviderInterface                 $toolsService = null,
+        private OpenAIMessageMapperInterface $AIMessageProcessor,
+        GitRepoProviderInterface             $repositoryProvider,
+        ?ToolsProviderInterface              $toolsService = null,
     )
     {
         $this->mappers = [

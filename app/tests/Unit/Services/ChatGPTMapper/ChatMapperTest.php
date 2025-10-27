@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatGPTMapper;
 
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatMapper;
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -16,14 +16,14 @@ use Vasenin26\Conversation\Messages\UserMessage;
 class ChatMapperTest extends TestCase
 {
     private ChatMapper $mapper;
-    /** @var OpenAIMessageProcessorInterface|MockObject */
+    /** @var OpenAIMessageMapperInterface|MockObject */
     private $aiProcessor;
     /** @var GitRepoProviderInterface|MockObject */
     private $gitProvider;
 
     protected function setUp(): void
     {
-        $this->aiProcessor = $this->createMock(OpenAIMessageProcessorInterface::class);
+        $this->aiProcessor = $this->createMock(OpenAIMessageMapperInterface::class);
         $this->gitProvider = $this->createMock(GitRepoProviderInterface::class);
 
         $this->mapper = new ChatMapper(

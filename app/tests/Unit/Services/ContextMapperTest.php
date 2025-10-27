@@ -3,7 +3,7 @@
 namespace Anymodule\Agentmodule\Tests\Unit\Services;
 
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\ChatContextMapper;
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
@@ -14,12 +14,12 @@ use Vasenin26\Conversation\Interface\Conversation;
 class ContextMapperTest extends TestCase
 {
     private ChatContextMapper $contextMapper;
-    private OpenAIMessageProcessorInterface|MockObject $messageProcessor;
+    private OpenAIMessageMapperInterface|MockObject $messageProcessor;
     private MessageMapper|MockObject $messageMapper;
 
     protected function setUp(): void
     {
-        $this->messageProcessor = $this->createMock(OpenAIMessageProcessorInterface::class);
+        $this->messageProcessor = $this->createMock(OpenAIMessageMapperInterface::class);
         $this->messageMapper = $this->createMock(MessageMapper::class);
         
         $this->contextMapper = new ChatContextMapper(

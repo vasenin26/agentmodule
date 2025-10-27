@@ -1,7 +1,8 @@
 <?php
 
 use Anymodule\Agentmodule\Application\AgentMeta;
-use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageProcessorInterface;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
+use Anymodule\Agentmodule\Application\ModelsDirectory\ModelsProvider;
 use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ActionsFactory,
     ChatAgentFactory,
@@ -30,8 +31,7 @@ use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     Summary\Interface\SummaryAgentFactoryInterface,
     Summary\SummaryCompressor,
     Summary\SummaryGenerator};
-use Anymodule\Agentmodule\Services\ModelsDirectory\ModelsProvider;
-use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultProcessor;
+use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultMapper;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Utils\BrokenCompressor;
 use DI\ContainerBuilder;
@@ -84,7 +84,7 @@ $builder->addDefinitions([
     ConversationCompressorInterface::class => fn($c) => $c->get(SummaryCompressor::class),
     TaskStorageProviderInterface::class => DI\autowire(TaskStorageProvider::class),
 
-    OpenAIMessageProcessorInterface::class => DI\autowire(OpenAiResultProcessor::class),
+    OpenAIMessageMapperInterface::class => DI\autowire(OpenAiResultMapper::class),
 
 ]);
 
