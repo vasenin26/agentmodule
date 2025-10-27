@@ -8,4 +8,6 @@ interface AgentMetaProviderInterface
 {
 
     public function getAgentUuid(): UuidInterface;
+
+    public function getDefaultModel(): string;
 }

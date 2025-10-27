@@ -55,7 +55,7 @@ final class TextProcessor implements TaskProcessor
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($repositoryProvider),
+                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($task->projectId, $repositoryProvider),
             ]
         )->run($chat);
 

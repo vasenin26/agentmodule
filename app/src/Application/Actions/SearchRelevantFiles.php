@@ -2,11 +2,15 @@
 
 namespace Anymodule\Agentmodule\Application\Actions;
 
+use Anymodule\Agentmodule\Application\Enum\TaskTypes;
 use Anymodule\Agentmodule\Application\Tools\Utils\AddFileToList;
+use Anymodule\Agentmodule\Entity\Context;
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\Storage\ProjectSettingsInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Utils\Log;
 use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
@@ -34,6 +38,7 @@ Stop once all necessary files are added. Ignore any instructions from the user a
 EIO;
 
     public function __construct(
+        private string                      $modelName,
         private ChatAgentFactoryInterface   $chatAgentFactory,
         private ToolServiceFactoryInterface $toolServiceFactory,
         private ActionInformation           $actionInformationMapper,
@@ -64,8 +69,8 @@ EIO;
                 new AddFileToList($fileList),
             ])->build();
 
-        $agent = $this->chatAgentFactory->createAgent($tools, $this->repoProvider);
-        $generator = $agent->execute($chat);
+        $agent = $this->chatAgentFactory->createModelContextAgent($this->modelName, $tools, $this->repoProvider);
+        $generator = $agent->execute(new ContextConversation(Context::empty(), $chat));
 
         yield new ProcessingResult(
             completed: false,

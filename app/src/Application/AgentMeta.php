@@ -9,6 +9,7 @@ class AgentMeta implements AgentMetaProviderInterface
 {
     public function __construct(
         private UuidInterface $agetUuid,
+        private string        $defaultModel,
     )
     {
     }
@@ -16,5 +17,10 @@ class AgentMeta implements AgentMetaProviderInterface
     public function getAgentUuid(): UuidInterface
     {
         return $this->agetUuid;
+    }
+
+    public function getDefaultModel(): string
+    {
+        return $this->defaultModel;
     }
 }

@@ -22,11 +22,13 @@ use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageApi;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
+use Anymodule\Agentmodule\Interface\ProjectSettingsProviderInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
+    ProjectSettings\SettingProvider,
     RepositoryService\RepositoryProvider,
     Summary\Interface\SummaryAgentFactoryInterface,
     Summary\SummaryCompressor,
@@ -43,6 +45,7 @@ $agentUuid = $envAgentUuid ? Uuid::fromString($envAgentUuid) : Uuid::uuid4();
 
 $agentMeta = new AgentMeta(
     $agentUuid,
+    getenv('OPENAI_MODEL'),
 );
 
 $builder = new ContainerBuilder();
@@ -85,6 +88,8 @@ $builder->addDefinitions([
     TaskStorageProviderInterface::class => DI\autowire(TaskStorageProvider::class),
 
     OpenAIMessageMapperInterface::class => DI\autowire(OpenAiResultMapper::class),
+
+    ProjectSettingsProviderInterface::class => DI\autowire(SettingProvider::class),
 
 ]);
 

@@ -10,6 +10,13 @@ class Context
     {
     }
 
+    public static function empty(): self
+    {
+        return new self(
+            tasks: []
+        );
+    }
+
     public function updateTask(array $list): void
     {
         $this->tasks = $list;

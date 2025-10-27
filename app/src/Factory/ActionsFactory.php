@@ -4,11 +4,15 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Actions\TaskPlanner;
+use Anymodule\Agentmodule\Application\Enum\TaskTypes;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Interface\ActionContract;
+use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
 use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
+use Anymodule\Agentmodule\Interface\ProjectSettingsProviderInterface;
+use Anymodule\Agentmodule\Interface\Storage\ProjectSettingsInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Utils\Log;
@@ -18,15 +22,21 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
 {
 
     public function __construct(
-        private ToolServiceFactoryInterface $toolsFactory,
-        private ChatAgentFactoryInterface   $chatFactory,
+        private AgentMetaProviderInterface       $agentMeta,
+        private ProjectSettingsProviderInterface $projectSettingsProvider,
+        private ToolServiceFactoryInterface      $toolsFactory,
+        private ChatAgentFactoryInterface        $chatFactory,
     )
     {
     }
 
-    public function createSearchRelevantFiles(GitRepoProviderInterface $repoProvider): ActionContract
+    public function createSearchRelevantFiles(
+        int                      $projectId,
+        GitRepoProviderInterface $repoProvider
+    ): ActionContract
     {
         return new SearchRelevantFiles(
+            $this->defineTypeModel($projectId, TaskTypes::SearchRelevantFiles->value),
             $this->chatFactory,
             $this->toolsFactory,
             new ActionInformation(),
@@ -34,7 +44,12 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
         );
     }
 
-    public function createTaskPlanner(TaskStorageInterface $taskStorage, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract
+    public function createTaskPlanner(
+        int                      $projectId,
+        TaskStorageInterface     $taskStorage,
+        ToolsProviderInterface   $availableTools,
+        GitRepoProviderInterface $repoProvider
+    ): ActionContract
     {
         $availableToolsDescription = [];
 
@@ -56,5 +71,17 @@ final readonly class ActionsFactory implements ActionsFactoryInterface
             new ActionInformation(),
             $repoProvider,
         );
+    }
+
+    private function defineTypeModel(int $projectId, string $type): string
+    {
+        $projectSettings = $this->projectSettingsProvider->getProjectSetting($projectId);
+        $modelName = $projectSettings->getPreferredModel($type);
+
+        if (!$modelName) {
+            $modelName = $this->agentMeta->getDefaultModel();
+        }
+
+        return $modelName;
     }
 }

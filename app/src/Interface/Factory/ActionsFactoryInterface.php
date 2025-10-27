@@ -10,7 +10,7 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 interface ActionsFactoryInterface
 {
 
-    public function createSearchRelevantFiles(GitRepoProviderInterface $repoProvider): ActionContract;
+    public function createSearchRelevantFiles(int $projectId, GitRepoProviderInterface $repoProvider): ActionContract;
 
-    public function createTaskPlanner(TaskStorageInterface $taskStorage, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract;
+    public function createTaskPlanner(int $projectId, TaskStorageInterface $taskStorage, ToolsProviderInterface $availableTools, GitRepoProviderInterface $repoProvider): ActionContract;
 }

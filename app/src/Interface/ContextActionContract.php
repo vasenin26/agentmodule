@@ -9,7 +9,7 @@ use Vasenin26\Conversation\Chat;
 interface ContextActionContract
 {
     /**
-     * @param Chat $conversation
+     * @param ContextConversation $conversation
      * @return \Generator<ProcessingResult>
      */
     public function execute(ContextConversation $conversation): \Generator;
