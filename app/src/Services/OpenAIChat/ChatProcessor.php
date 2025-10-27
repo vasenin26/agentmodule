@@ -13,7 +13,7 @@ use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Client;
 use Vasenin26\Conversation\Interface\Conversation;
 
-class ChatProcessor implements ChatProcessorInterface
+readonly class ChatProcessor implements ChatProcessorInterface
 {
     public function __construct(
         private Client        $apiClient,
@@ -38,7 +38,7 @@ class ChatProcessor implements ChatProcessorInterface
         }
 
         try {
-            Log::info('Ask LLM');
+            Log::info('Ask LLM', [$this->model->name]);
 
             $result = $this->apiClient->chat()->create([
                 'model' => $this->model->name,

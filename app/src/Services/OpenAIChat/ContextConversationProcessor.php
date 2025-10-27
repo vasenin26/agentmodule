@@ -13,7 +13,7 @@ use Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper;
 use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Client;
 
-class ContextConversationProcessor implements ContextConversationProcessorInterface
+readonly class ContextConversationProcessor implements ContextConversationProcessorInterface
 {
     public function __construct(
         private Client        $apiClient,
@@ -62,7 +62,7 @@ class ContextConversationProcessor implements ContextConversationProcessorInterf
         $usage = $result->getTokenUsage();
 
         $context = $this->contextSize();
-        Log::info("Context: $context Usage:  $usage->sent / $usage->received / $usage->total");
+        Log::info("Model: {$this->model->name} Usage: $usage->sent / $usage->received / $usage->total  Context: $context");
 
         if ($usage->total > $this->contextSize()) {
             throw new ContextOverloadException();

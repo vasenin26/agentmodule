@@ -17,9 +17,6 @@ class ActionRunner implements ActionRunnerInterface
     {
     }
 
-    /**
-     * @param ActionContract[] $actions
-     */
     public function run(Conversation $conversation): void
     {
         do {
@@ -29,20 +26,20 @@ class ActionRunner implements ActionRunnerInterface
             $currentTask = array_pop($awaitRun);
 
             if (!empty($currentTask)) {
-                $taskProcessor = $this->actions[$currentTask] ?? null;
+                $action = $this->actions[$currentTask] ?? null;
 
                 $message = new ServiceMessage($currentTask, '');
                 $link = $conversation->addServiceMessage($message);
 
-                if (is_null($taskProcessor)) {
-                    $link->setError('Not found task');
+                if (is_null($action)) {
+                    $link->setError('Not found action');
                     continue;
                 }
 
                 // Создаем подзадачу для каждого ActionContract
                 $processHandler = $this->subtaskCreator->createSubtask($currentTask);
 
-                foreach ($taskProcessor->execute($conversation) as $result) {
+                foreach ($action->execute($conversation) as $result) {
                     if ($result->answer) {
                         $link->setMessage($result->answer);
                     }
