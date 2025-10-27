@@ -22,7 +22,7 @@ class GetPreferredModels implements RequestInterface
 
     public function getUrl(): string
     {
-        return "api/projects/{$this->projectId}/generation-models";
+        return "projects/{$this->projectId}/generation-models";
     }
 
     public function getPayload(): array
