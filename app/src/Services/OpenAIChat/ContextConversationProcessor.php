@@ -32,6 +32,8 @@ readonly class ContextConversationProcessor implements ContextConversationProces
     {
         $messages = $this->messageMapper->mapConversation($contextConversation);
 
+        Log::storeMessages($messages);
+
         if (empty($messages)) {
             Log::warning('Empty conversation found');
             return OpenAiResult::empty();

@@ -32,6 +32,8 @@ readonly class ChatProcessor implements ChatProcessorInterface
     {
         $messages = $this->messageMapper->mapChat($chat);
 
+        Log::storeMessages($messages);
+
         if (empty($messages)) {
             Log::warning('Empty conversation found');
             return OpenAiResult::empty();

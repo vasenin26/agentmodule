@@ -30,8 +30,6 @@ class ChatContextMapper implements ContextMapper
             $messages = $this->insertBefore($lastUserMessageIndex, $messages, $taskListContainer);
         }
 
-        Log::storeMessages($messages);
-
         return $messages;
     }
 
