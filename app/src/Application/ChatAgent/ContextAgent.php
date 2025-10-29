@@ -110,10 +110,6 @@ class ContextAgent implements ContextActionContract
                     $calledToolNames[] = $toolCall->name;
                     $toolCallCounters[$toolCall->name] = ($toolCallCounters[$toolCall->name] ?? 0) + 1;
 
-                    if ($toolCallCounters[$toolCall->name] >= self::TOOL_CALL_LIMIT) {
-                        throw new ToolCallLimitReachedException();
-                    }
-
                     $toolResult = $this->callTool($toolCall);
 
                     if (is_null($toolResult)) {
@@ -124,15 +120,19 @@ class ContextAgent implements ContextActionContract
                 }
             }
 
+            Log::info("Process handler");
+
+            yield $this->prepareResult(false, $result, $contextConversation);
+
             foreach (array_keys($toolCallCounters) as $toolCallName) {
+                if ($toolCallCounters[$toolCallName] >= self::TOOL_CALL_LIMIT) {
+                    throw new ToolCallLimitReachedException();
+                }
+
                 if (in_array($toolCallName, $calledToolNames)) {
                     $toolCallCounters[$toolCallName] = 0;
                 }
             }
-
-            Log::info("Process handler");
-
-            yield $this->prepareResult(false, $result, $contextConversation);
 
             $stepCounter--;
 
