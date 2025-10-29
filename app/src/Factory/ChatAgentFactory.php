@@ -12,7 +12,6 @@ use Anymodule\Agentmodule\Interface\Factory\ChatProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\Summary\Interface\SummaryAgentFactoryInterface;
-use Anymodule\Agentmodule\Utils\BrokenCompressor;
 
 final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, SummaryAgentFactoryInterface
 {
@@ -26,22 +25,18 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, Summ
     public function createAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         return new ChatAgent(
-            $this->processorFactory->createMainProcessor($tools, $repositoryProvider),
-            $this->compressor,
-            $tools
+            $this->createModelContextAgent(null, $tools, $repositoryProvider)
         );
     }
 
     public function createSummaryAgent(GitRepoProviderInterface $repositoryProvider): ActionContract
     {
         return new ChatAgent(
-            $this->processorFactory->createSummaryProcessor($repositoryProvider),
-            new BrokenCompressor(),
-            null
+            $this->createModelContextAgent('summary', null, $repositoryProvider)
         );
     }
 
-    public function createContextAgent(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract
+    public function createContextAgent(?ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract
     {
         return new ContextAgent(
             $this->processorFactory->createContextProcessor($tools, $repositoryProvider),
@@ -50,7 +45,7 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, Summ
         );
     }
 
-    public function createModelContextAgent(string $modelName, ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextActionContract
+    public function createModelContextAgent(?string $modelName, ?ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextActionContract
     {
         return new ContextAgent(
             $this->processorFactory->createModelContextProcessor($modelName, $tools, $repoProvider),

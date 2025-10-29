@@ -5,6 +5,8 @@ namespace Anymodule\Agentmodule\Application\ChatAgent;
 use Anymodule\Agentmodule\Application\ChatAgent\DTO\TokenUsage;
 use Anymodule\Agentmodule\Application\ChatAgent\DTO\ToolCall;
 use Anymodule\Agentmodule\Application\ChatAgent\Exception\CompressorException;
+use Anymodule\Agentmodule\Application\ChatAgent\Exception\LoopLimitReachedException;
+use Anymodule\Agentmodule\Application\ChatAgent\Exception\ToolCallLimitReachedException;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;
 use Anymodule\Agentmodule\Entity\ContextConversation;
@@ -15,10 +17,15 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Messages\AssistantMessage;
+use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
+use Vasenin26\Conversation\Messages\UserMessage;
 
 class ContextAgent implements ContextActionContract
 {
+    const LOOP_LIMIT = 50;
+    const TOOL_CALL_LIMIT = 3;
+
     private int $promptTokens = 0;
     private int $completionTokens = 0;
     private int $totalTokens = 0;
@@ -59,6 +66,12 @@ class ContextAgent implements ContextActionContract
                 $contextChat = $this->compressor->compress($conversation->conversation);
                 $conversation = new ContextConversation($conversation->context, $contextChat);
                 $compressed = true;
+            } catch (ToolCallLimitReachedException $exception) {
+                Log::error('Tool call limit reached');
+                $conversation->conversation->addMessage(new UserMessage('You seem confused. Think about it and continue working.'));
+            } catch (LoopLimitReachedException $exception) {
+                Log::error('Loop limit reached');
+                $conversation->conversation->addMessage(new UserMessage("It seems you've been working too long. Check your to-do list and move on."));
             }
         } while (true);
     }
@@ -69,6 +82,8 @@ class ContextAgent implements ContextActionContract
         Log::info("Available LLM tools", array_map(fn($i) => $i['function']['name'], $this->tools?->getMeta() ?? []));
 
         $finished = false;
+        $toolCallCounters = [];
+        $stepCounter = self::LOOP_LIMIT;
 
         do {
             Log::info("Call LLM");
@@ -85,12 +100,20 @@ class ContextAgent implements ContextActionContract
             yield $this->prepareResult(false, $result, $contextConversation);
 
             $toolCalls = iterator_to_array($result->getToolCalls());
+            $calledToolNames = [];
 
             if (empty($toolCalls)) {
                 Log::info("LLM finished");
                 $finished = true;
             } else {
                 foreach ($toolCalls as $toolCall) {
+                    $calledToolNames[] = $toolCall->name;
+                    $toolCallCounters[$toolCall->name] = ($toolCallCounters[$toolCall->name] ?? 0) + 1;
+
+                    if ($toolCallCounters[$toolCall->name] >= self::TOOL_CALL_LIMIT) {
+                        throw new ToolCallLimitReachedException();
+                    }
+
                     $toolResult = $this->callTool($toolCall);
 
                     if (is_null($toolResult)) {
@@ -101,9 +124,21 @@ class ContextAgent implements ContextActionContract
                 }
             }
 
+            foreach (array_keys($toolCallCounters) as $toolCallName) {
+                if (in_array($toolCallName, $calledToolNames)) {
+                    $toolCallCounters[$toolCallName] = 0;
+                }
+            }
+
             Log::info("Process handler");
 
             yield $this->prepareResult(false, $result, $contextConversation);
+
+            $stepCounter--;
+
+            if ($stepCounter === 0) {
+                throw new LoopLimitReachedException();
+            }
 
         } while (!$finished);
 

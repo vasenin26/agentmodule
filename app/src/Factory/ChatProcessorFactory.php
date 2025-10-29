@@ -24,65 +24,6 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
     {
     }
 
-    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface
-    {
-        $apiHost = getenv('OPENAI_API_HOST');
-        $apiKey = getenv('OPENAI_API_KEY');
-        $modelName = getenv('OPENAI_MODEL');
-
-        $modelMeta = $this->modelsProvider->get($modelName);
-
-//        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
-//            $modelMeta,
-//            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
-//        );
-
-        $client = OpenAI::factory()
-            ->withApiKey($apiKey)
-            ->withBaseUri($apiHost)
-            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
-            ->make();
-
-        return new ChatProcessor(
-            $client,
-            $modelMeta,
-            new ChatMapper(
-                $this->openAIMessageMapper,
-                $repositoryProvider,
-                $tools
-            )
-        );
-    }
-
-    public function createSummaryProcessor(GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface
-    {
-        $apiHost = getenv('OPENAI_API_HOST');
-        $apiKey = getenv('OPENAI_API_KEY');
-
-        $modelMeta = $this->modelsProvider->get('summary');
-
-//        return new \Anymodule\Agentmodule\Services\StupidJoe\ChatProcessor(
-//            $modelMeta,
-//            new \Anymodule\Agentmodule\Services\StupidJoe\Service\StupidProcessorService()
-//        );
-
-        $client = OpenAI::factory()
-            ->withApiKey($apiKey)
-            ->withBaseUri($apiHost)
-            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
-            ->make();
-
-        return new ChatProcessor(
-            $client,
-            $modelMeta,
-            new ChatMapper(
-                $this->openAIMessageMapper,
-                $repositoryProvider,
-                null
-            )
-        );
-    }
-
     public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface
     {
         $apiHost = getenv('OPENAI_API_HOST');

@@ -10,17 +10,6 @@ use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 interface ChatProcessorFactoryInterface
 {
 
-
-    /**
-     * @deprecated use ChatProcessorFactoryInterface::createModelContextProcessor
-     */
-    public function createMainProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface;
-
-    /**
-     * @deprecated use ChatProcessorFactoryInterface::createModelContextProcessor
-     */
-    public function createSummaryProcessor(GitRepoProviderInterface $repositoryProvider): ChatProcessorInterface;
-
     /**
      * @deprecated use ChatProcessorFactoryInterface::createModelContextProcessor
      */
