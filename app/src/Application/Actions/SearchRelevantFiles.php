@@ -19,6 +19,7 @@ use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\GitFileMessage;
 use Vasenin26\Conversation\Messages\SystemMessage;
 use Vasenin26\Conversation\Messages\UserMessage;
+use Vasenin26\Conversation\Messages\UserTaskMessage;
 
 readonly class SearchRelevantFiles implements ActionContract
 {
@@ -51,13 +52,17 @@ EIO;
     {
         Log::info("Start relevant files searching");
 
-        $instructions = $conversation->getInstructions();
-
         $chat = new Chat();
         $chat->addMessage(new SystemMessage(self::ROLE));
 
-        foreach ($instructions as $instruction) {
-            $chat->addMessage(new UserMessage($instruction->content));
+        foreach ($conversation->getMessages() as $message) {
+            if (
+                $message instanceof UserMessage or
+                $message instanceof UserTaskMessage or
+                $message instanceof GitFileMessage
+            ) {
+                $chat->addMessage($message);
+            }
         }
 
         $chat->addMessage(new UserMessage(self::PROMPT));
