@@ -123,14 +123,19 @@ class ToolMapper implements MessageMapperInterface
 
             foreach ($this->mappers as $mapper) {
                 if ($mapper->supports($message)) {
-                    $content =  $mapper->map($message);
+                    $content = $mapper->map($message);
                 }
+            }
+
+            if(is_null($content)) {
+                $data = json_decode($message->result);
+                $content = $data?->message ?? $message->result;
             }
 
             return [
                 'role' => 'tool',
                 'tool_call_id' => $message->id,
-                'content' => $content ?? $message->result,
+                'content' => $content,
             ];
         }
 
