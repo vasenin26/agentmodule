@@ -82,7 +82,7 @@ TTT;
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($task->projectId, $repositoryProvider),
+//                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($task->projectId, $repositoryProvider),
                 'plane-tasks' => $this->actionsFactory->createTaskPlanner($task->projectId, $taskStorage, $tools, $repositoryProvider),
             ]
         )->run($conversation);
