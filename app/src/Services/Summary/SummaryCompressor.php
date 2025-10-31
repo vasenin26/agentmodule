@@ -49,7 +49,10 @@ final readonly class SummaryCompressor implements ConversationCompressorInterfac
 
             if ($processResult->completed) {
                 Log::info("Compressing summary");
-                Log::info($processResult->answer);
+
+                if ($processResult->answer) {
+                    Log::info($processResult->answer);
+                }
 
                 $markerLink->complete();
 
