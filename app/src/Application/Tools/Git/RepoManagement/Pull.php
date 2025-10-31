@@ -38,6 +38,7 @@ class Pull implements ToolInterface
             $repo->pull($remote);
 
             return new ToolResult(true, 'Git: pull ok', [
+                'url' => $url,
                 'remote' => $remote,
                 'branch' => $branch ?: $repo->getCurrentBranchName(),
             ]);
