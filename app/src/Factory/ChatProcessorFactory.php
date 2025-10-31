@@ -57,7 +57,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         );
     }
 
-    public function createModelContextProcessor(?string $modelName, ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface
+    public function createModelContextProcessor(?string $modelName, ?ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface
     {
         if ($modelName === null) {
             $modelName = getenv('OPENAI_MODEL');

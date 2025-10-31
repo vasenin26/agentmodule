@@ -15,5 +15,5 @@ interface ChatProcessorFactoryInterface
      */
     public function createContextProcessor(ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextConversationProcessorInterface;
 
-    public function createModelContextProcessor(?string $modelName, ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider);
+    public function createModelContextProcessor(?string $modelName, ?ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider);
 }
