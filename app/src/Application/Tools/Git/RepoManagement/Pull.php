@@ -18,7 +18,7 @@ class Pull implements ToolInterface
     public function execute(array $args): ?ToolResult
     {
         try {
-            ['url' => $url, 'remote' => $remote, 'branch' => $branch] = $args + ['remote' => 'origin', 'branch' => null];
+            ['url' => $url, 'remote' => $remote] = $args + ['remote' => 'origin'];
 
             if (empty($url) || !is_string($url)) {
                 return new ToolResult(false, 'URL is required and must be a non-empty string', ['code' => 'INVALID_URL']);
@@ -26,21 +26,13 @@ class Pull implements ToolInterface
 
             $repo = $this->repoProvider->getRepo($url);
 
-            // Если указана ветка, переключаемся на неё
-            if ($branch) {
-                $currentBranch = $repo->getCurrentBranchName();
-                if ($currentBranch !== $branch) {
-                    $repo->checkout($branch);
-                }
-            }
-
             // Выполняем pull
             $repo->pull($remote);
 
             return new ToolResult(true, 'Git: pull ok', [
                 'url' => $url,
                 'remote' => $remote,
-                'branch' => $branch ?: $repo->getCurrentBranchName(),
+                'branch' => $repo->getCurrentBranchName(),
             ]);
 
         } catch (\Throwable $e) {
@@ -66,10 +58,6 @@ class Pull implements ToolInterface
                             'type' => 'string',
                             'description' => 'Remote name to pull from',
                             'default' => 'origin'
-                        ],
-                        'branch' => [
-                            'type' => 'string',
-                            'description' => 'Branch name to pull (optional, uses current branch if not specified)',
                         ]
                     ],
                     'required' => ['url'],
