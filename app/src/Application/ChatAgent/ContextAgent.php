@@ -68,10 +68,10 @@ class ContextAgent implements ContextActionContract
                 $compressed = true;
             } catch (ToolCallLimitReachedException $exception) {
                 Log::error('Tool call limit reached');
-                $conversation->conversation->addMessage(new UserMessage('You seem confused. Think about it and continue working.'));
+                $conversation->conversation->addMessage(new DisappearingMessage('You seem confused. Think about it and continue working.'));
             } catch (LoopLimitReachedException $exception) {
                 Log::error('Loop limit reached');
-                $conversation->conversation->addMessage(new UserMessage("It seems you've been working too long. Check your to-do list and move on."));
+                $conversation->conversation->addMessage(new DisappearingMessage("It seems you've been working too long. Check your to-do list and move on."));
             }
         } while (true);
     }
