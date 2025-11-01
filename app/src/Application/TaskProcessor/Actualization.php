@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\Actions\TipsProcessor;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
+use Anymodule\Agentmodule\Application\Tools\PatchContent;
 use Anymodule\Agentmodule\Application\ToolsService\ToolsProviderService;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\ActionContract;
@@ -21,8 +22,8 @@ use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 final class Actualization implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
 {
     const PROMPT = <<<AAA
-You need to gather the necessary information and save the new article content to the repository.
-Save the full article description to the repository using the `store` command.
+You need to gather the necessary information and create patch with the new article content to the repository.
+Save patch article description to the repository using the `patch` command.
 
 If the original article contains a placeholder, replace it with a relevant value.
 ```
@@ -67,21 +68,21 @@ AAA;
         $this->actionRunnerFactory->createForTask(
             $task,
             [
-                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($task->projectId, $repositoryProvider),
+//                'search-relevant-files' => $this->actionsFactory->createSearchRelevantFiles($task->projectId, $repositoryProvider),
             ]
         )->run($conversation);
 
-        $contentTool = new CatchContent(
-            'store',
-            'Сохраняет содержимое статьи в хранилище.',
-            'Статья сохранёна.',
+        $contentTool = new PatchContent(
+            'patch',
+            'Сохраняет патч для применения к содержимому статьи.',
+            'Патч сохранён.',
         );
 
         $defaultProcessor = $this->getDefaultChatProcessor($task, $contentTool, $repositoryProvider);
 
         foreach ($defaultProcessor->execute($conversation->conversation) as $result) {
             if ($contentTool->hasContent()) {
-                $processHandler->handle($result->withAnswer($contentTool->getContent()));
+                $processHandler->handle($result->withAnswer($contentTool->getPatch()));
             } else {
                 $processHandler->handle($result);
             }
