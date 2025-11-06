@@ -27,12 +27,15 @@ class PatchContent implements ToolInterface
                 return null;
             }
 
-            $this->content = $args['content'] ?? '';
-            $this->title = $args['title'] ?? '';
+            $content = $args['content'] ?? '';
+            $err = $this->validateDiffFormat($content);
 
-            if(!str_starts_with($this->content, 'diff')) {
-                return new ToolResult(false, 'Patch is not in diff format');
+            if($err !== null){
+                return new ToolResult(false, $err);
             }
+
+            $this->content = $content;
+            $this->title = $args['title'] ?? '';
 
             return new ToolResult(true, $this->message, []);
         } catch (\Throwable $e) {
@@ -78,6 +81,7 @@ index 2a3b4c5..6d7e8f9 100644
 +The `updateProjectBranches` function synchronizes a project's branches with its remote repository.
 
 LLM Hint: Think of this as a smart assistant task — detect new, modified, or removed lines and produce a concise patch that updates the file correctly, without rewriting unchanged parts.
+Line numbers between @@ is important!
 DESC
                         ]
                     ],
@@ -110,4 +114,63 @@ DESC
         $this->content = '';
         $this->title = '';
     }
+
+
+    private function validateDiffFormat(string $diff): ?string
+    {
+        $lines = preg_split("/\r\n|\n|\r/", trim($diff));
+
+        if (empty($lines) || count($lines) < 5) {
+            return "Diff is too short or empty.";
+        }
+
+        // 1. Проверяем первую строку
+        if (!preg_match('/^diff\s+--git\s+a\/\S+\s+b\/\S+$/', $lines[0])) {
+            return "Missing or invalid 'diff --git a/... b/...' header.";
+        }
+
+        // 2. Ищем index строку
+        $indexLine = null;
+        foreach ($lines as $line) {
+            if (preg_match('/^index\s+[0-9a-fA-F]{7,}\.\.[0-9a-fA-F]{7,}(\s+\d+)?$/', $line)) {
+                $indexLine = $line;
+                break;
+            }
+        }
+        if (!$indexLine) {
+            return "Missing 'index' line (expected: index <sha1>..<sha2> <mode>).";
+        }
+
+        // 3. Проверяем наличие --- и +++
+        $hasFrom = false;
+        $hasTo = false;
+        foreach ($lines as $line) {
+            if (preg_match('/^---\s+(a\/\S+|\/dev\/null)$/', $line)) $hasFrom = true;
+            if (preg_match('/^\+\+\+\s+(b\/\S+|\/dev\/null)$/', $line)) $hasTo = true;
+        }
+
+        if (!$hasFrom) {
+            return "Missing '--- a/...' or '--- /dev/null' line.";
+        }
+        if (!$hasTo) {
+            return "Missing '+++ b/...' or '+++ /dev/null' line.";
+        }
+
+        // 4. Проверяем наличие хотя бы одного хунка @@
+        $hasChunk = false;
+        foreach ($lines as $line) {
+            if (preg_match('/^@@\s+-(\d+),?(\d+)?\s+\+(\d+),?(\d+)?\s@@/', $line)) {
+                $hasChunk = true;
+                break;
+            }
+        }
+
+        if (!$hasChunk) {
+            return "Missing chunk header ('@@ -x,y +a,b @@').";
+        }
+
+        // Если все проверки пройдены
+        return null;
+    }
+
 }
