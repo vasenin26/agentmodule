@@ -30,6 +30,10 @@ class PatchContent implements ToolInterface
             $this->content = $args['content'] ?? '';
             $this->title = $args['title'] ?? '';
 
+            if(!str_starts_with($this->content, 'diff')) {
+                return new ToolResult(false, 'Patch is not in diff format');
+            }
+
             return new ToolResult(true, $this->message, []);
         } catch (\Throwable $e) {
             return new ToolResult(false, $e->getMessage(), ['exception' => get_class($e)]);
@@ -53,16 +57,27 @@ class PatchContent implements ToolInterface
                         'content' => [
                             'type' => 'string',
                             'description' => <<<DESC
-Текст изменений в формате патча (Unified diff / git-style).  
-Нужно сгенерировать только diff между текущей версией файла и новой, без полного переписывания.  
-Формат патча должен быть такой:
+Patch declaration (format: Unified diff / git-style).
 
-@@ <context> @@
--строка_до_изменения
-+строка_после_изменения
+IMPORTANT: The patch must strictly follow Unified diff / git-style format.  
+Generate only the diff between the current file version and the new one, do not rewrite the entire file.  
 
+Example patch declaration:
 
-Никаких объяснений или комментариев вне патча добавлять не нужно.
+diff --git a/docs/project-management.md b/docs/project-management.md
+index 2a3b4c5..6d7e8f9 100644
+--- a/docs/project-management.md
++++ b/docs/project-management.md
+@@ -1,3 +1,7 @@
+ # Project Management
+
+ The system allows creating and editing projects.
++
++## Project Branch Updates
++
++The `updateProjectBranches` function synchronizes a project's branches with its remote repository.
+
+LLM Hint: Think of this as a smart assistant task — detect new, modified, or removed lines and produce a concise patch that updates the file correctly, without rewriting unchanged parts.
 DESC
                         ]
                     ],
@@ -88,5 +103,11 @@ DESC
     public function hasContent(): bool
     {
         return !empty($this->content) && !empty($this->title);
+    }
+
+    public function clear(): void
+    {
+        $this->content = '';
+        $this->title = '';
     }
 }

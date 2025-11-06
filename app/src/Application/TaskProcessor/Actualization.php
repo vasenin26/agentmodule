@@ -83,6 +83,7 @@ AAA;
         foreach ($defaultProcessor->execute($conversation->conversation) as $result) {
             if ($contentTool->hasContent()) {
                 $processHandler->handle($result->withAnswer($contentTool->getPatch()));
+                $contentTool->clear();
             } else {
                 $processHandler->handle($result);
             }
