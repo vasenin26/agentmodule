@@ -40,6 +40,7 @@ use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Run;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
@@ -243,5 +244,11 @@ class ToolsFactory
     public function gitGetStatus(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
         return new GetStatus($repositoryProvider);
+    }
+
+    // Terminal утилиты
+    public function terminalRun(): ToolInterface
+    {
+        return new Run();
     }
 }

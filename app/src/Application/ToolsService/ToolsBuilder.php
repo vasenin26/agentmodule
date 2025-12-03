@@ -82,6 +82,13 @@ class ToolsBuilder
         ]);
     }
 
+    public function withTerminal(): ToolsBuilder
+    {
+        return $this->withTools([
+            $this->toolsFactory->terminalRun(),
+        ]);
+    }
+
     public function build(): ToolsProviderService
     {
         return $this->toolServiceFactory->withTools($this->tools);

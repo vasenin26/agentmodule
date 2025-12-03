@@ -118,9 +118,6 @@ RUN composer install \
 # Создание директорий для данных
 RUN mkdir -p /home/local/context && chown -R local:local /home/local
 
-# Переключение на пользователя local для безопасности
-USER local
-
 RUN git config --global push.autoSetupRemote true
 
 # Точка входа - orchestrated.php (новый OrchestratedRunner, одна задача)

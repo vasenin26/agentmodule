@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Run;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
@@ -15,6 +16,7 @@ use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
 use Anymodule\Agentmodule\Utils\Log;
+use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -77,6 +79,7 @@ TTT;
             ->withTools([$contentTool])
             ->withRepoManagement($repositoryProvider)
             ->withEditor($repositoryProvider)
+            ->withTerminal()
             ->build();
 
         $this->actionRunnerFactory->createForTask(
