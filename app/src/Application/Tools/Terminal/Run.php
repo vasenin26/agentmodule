@@ -23,7 +23,7 @@ class Run implements ToolInterface
 			}
 
 			$cwd = $args['cwd'] ?? null;
-			$timeout = isset($args['timeout']) ? (int)$args['timeout'] : 10;
+			$timeout = isset($args['timeout']) ? (int)$args['timeout'] : 120;
 			$maxOutput = isset($args['max_output']) ? (int)$args['max_output'] : 10000;
 			$allowShell = isset($args['allow_shell']) ? (bool)$args['allow_shell'] : false;
 
@@ -304,76 +304,42 @@ class Run implements ToolInterface
 			// Set read timeout
 			stream_set_timeout($fp, $timeout);
 
-			// Read response until EOF
-			$response = '';
-			$chunksRead = 0;
-			$lastReadSuccess = true;
-			while (!feof($fp)) {
-				$chunk = @fread($fp, 4096);
-				if ($chunk === false) {
-					$lastError = error_get_last();
-					$lastReadSuccess = false;
-					Log::warning('Failed to read chunk from socket', [
-						'socket_path' => $socketPath,
-						'response_size_so_far' => strlen($response),
-						'chunks_read' => $chunksRead,
-						'last_error' => $lastError,
-					]);
-					break;
-				}
-				if (strlen($chunk) > 0) {
-					$chunksRead++;
-					$response .= $chunk;
-				} else {
-					// Empty chunk - connection might be closing
-					break;
-				}
+			// Read JSON response line (server sends JSON followed by \n)
+			// Using fgets() instead of reading until EOF, because server keeps connection open
+			$response = @fgets($fp, 1048576); // 1MB max line
 
-				// Check for timeout
-				$info = stream_get_meta_data($fp);
-				if (isset($info['timed_out']) && $info['timed_out']) {
-					Log::error('Read timeout from socket', [
-						'socket_path' => $socketPath,
-						'timeout' => $timeout,
-						'response_size' => strlen($response),
-					]);
-					fclose($fp);
-					return new ToolResult(false, "Read timed out after {$timeout}s");
-				}
-
-				// Limit response size to prevent memory issues
-				if (strlen($response) > $maxOutput * 2) {
-					Log::warning('Response size limit reached', [
-						'socket_path' => $socketPath,
-						'max_size' => $maxOutput * 2,
-					]);
-					break;
-				}
+			// Check for timeout
+			$info = stream_get_meta_data($fp);
+			if (isset($info['timed_out']) && $info['timed_out']) {
+				Log::error('Read timeout from socket', [
+					'socket_path' => $socketPath,
+					'timeout' => $timeout,
+				]);
+				fclose($fp);
+				return new ToolResult(false, "Read timed out after {$timeout}s");
 			}
-			// Get socket metadata before closing
-			$socketInfo = stream_get_meta_data($fp);
-			$eofReached = feof($fp);
+
+			// Close connection immediately after receiving response
 			fclose($fp);
-			
+			$fp = null; // Mark as closed
+
+			// Handle empty or failed response
+			if ($response === false || strlen($response) === 0) {
+				Log::error('Empty response received from socket', [
+					'socket_path' => $socketPath,
+					'command' => $command,
+					'likely_cause' => 'The service closed the connection without sending data or read failed.',
+				]);
+				return new ToolResult(false, 'Empty response from proxy. The service may have closed the connection without sending data.');
+			}
+
+			$response = trim($response);
+
 			$responseSize = strlen($response);
 			Log::info('Response received from socket', [
 				'socket_path' => $socketPath,
 				'response_size' => $responseSize,
-				'chunks_read' => $chunksRead,
-				'last_read_success' => $lastReadSuccess,
-				'eof_reached' => $eofReached,
-				'timed_out' => $socketInfo['timed_out'] ?? false,
 			]);
-
-			// Check for empty response
-			if ($responseSize === 0) {
-				Log::error('Empty response received from socket', [
-					'socket_path' => $socketPath,
-					'command' => $command,
-					'likely_cause' => 'The service closed the connection without sending a response. Possible reasons: service crashed, service timeout, invalid request format, or service is not properly handling the request.',
-				]);
-				return new ToolResult(false, 'Empty response from proxy. The service may have closed the connection without sending data.');
-			}
 
 			// Parse JSON response
 			$obj = json_decode($response, true);
