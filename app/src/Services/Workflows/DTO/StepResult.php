@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Application\Workflows\DTO;
+namespace Anymodule\Agentmodule\Services\Workflows\DTO;
 
 readonly class StepResult
 {
