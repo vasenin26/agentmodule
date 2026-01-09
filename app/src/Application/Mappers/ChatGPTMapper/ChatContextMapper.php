@@ -42,7 +42,8 @@ class ChatContextMapper implements ContextMapper
     {
         $lastIndex = -1;
         foreach ($messages as $index => $message) {
-            if (isset($message['role']) && $message['role'] === 'user') {
+            $role = $message['role'] ?? $message['type'] ?? null;
+            if ($role === 'user') {
                 $lastIndex = $index;
             }
         }

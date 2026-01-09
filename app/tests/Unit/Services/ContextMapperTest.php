@@ -36,8 +36,8 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $expectedMessages = [
-            ['type' => 'user', 'content' => 'Hello'],
-            ['type' => 'assistant', 'content' => 'Hi there!']
+            ['role' => 'user', 'content' => 'Hello'],
+            ['role' => 'assistant', 'content' => 'Hi there!']
         ];
 
         $this->messageMapper
@@ -65,9 +65,9 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'user', 'content' => 'Hello'],
-            ['type' => 'assistant', 'content' => 'Hi there!'],
-            ['type' => 'user', 'content' => 'How are you?']
+            ['role' => 'user', 'content' => 'Hello'],
+            ['role' => 'assistant', 'content' => 'Hi there!'],
+            ['role' => 'user', 'content' => 'How are you?']
         ];
 
         $this->messageMapper
@@ -83,13 +83,13 @@ class ContextMapperTest extends TestCase
         $this->assertCount(4, $result);
         
         // Проверяем, что task message вставлен перед последним user message
-        $this->assertEquals('assistant', $result[2]['role']);
+        $this->assertEquals('user', $result[2]['role']);
         $this->assertStringContainsString('Below is your current task list', $result[2]['content']);
         $this->assertStringContainsString('[current] Task 1', $result[2]['content']);
         $this->assertStringContainsString('[todo] Task 2', $result[2]['content']);
         
         // Проверяем, что последний user message остался на своем месте
-        $this->assertEquals('user', $result[3]['type']);
+        $this->assertEquals('user', $result[3]['role']);
         $this->assertEquals('How are you?', $result[3]['content']);
     }
 
@@ -104,7 +104,7 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'assistant', 'content' => 'Hi there!']
+            ['role' => 'assistant', 'content' => 'Hi there!']
         ];
 
         $this->messageMapper
@@ -120,9 +120,9 @@ class ContextMapperTest extends TestCase
         $this->assertCount(2, $result);
         
         // Task message должен быть вставлен в начало
-        $this->assertEquals('assistant', $result[0]['role']);
+        $this->assertEquals('user', $result[0]['role']);
         $this->assertStringContainsString('Below is your current task list', $result[0]['content']);
-        $this->assertEquals('assistant', $result[1]['type']);
+        $this->assertEquals('assistant', $result[1]['role']);
         $this->assertEquals('Hi there!', $result[1]['content']);
     }
 
@@ -134,7 +134,7 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $expectedMessages = [
-            ['type' => 'user', 'content' => 'Hello']
+            ['role' => 'user', 'content' => 'Hello']
         ];
 
         $this->messageMapper
@@ -170,12 +170,12 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'system', 'content' => 'System message'],
-            ['type' => 'user', 'content' => 'First user message'],
-            ['type' => 'assistant', 'content' => 'Assistant response'],
-            ['type' => 'user', 'content' => 'Second user message'],
-            ['type' => 'assistant', 'content' => 'Another response'],
-            ['type' => 'user', 'content' => 'Last user message']
+            ['role' => 'system', 'content' => 'System message'],
+            ['role' => 'user', 'content' => 'First user message'],
+            ['role' => 'assistant', 'content' => 'Assistant response'],
+            ['role' => 'user', 'content' => 'Second user message'],
+            ['role' => 'assistant', 'content' => 'Another response'],
+            ['role' => 'user', 'content' => 'Last user message']
         ];
 
         $this->messageMapper
@@ -191,14 +191,14 @@ class ContextMapperTest extends TestCase
         $this->assertCount(7, $result);
         
         // Проверяем, что task message вставлен перед последним user message (index 5)
-        $this->assertEquals('assistant', $result[5]['role']);
+        $this->assertEquals('user', $result[5]['role']);
         $this->assertStringContainsString('Below is your current task list', $result[5]['content']);
         $this->assertStringContainsString('[done] Task 1', $result[5]['content']);
         $this->assertStringContainsString('[current] Task 2', $result[5]['content']);
         $this->assertStringContainsString('[todo] Task 3', $result[5]['content']);
         
         // Проверяем, что последний user message остался на своем месте
-        $this->assertEquals('user', $result[6]['type']);
+        $this->assertEquals('user', $result[6]['role']);
         $this->assertEquals('Last user message', $result[6]['content']);
     }
 
@@ -230,7 +230,7 @@ class ContextMapperTest extends TestCase
         $this->assertCount(2, $result);
         
         // Проверяем, что task message содержит инструкцию
-        $this->assertEquals('assistant', $result[0]['role']);
+        $this->assertEquals('user', $result[0]['role']);
         $this->assertStringContainsString('Below is your current task list', $result[0]['content']);
         $this->assertStringContainsString('[todo] Valid Task', $result[0]['content']);
     }
@@ -263,7 +263,7 @@ class ContextMapperTest extends TestCase
         $this->assertCount(2, $result);
         
         // Проверяем, что все задачи отмечены как done
-        $this->assertEquals('assistant', $result[0]['role']);
+        $this->assertEquals('user', $result[0]['role']);
         $this->assertStringContainsString('[done] Task 1', $result[0]['content']);
         $this->assertStringContainsString('[done] Task 2', $result[0]['content']);
     }
@@ -280,9 +280,9 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $expectedMessages = [
-            ['type' => 'user', 'content' => 'Привет'],
-            ['type' => 'assistant', 'content' => 'Привет! Как дела?'],
-            ['type' => 'user', 'content' => 'Хорошо, спасибо!']
+            ['role' => 'user', 'content' => 'Привет'],
+            ['role' => 'assistant', 'content' => 'Привет! Как дела?'],
+            ['role' => 'user', 'content' => 'Хорошо, спасибо!']
         ];
 
         $this->messageMapper
@@ -297,9 +297,9 @@ class ContextMapperTest extends TestCase
         // Assert
         $this->assertEquals($expectedMessages, $result);
         $this->assertCount(3, $result);
-        $this->assertEquals('user', $result[0]['type']);
-        $this->assertEquals('assistant', $result[1]['type']);
-        $this->assertEquals('user', $result[2]['type']);
+        $this->assertEquals('user', $result[0]['role']);
+        $this->assertEquals('assistant', $result[1]['role']);
+        $this->assertEquals('user', $result[2]['role']);
     }
 
     /**
@@ -320,9 +320,9 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'user', 'content' => 'Начнем работу над проектом'],
-            ['type' => 'assistant', 'content' => 'Хорошо, давайте начнем!'],
-            ['type' => 'user', 'content' => 'Какие задачи у нас есть?']
+            ['role' => 'user', 'content' => 'Начнем работу над проектом'],
+            ['role' => 'assistant', 'content' => 'Хорошо, давайте начнем!'],
+            ['role' => 'user', 'content' => 'Какие задачи у нас есть?']
         ];
 
         $this->messageMapper
@@ -339,7 +339,7 @@ class ContextMapperTest extends TestCase
         
         // Проверяем, что task message добавлен перед последним user message
         $taskMessage = $result[2];
-        $this->assertEquals('assistant', $taskMessage['role']);
+        $this->assertEquals('user', $taskMessage['role']);
         $this->assertStringContainsString('Below is your current task list', $taskMessage['content']);
         $this->assertStringContainsString('[current] Изучить требования', $taskMessage['content']);
         $this->assertStringContainsString('[todo] Создать план', $taskMessage['content']);
@@ -347,7 +347,7 @@ class ContextMapperTest extends TestCase
         $this->assertStringContainsString('[todo] Протестировать', $taskMessage['content']);
         
         // Проверяем, что последний user message остался на своем месте
-        $this->assertEquals('user', $result[3]['type']);
+        $this->assertEquals('user', $result[3]['role']);
         $this->assertEquals('Какие задачи у нас есть?', $result[3]['content']);
     }
 
@@ -363,8 +363,8 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'user', 'content' => 'Привет'],
-            ['type' => 'assistant', 'content' => 'Привет!']
+            ['role' => 'user', 'content' => 'Привет'],
+            ['role' => 'assistant', 'content' => 'Привет!']
         ];
 
         $this->messageMapper
@@ -401,8 +401,8 @@ class ContextMapperTest extends TestCase
         $contextConversation = new ContextConversation($context, $conversation);
         
         $mappedMessages = [
-            ['type' => 'system', 'content' => 'Системное сообщение'],
-            ['type' => 'assistant', 'content' => 'Ответ ассистента']
+            ['role' => 'system', 'content' => 'Системное сообщение'],
+            ['role' => 'assistant', 'content' => 'Ответ ассистента']
         ];
 
         $this->messageMapper
@@ -418,12 +418,12 @@ class ContextMapperTest extends TestCase
         $this->assertCount(3, $result);
         
         // Task message должен быть в начале
-        $this->assertEquals('assistant', $result[0]['role']);
+        $this->assertEquals('user', $result[0]['role']);
         $this->assertStringContainsString('Below is your current task list', $result[0]['content']);
         $this->assertStringContainsString('[current] Системная задача', $result[0]['content']);
         
         // Остальные сообщения сдвинуты
-        $this->assertEquals('system', $result[1]['type']);
-        $this->assertEquals('assistant', $result[2]['type']);
+        $this->assertEquals('system', $result[1]['role']);
+        $this->assertEquals('assistant', $result[2]['role']);
     }
 }

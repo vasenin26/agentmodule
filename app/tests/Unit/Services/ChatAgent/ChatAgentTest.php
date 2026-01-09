@@ -3,10 +3,15 @@
 namespace Anymodule\Agentmodule\Tests\Unit\Services\ChatAgent;
 
 use Anymodule\Agentmodule\Application\ChatAgent\ChatAgent;
+use Anymodule\Agentmodule\Application\ChatAgent\ContextAgent;
 use Anymodule\Agentmodule\Application\ChatAgent\DTO\ProcessorAnswer;
 use Anymodule\Agentmodule\Application\ChatAgent\DTO\TokenUsage;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
+use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;
+use Anymodule\Agentmodule\Entity\Context;
+use Anymodule\Agentmodule\Entity\ContextConversation;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
@@ -25,7 +30,7 @@ class ChatAgentTest extends TestCase
     {
         $conversation = new Chat();
 
-        $processor = new class implements ChatProcessorInterface {
+        $processor = new class implements ContextConversationProcessorInterface {
             public function contextSize(): int
             {
                 return 1_000_000;
@@ -36,7 +41,7 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1_000_000);
             }
 
-            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 return new class implements ChatResultInterface {
                     public function getProcessorAnswer(): ?ProcessorAnswer
@@ -82,7 +87,8 @@ class ChatAgentTest extends TestCase
             }
         };
 
-        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+        $contextAgent = new ContextAgent($processor, $compressor, $toolsProvider);
+        $agent = new ChatAgent($contextAgent);
         $result = null;
 
         foreach ($agent->execute($conversation) as $result) {
@@ -92,12 +98,16 @@ class ChatAgentTest extends TestCase
         }
 
         $this->assertTrue($result->completed);
-        $this->assertEquals('ok', $result->answer);
+        // Answer is extracted from conversation messages, not from ProcessingResult
+        $messages = $result->conversation->getMessages();
+        $lastMessage = end($messages);
+        $this->assertInstanceOf(\Vasenin26\Conversation\Messages\AssistantMessage::class, $lastMessage);
+        $this->assertEquals('ok', $lastMessage->content);
     }
 
     public function testAgentCallCompressor()
     {
-        $processor = new class implements ChatProcessorInterface {
+        $processor = new class implements ContextConversationProcessorInterface {
 
             public function contextSize(): int
             {
@@ -109,9 +119,9 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1);
             }
 
-            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
             {
-                if(count($chat->getMessages()) > $this->contextSize()) {
+                if(count($contextConversation->conversation->getMessages()) > $this->contextSize()) {
                     throw new ContextOverloadException();
                 }
 
@@ -120,7 +130,7 @@ class ChatAgentTest extends TestCase
                     [],
                     0,
                     0,
-                    count($chat->getMessages())
+                    count($contextConversation->conversation->getMessages())
                 );
             }
         };
@@ -134,7 +144,8 @@ class ChatAgentTest extends TestCase
         $toolsProvider->shouldReceive('getMeta')
             ->andReturn([]);
 
-        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+        $contextAgent = new ContextAgent($processor, $compressor, $toolsProvider);
+        $agent = new ChatAgent($contextAgent);
 
         $conversation = new Chat();
         $conversation->addMessage(new UserMessage('Hello World!'));
@@ -151,7 +162,7 @@ class ChatAgentTest extends TestCase
     public function testContextOverload(): void
     {
         // Создаем процессор, который выбрасывает исключение при большом контексте
-        $processor = new class implements ChatProcessorInterface {
+        $processor = new class implements ContextConversationProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
@@ -162,10 +173,10 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
-                $messageCount = count($chat->getMessages());
+                $messageCount = count($contextConversation->conversation->getMessages());
                 if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
                     throw new ContextOverloadException();
                 }
@@ -219,7 +230,8 @@ class ChatAgentTest extends TestCase
             }
         };
 
-        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+        $contextAgent = new ContextAgent($processor, $compressor, $toolsProvider);
+        $agent = new ChatAgent($contextAgent);
 
         // Создаем чат с большим контекстом (больше лимита)
         $conversation = new Chat();
@@ -228,7 +240,8 @@ class ChatAgentTest extends TestCase
         }
 
         // Ожидаем, что агент выбросит исключение даже после компрессии
-        $this->expectException(ContextOverloadException::class);
+        // ContextAgent оборачивает ContextOverloadException в CompressorException после первой попытки компрессии
+        $this->expectException(\Anymodule\Agentmodule\Application\ChatAgent\Exception\CompressorException::class);
         
         $results = iterator_to_array($agent->execute($conversation));
     }
@@ -236,7 +249,7 @@ class ChatAgentTest extends TestCase
     public function testContextOverloadWithRealScenario(): void
     {
         // Тест, который точно воспроизводит проблему с SummaryCompressor
-        $processor = new class implements ChatProcessorInterface {
+        $processor = new class implements ContextConversationProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
@@ -247,10 +260,10 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
-                $messageCount = count($chat->getMessages());
+                $messageCount = count($contextConversation->conversation->getMessages());
                 if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
                     throw new ContextOverloadException();
                 }
@@ -313,7 +326,8 @@ class ChatAgentTest extends TestCase
             }
         };
 
-        $agent = new ChatAgent($processor, $compressor, $toolsProvider);
+        $contextAgent = new ContextAgent($processor, $compressor, $toolsProvider);
+        $agent = new ChatAgent($contextAgent);
 
         // Создаем чат с большим контекстом (больше лимита)
         $conversation = new Chat();
@@ -322,7 +336,8 @@ class ChatAgentTest extends TestCase
         }
 
         // Ожидаем, что агент выбросит исключение даже после компрессии
-        $this->expectException(ContextOverloadException::class);
+        // ContextAgent оборачивает ContextOverloadException в CompressorException после первой попытки компрессии
+        $this->expectException(\Anymodule\Agentmodule\Application\ChatAgent\Exception\CompressorException::class);
         
         $results = iterator_to_array($agent->execute($conversation));
     }
@@ -332,7 +347,7 @@ class ChatAgentTest extends TestCase
         // Этот тест демонстрирует, что проблема НЕ в логике ChatAgent
         // а в том, что SummaryCompressor передает большой контекст в SummaryGenerator
         
-        $processor = new class implements ChatProcessorInterface {
+        $processor = new class implements ContextConversationProcessorInterface {
             public function contextSize(): int
             {
                 return 1000; // Маленький лимит контекста
@@ -343,10 +358,10 @@ class ChatAgentTest extends TestCase
                 return new \Anymodule\Agentmodule\Entity\ModelMeta('test-model', 1000);
             }
 
-            public function process(Conversation $chat, ?ToolsProviderInterface $tools): ChatResultInterface
+            public function process(ContextConversation $contextConversation, ?ToolsProviderInterface $tools): ChatResultInterface
             {
                 // Симулируем переполнение контекста
-                $messageCount = count($chat->getMessages());
+                $messageCount = count($contextConversation->conversation->getMessages());
                 if ($messageCount > 5) { // Если больше 5 сообщений - переполнение
                     throw new ContextOverloadException();
                 }
@@ -425,14 +440,17 @@ class ChatAgentTest extends TestCase
         }
 
         // Тест 1: Рабочий компрессор должен работать
-        $workingAgent = new ChatAgent($processor, $workingCompressor, $toolsProvider);
+        $workingContextAgent = new ContextAgent($processor, $workingCompressor, $toolsProvider);
+        $workingAgent = new ChatAgent($workingContextAgent);
         $workingResults = iterator_to_array($workingAgent->execute($conversation));
         $this->assertNotEmpty($workingResults);
         $this->assertTrue(end($workingResults)->completed);
 
         // Тест 2: Проблемный компрессор должен падать
-        $brokenAgent = new ChatAgent($processor, $brokenCompressor, $toolsProvider);
-        $this->expectException(ContextOverloadException::class);
+        $brokenContextAgent = new ContextAgent($processor, $brokenCompressor, $toolsProvider);
+        $brokenAgent = new ChatAgent($brokenContextAgent);
+        // ContextAgent оборачивает ContextOverloadException в CompressorException после первой попытки компрессии
+        $this->expectException(\Anymodule\Agentmodule\Application\ChatAgent\Exception\CompressorException::class);
         $brokenResults = iterator_to_array($brokenAgent->execute($conversation));
     }
 }
