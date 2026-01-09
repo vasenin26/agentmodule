@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\Workflows\Interface;
 
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
-use Vasenin26\Conversation\Interface\Conversation;
 
 interface Context
 {
@@ -11,5 +11,5 @@ interface Context
 
     public function getTask(): Task;
 
-    public function getConversation(): Conversation;
+    public function getContextConversation(): ContextConversation;
 }

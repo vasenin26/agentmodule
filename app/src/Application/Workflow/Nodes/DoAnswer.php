@@ -2,25 +2,24 @@
 
 namespace Anymodule\Agentmodule\Application\Workflow\Nodes;
 
-use Anymodule\Agentmodule\Services\Workflows\DTO\StepResult;
+use Anymodule\Agentmodule\Application\Workflow\Interface\NodeProcessorInterface;
+use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
+use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
-use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
 
-class DoAnswer implements NodeInterface
+class DoAnswer implements NodeProcessorInterface
 {
-
-    public function process(Context $ctx): StepResult
+    public function __construct(
+        private ChatAgentFactoryInterface $chatAgentFactory,
+        private GitRepoProviderInterface  $gitRepoProvider,
+    )
     {
-        // TODO: Implement process() method.
     }
 
-    public function defineCurrentNode(Context $ctx)
+    public function process(Context $ctx): \Generator
     {
-        // TODO: Implement defineCurrentNode() method.
-    }
-
-    public function getKey(): string
-    {
-        // TODO: Implement getKey() method.
+        return $this->chatAgentFactory
+            ->createContextAgent(null, $this->gitRepoProvider)
+            ->execute($ctx->getContextConversation());
     }
 }

@@ -45,9 +45,9 @@ class CodeWorkflow implements TaskProcessor
         return $task->type == 'code';
     }
 
-    public function process(Task $task, ProcessHandlerInterface $processHandler): void
+    public function process(Task $task): void
     {
         $ctx = new CodeContext($task);
-        $this->worker->process($ctx, $this->workflow, $processHandler);
+        $this->worker->process($ctx, $this->workflow);
     }
 }
