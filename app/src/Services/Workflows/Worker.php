@@ -35,6 +35,8 @@ class Worker implements WorkflowWorker
                     break;
                 }
             }
+
+            $currentStep = null;
         }
     }
 

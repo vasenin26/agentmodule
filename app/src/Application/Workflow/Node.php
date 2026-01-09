@@ -18,9 +18,9 @@ final readonly class Node implements NodeInterface
     {
     }
 
-    public function process(Context $ctx): StepResult
+    public function process(Context $ctx): \Generator
     {
-        return $this->nodeProcessor->process($ctx);
+        yield $this->nodeProcessor->process($ctx);
     }
 
     public function defineCurrentNode(Context $ctx): string

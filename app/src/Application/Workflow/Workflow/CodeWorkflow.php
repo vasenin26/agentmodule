@@ -5,7 +5,7 @@ namespace Anymodule\Agentmodule\Application\Workflow\Workflow;
 use Anymodule\Agentmodule\Application\Context\CodeContext;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
-use Anymodule\Agentmodule\Application\Workflow\Nodes\Planner;
+use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Task;
@@ -20,9 +20,9 @@ class CodeWorkflow implements TaskProcessor
     public function __construct(private WorkflowWorker $worker)
     {
         $this->workflow = [
-            Planner::class => function(CodeContext $ctx) {
+            CodePlanner::class => function(CodeContext $ctx) {
                 if($ctx->hasPlane()) return Developer::class;
-                return Planner::class;
+                return CodePlanner::class;
             },
             Developer::class => function(CodeContext $ctx) {
                 if($ctx->codeFinished()) return Tester::class;
