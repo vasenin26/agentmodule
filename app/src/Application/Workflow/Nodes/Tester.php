@@ -2,9 +2,15 @@
 
 namespace Anymodule\Agentmodule\Application\Workflow\Nodes;
 
-use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
+use Anymodule\Agentmodule\Application\Workflow\Interface\NodeProcessorInterface;
+use Anymodule\Agentmodule\Services\Workflows\DTO\StepResult;
+use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 
-class Tester implements NodeInterface
+class Tester implements NodeProcessorInterface
 {
 
+    public function process(Context $ctx): \Generator
+    {
+        yield new StepResult(true);
+    }
 }

@@ -29,7 +29,7 @@ class Worker implements WorkflowWorker
                 continue;
             }
 
-            foreach ($stepWorker->process($ctx) as $processResult) {
+            foreach ($stepWorker->process($ctx) as $stepResult) {
                 $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
                 if ($stepWorker->getKey() !== $currentStep) {
                     break;

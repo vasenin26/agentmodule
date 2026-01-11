@@ -5,7 +5,7 @@ namespace Anymodule\Agentmodule\Services\Workflows\DTO;
 readonly class StepResult
 {
     public function __construct(
-        public string $success,
+        public bool $finished,
     )
     {
     }

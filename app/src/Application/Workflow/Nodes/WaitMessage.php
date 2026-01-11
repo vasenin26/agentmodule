@@ -2,25 +2,16 @@
 
 namespace Anymodule\Agentmodule\Application\Workflow\Nodes;
 
+use Anymodule\Agentmodule\Application\Workflow\Interface\NodeProcessorInterface;
 use Anymodule\Agentmodule\Services\Workflows\DTO\StepResult;
 use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
 
-class WaitMessage implements NodeInterface
+class WaitMessage implements NodeProcessorInterface
 {
 
-    public function process(Context $ctx): StepResult
+    public function process(Context $ctx): \Generator
     {
-        // TODO: Implement process() method.
-    }
-
-    public function defineCurrentNode(Context $ctx)
-    {
-        // TODO: Implement defineCurrentNode() method.
-    }
-
-    public function getKey(): string
-    {
-        // TODO: Implement getKey() method.
+        yield new StepResult(true);
     }
 }
