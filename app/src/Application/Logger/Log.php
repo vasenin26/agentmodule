@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Utils;
+namespace Anymodule\Agentmodule\Application\Logger;
 
 
 use Monolog\Handler\StreamHandler;

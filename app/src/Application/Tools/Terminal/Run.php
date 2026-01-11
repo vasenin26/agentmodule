@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Application\Tools\Terminal;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 class Run implements ToolInterface
 {

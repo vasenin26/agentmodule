@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\AssistantMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\CallToolMapper;
@@ -21,12 +22,10 @@ use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
-use Anymodule\Agentmodule\Utils\Log;
 use OpenAI\Responses\Chat\CreateResponse;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
-use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
 
 class ChatMapper implements MessageMapper

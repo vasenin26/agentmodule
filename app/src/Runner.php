@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Interface\Storage\StateStoreInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
-use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Policy\TaskProcessing\TaskProcessorRouter;
 use Ramsey\Uuid\UuidInterface;
 
 final readonly class Runner
@@ -22,7 +22,7 @@ final readonly class Runner
     public function __construct(
         private TaskApiInterface              $api,
         private StateStoreInterface           $stateStore,
-        private TaskProcessorFactoryInterface $processorFactory,
+        private TaskProcessorRouter           $router,
     )
     {
     }
@@ -55,7 +55,7 @@ final readonly class Runner
                 $this->stateStore->push(self::STORE_AGENT_STATUS_KEY, 'processing');
 
                 $handler = new DocsModule($this->api, $agentId, $task->id);
-                $this->processorFactory->createProcessorForTask($task)
+                $this->router->resolve($task)
                     ->process($task, $handler);
 
                 $attemptLimit = self::GET_TASK_ATTEMPTS;

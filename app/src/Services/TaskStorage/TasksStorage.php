@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\TaskStorage;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 class TasksStorage implements TaskStorageInterface
 {

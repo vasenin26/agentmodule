@@ -8,7 +8,6 @@ use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
-use Anymodule\Agentmodule\Utils\Log;
 
 class ChatContextMapper implements ContextMapper
 {

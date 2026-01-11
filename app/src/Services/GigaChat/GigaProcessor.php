@@ -4,13 +4,13 @@ namespace Anymodule\Agentmodule\Services\GigaChat;
 
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatProcessorInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ModelMeta;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\GigaChat\DTO\GigaResult;
 use Anymodule\Agentmodule\Services\GigaChat\Interface\GigaChatMapperInterface;
 use Anymodule\Agentmodule\Services\GigaChat\Interface\GigaClientInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
-use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
 
 class GigaProcessor implements ChatProcessorInterface

@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Interface\Storage\StateStoreInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 /**
  * Клиент для работы с сервером состояния

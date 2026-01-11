@@ -2,6 +2,8 @@
 
 namespace Anymodule\Agentmodule\Application\Actions;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
+use Anymodule\Agentmodule\Application\Support\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
@@ -13,8 +15,6 @@ use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
-use Anymodule\Agentmodule\Utils\Log;
-use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\CallToolMessage;

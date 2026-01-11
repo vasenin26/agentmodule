@@ -5,11 +5,7 @@ namespace Anymodule\Agentmodule\Services\ApiService\Request\Tasks;
 use Anymodule\Agentmodule\Services\ApiService\ApiClient;
 use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
-use Anymodule\Agentmodule\Services\ApiService\Response\ResponseInterface;
 use Anymodule\Agentmodule\Services\ApiService\Response\Tasks\TaskDTO;
-use Anymodule\Agentmodule\Utils\Log;
-use GuzzleHttp\Exception\ClientException;
-use function PHPUnit\Framework\throwException;
 
 final readonly class GetTaskById implements RequestInterface
 {

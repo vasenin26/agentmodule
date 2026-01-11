@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
@@ -14,7 +15,6 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor

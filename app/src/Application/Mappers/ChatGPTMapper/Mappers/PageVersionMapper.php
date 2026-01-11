@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\MessageMapperInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceInterface;
-use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\PageVersionMessage;
 

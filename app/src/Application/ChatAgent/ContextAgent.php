@@ -9,17 +9,16 @@ use Anymodule\Agentmodule\Application\ChatAgent\Exception\LoopLimitReachedExcept
 use Anymodule\Agentmodule\Application\ChatAgent\Exception\ToolCallLimitReachedException;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ChatResultInterface;
 use Anymodule\Agentmodule\Application\ChatAgent\Interface\ContextConversationProcessorInterface;
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ContextActionContract;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
-use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 use Vasenin26\Conversation\Messages\ToolMessage;
-use Vasenin26\Conversation\Messages\UserMessage;
 
 class ContextAgent implements ContextActionContract
 {

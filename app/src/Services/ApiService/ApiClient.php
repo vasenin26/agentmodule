@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Services\ApiService;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Services\ApiService\Exception\RequestException;
 use Anymodule\Agentmodule\Services\ApiService\Request\RequestInterface;
-use Anymodule\Agentmodule\Utils\Log;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 

@@ -3,10 +3,10 @@
 namespace Anymodule\Agentmodule\Application\Tools\Git;
 
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 class ReadFile implements ToolInterface
 {

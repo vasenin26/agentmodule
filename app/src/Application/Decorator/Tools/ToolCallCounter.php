@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Utils;
+namespace Anymodule\Agentmodule\Application\Decorator\Tools;
 
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
 
