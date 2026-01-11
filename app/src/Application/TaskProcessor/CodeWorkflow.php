@@ -1,11 +1,11 @@
 <?php
 
-namespace Anymodule\Agentmodule\Application\Workflow\Workflow;
+namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\Context\CodeContext;
+use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
-use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Task;
@@ -13,11 +13,11 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
 
-class CodeWorkflow implements TaskProcessor
+final class CodeWorkflow implements TaskProcessor
 {
-    private $workflow = [];
+    private array $workflow = [];
 
-    public function __construct(private WorkflowWorker $worker)
+    public function __construct(readonly private WorkflowWorker $worker)
     {
         $this->workflow = [
             CodePlanner::class => function(CodeContext $ctx) {
@@ -45,7 +45,7 @@ class CodeWorkflow implements TaskProcessor
         return $task->type == 'code';
     }
 
-    public function process(Task $task): void
+    public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
         $ctx = new CodeContext($task);
         $this->worker->process($ctx, $this->workflow);
