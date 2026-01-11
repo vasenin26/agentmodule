@@ -29,8 +29,12 @@ final class CodeWorkflow implements TaskProcessor
                 return Developer::class;
             },
             Tester::class  => function(CodeContext $ctx) {
-                if($ctx->testFailed()) return Developer::class;
-                if($ctx->testSucceed()) return WaitMessage::class;
+                if($ctx->testFinished()) {
+                    if($ctx->testSucceed()) {
+                        return WaitMessage::class;
+                    }
+                    return Developer::class;
+                }
                 return Tester::class;
             },
             WaitMessage::class => function (CodeContext $ctx) {

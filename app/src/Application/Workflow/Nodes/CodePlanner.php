@@ -39,7 +39,7 @@ class CodePlanner implements NodeProcessorInterface
             $this->runnerFactory->createForTask($task, ['plane' => $action])
                 ->run($ctx->getContextConversation()->conversation);
 
-            $ctx->setPlane([]);//intermediate deprecated solution pass the task plan with conversation
+            $ctx->setPlane([]); //intermediate deprecated solution pass the task plan with conversation
         }
 
         yield new StepResult(true);
