@@ -65,6 +65,6 @@ final class CodeWorkflow implements TaskProcessor
         $contextConversation = new ContextConversation($context, $handledConversation->conversation);
         
         $ctx = new CodeContext($task, $contextConversation);
-        $this->worker->process($ctx, $this->workflow);
+        $this->worker->process($ctx, $this->workflow, $processHandler);
     }
 }

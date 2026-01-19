@@ -20,7 +20,7 @@ final readonly class Node implements NodeInterface
 
     public function process(Context $ctx): \Generator
     {
-        yield $this->nodeProcessor->process($ctx);
+        yield from $this->nodeProcessor->process($ctx);
     }
 
     public function defineCurrentNode(Context $ctx): string

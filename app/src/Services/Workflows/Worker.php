@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Services\Workflows;
 
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
@@ -16,7 +17,7 @@ class Worker implements WorkflowWorker
     {
     }
 
-    public function process(Context $ctx, array $workflow): void
+    public function process(Context $ctx, array $workflow, ProcessHandlerInterface $handler): void
     {
         $currentStep = $this->defineCurrentNode($ctx, $workflow, null);
         $stepWorker = null;
@@ -30,6 +31,20 @@ class Worker implements WorkflowWorker
             }
 
             foreach ($stepWorker->process($ctx) as $stepResult) {
+                $contextConversation = $ctx->getContextConversation();
+                $handler->handle(new ProcessingResult(
+                    completed: false,
+                    answer: null,
+                    conversation: $contextConversation->conversation,
+                    context: $contextConversation->context,
+                    modelName: null,
+                    contextFill: 0,
+                    promptTokens: 0,
+                    completionTokens: 0,
+                    totalTokens: 0,
+                    payload: [],
+                ));
+
                 $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
                 if ($stepWorker->getKey() !== $currentStep) {
                     break;
