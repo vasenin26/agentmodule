@@ -11,9 +11,15 @@ use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
 use Anymodule\Agentmodule\Services\Workflows\DTO\StepResult;
 use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
+use Vasenin26\Conversation\Enum\ServiceStatus;
+use Vasenin26\Conversation\Messages\ServiceMessage;
 
 class CodePlanner implements NodeProcessorInterface
 {
+    private function startMessageKey(string $prefix): string
+    {
+        return $prefix . '.' . bin2hex(random_bytes(8));
+    }
 
     public function __construct(
         private ActionRunnerFactoryInterface $runnerFactory,
@@ -27,6 +33,15 @@ class CodePlanner implements NodeProcessorInterface
 
     public function process(Context $ctx): \Generator
     {
+        $ctx->getContextConversation()->conversation->addServiceMessage(
+            new ServiceMessage(
+                $this->startMessageKey('node.start.code_planner'),
+                'CodePlanner начал работу',
+                [],
+                ServiceStatus::PROCESSING
+            )
+        );
+
         if ($ctx instanceof PlanableContextInterface) {
             $task = $ctx->getTask();
             $action = $this->af->createTaskPlanner(
