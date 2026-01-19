@@ -57,7 +57,10 @@ final class CodeWorkflow implements TaskProcessor
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $context = new Context($task->context['tasks'] ?? []);
+        $context = new Context(
+            tasks: $task->context['tasks'] ?? [],
+            payload: $task->context['payload'] ?? [],
+        );
         $handledConversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $contextConversation = new ContextConversation($context, $handledConversation->conversation);
         

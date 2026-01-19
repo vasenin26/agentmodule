@@ -11,13 +11,6 @@ use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 
 class CodeContext implements Context, PlanableContextInterface, CodeContextInterface, TesterContextInterface
 {
-    private ?array $plane = null;
-
-    private bool $codeFinished = false;
-
-    private bool $testFinished = false;
-    private ?bool $testSuccess = null;
-
     public function __construct(
         readonly private Task        $task,
         readonly ContextConversation $conversation,
@@ -25,44 +18,76 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
     {
     }
 
+    private const PAYLOAD_NS = 'code';
+
+    private function &getCodePayload(): array
+    {
+        $payload =& $this->conversation->context->payload;
+        if (!isset($payload[self::PAYLOAD_NS]) || !is_array($payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS] = [];
+        }
+
+        if (!array_key_exists('plane', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['plane'] = null;
+        }
+        if (!array_key_exists('codeFinished', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['codeFinished'] = false;
+        }
+        if (!array_key_exists('testFinished', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['testFinished'] = false;
+        }
+        if (!array_key_exists('testSuccess', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['testSuccess'] = null;
+        }
+
+        return $payload[self::PAYLOAD_NS];
+    }
+
     public function setPlane(array $tasks): void
     {
-        $this->plane = $tasks;
+        $code =& $this->getCodePayload();
+        $code['plane'] = $tasks;
     }
 
     public function hasPlane(): bool
     {
-        return $this->plane !== null;
+        $code = $this->getCodePayload();
+        return $code['plane'] !== null;
     }
 
     public function finishCode(): void
     {
-        $this->codeFinished = true;
+        $code =& $this->getCodePayload();
+        $code['codeFinished'] = true;
     }
 
     public function codeFinished(): bool
     {
-        return $this->codeFinished;
+        $code = $this->getCodePayload();
+        return $code['codeFinished'] === true;
     }
 
     public function setTestResult(bool $testResult): void
     {
-        $this->testFinished = true;
-        $this->testSuccess = $testResult;
+        $code =& $this->getCodePayload();
+        $code['testFinished'] = true;
+        $code['testSuccess'] = $testResult;
 
-        if($testResult === false) {
-            $this->codeFinished = false;
+        if ($testResult === false) {
+            $code['codeFinished'] = false;
         }
     }
 
     public function testSucceed(): bool
     {
-        return $this->testSuccess === true;
+        $code = $this->getCodePayload();
+        return $code['testSuccess'] === true;
     }
 
     public function testFinished(): bool
     {
-        return $this->testFinished;
+        $code = $this->getCodePayload();
+        return $code['testFinished'] === true;
     }
 
     public function hasMessage(): bool

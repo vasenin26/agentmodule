@@ -51,7 +51,10 @@ TTT;
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context($task->context['tasks'] ?? []));
+        $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context(
+            tasks: $task->context['tasks'] ?? [],
+            payload: $task->context['payload'] ?? [],
+        ));
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $workBranch = $this->getTaskBranch($task);
 
@@ -95,7 +98,8 @@ TTT;
         }
 
         $context = new Context(
-            $taskStorage->list()
+            tasks: $taskStorage->list(),
+            payload: $task->context['payload'] ?? [],
         );
 
         $agent = $this->chatFactory->createContextAgent($tools, $repositoryProvider);

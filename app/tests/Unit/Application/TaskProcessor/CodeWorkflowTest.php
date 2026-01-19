@@ -246,12 +246,16 @@ class CodeWorkflowTest extends TestCase
         $this->assertNotNull($workflowCaptured);
         
         // Создаем реальный контекст для проверки переходов
-        $context = new Context([]);
-        $contextConversation = new ContextConversation($context, $conversation);
-        $ctxWithPlane = new CodeContext($task, $contextConversation);
+        // Важно: state теперь хранится в Context->payload, поэтому разные CodeContext,
+        // построенные поверх одного ContextConversation, будут делить state.
+        $contextWithPlane = new Context([]);
+        $contextConversationWithPlane = new ContextConversation($contextWithPlane, $conversation);
+        $ctxWithPlane = new CodeContext($task, $contextConversationWithPlane);
         $ctxWithPlane->setPlane([['id' => 1, 'title' => 'Task']]);
         
-        $ctxWithoutPlane = new CodeContext($task, $contextConversation);
+        $contextWithoutPlane = new Context([]);
+        $contextConversationWithoutPlane = new ContextConversation($contextWithoutPlane, $conversation);
+        $ctxWithoutPlane = new CodeContext($task, $contextConversationWithoutPlane);
 
         // Проверяем переход CodePlanner -> Developer когда есть план
         $nextNode = $workflowCaptured[CodePlanner::class]($ctxWithPlane);
@@ -291,17 +295,20 @@ class CodeWorkflowTest extends TestCase
 
         $this->assertNotNull($workflowCaptured);
         
-        $context = new Context([]);
-        $contextConversation = new ContextConversation($context, $conversation);
+        // Важно: state хранится в Context->payload, поэтому используем разные Context для разных сценариев
+        $contextFinished = new Context([]);
+        $contextConversationFinished = new ContextConversation($contextFinished, $conversation);
         
         // Проверяем переход Developer -> Tester когда код завершен
-        $ctxFinished = new CodeContext($task, $contextConversation);
+        $ctxFinished = new CodeContext($task, $contextConversationFinished);
         $ctxFinished->finishCode();
         $nextNode = $workflowCaptured[Developer::class]($ctxFinished);
         $this->assertEquals(Tester::class, $nextNode);
 
         // Проверяем, что Developer остается на месте когда код не завершен
-        $ctxNotFinished = new CodeContext($task, $contextConversation);
+        $contextNotFinished = new Context([]);
+        $contextConversationNotFinished = new ContextConversation($contextNotFinished, $conversation);
+        $ctxNotFinished = new CodeContext($task, $contextConversationNotFinished);
         $nextNode = $workflowCaptured[Developer::class]($ctxNotFinished);
         $this->assertEquals(Developer::class, $nextNode);
     }
@@ -373,17 +380,20 @@ class CodeWorkflowTest extends TestCase
 
         $this->assertNotNull($workflowCaptured);
         
-        $context = new Context([]);
-        $contextConversation = new ContextConversation($context, $conversation);
+        // Важно: state хранится в Context->payload, поэтому используем разные Context для разных сценариев
+        $contextFailed = new Context([]);
+        $contextConversationFailed = new ContextConversation($contextFailed, $conversation);
         
         // Проверяем переход Tester -> Developer когда тесты неудачны
-        $ctxFailed = new CodeContext($task, $contextConversation);
+        $ctxFailed = new CodeContext($task, $contextConversationFailed);
         $ctxFailed->setTestResult(false);
         $nextNode = $workflowCaptured[Tester::class]($ctxFailed);
         $this->assertEquals(Developer::class, $nextNode);
 
         // Проверяем, что Tester остается на месте когда тесты не завершены
-        $ctxNotFinished = new CodeContext($task, $contextConversation);
+        $contextNotFinished = new Context([]);
+        $contextConversationNotFinished = new ContextConversation($contextNotFinished, $conversation);
+        $ctxNotFinished = new CodeContext($task, $contextConversationNotFinished);
         $nextNode = $workflowCaptured[Tester::class]($ctxNotFinished);
         $this->assertEquals(Tester::class, $nextNode);
     }
