@@ -8,7 +8,10 @@ use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
+use Anymodule\Agentmodule\Entity\Context;
+use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
@@ -17,7 +20,10 @@ final class CodeWorkflow implements TaskProcessor
 {
     private array $workflow = [];
 
-    public function __construct(readonly private WorkflowWorker $worker)
+    public function __construct(
+        readonly private WorkflowWorker $worker,
+        readonly private ConversationFactoryInterface $conversationFactory,
+    )
     {
         $this->workflow = [
             CodePlanner::class => function(CodeContext $ctx) {
@@ -51,7 +57,11 @@ final class CodeWorkflow implements TaskProcessor
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $ctx = new CodeContext($task);
+        $context = new Context($task->context['tasks'] ?? []);
+        $handledConversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
+        $contextConversation = new ContextConversation($context, $handledConversation->conversation);
+        
+        $ctx = new CodeContext($task, $contextConversation);
         $this->worker->process($ctx, $this->workflow);
     }
 }
