@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Container;
 
-use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Application\Logger\Log;
 
 class TaskList
 {

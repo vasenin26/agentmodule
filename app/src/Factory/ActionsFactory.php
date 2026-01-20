@@ -5,6 +5,8 @@ namespace Anymodule\Agentmodule\Factory;
 use Anymodule\Agentmodule\Application\Actions\SearchRelevantFiles;
 use Anymodule\Agentmodule\Application\Actions\TaskPlanner;
 use Anymodule\Agentmodule\Application\Enum\TaskTypes;
+use Anymodule\Agentmodule\Application\Logger\Log;
+use Anymodule\Agentmodule\Application\Support\Mapper\ActionInformation;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
@@ -12,11 +14,8 @@ use Anymodule\Agentmodule\Interface\Factory\ActionsFactoryInterface;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\ProjectSettingsProviderInterface;
-use Anymodule\Agentmodule\Interface\Storage\ProjectSettingsInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Utils\Log;
-use Anymodule\Agentmodule\Utils\Mapper\ActionInformation;
 
 final readonly class ActionsFactory implements ActionsFactoryInterface
 {

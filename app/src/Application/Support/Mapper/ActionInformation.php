@@ -1,6 +1,6 @@
 <?php
 
-namespace Anymodule\Agentmodule\Utils\Mapper;
+namespace Anymodule\Agentmodule\Application\Support\Mapper;
 
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Vasenin26\Conversation\Messages\AssistantMessage;

@@ -2,9 +2,9 @@
 
 namespace Anymodule\Agentmodule\Services\ProjectSettings;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Interface\ProjectApiInterface;
 use Anymodule\Agentmodule\Interface\Storage\ProjectSettingsInterface;
-use Anymodule\Agentmodule\Utils\Log;
 
 class ProjectSettings implements ProjectSettingsInterface
 {

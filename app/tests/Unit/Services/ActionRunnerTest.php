@@ -6,7 +6,6 @@ use Anymodule\Agentmodule\Application\ActionRunner;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ActionContract;
 use Anymodule\Agentmodule\Interface\SubtaskCreatorInterface;
-use Anymodule\Agentmodule\Utils\TokenCounter;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Interface\MessageLinkInterface;
@@ -55,12 +54,14 @@ class ActionRunnerTest extends TestCase
             )));
 
         $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
+        $subtaskCreator->expects($this->once())
+            ->method('createSubtask')
+            ->with($actionKey)
+            ->willReturn($this->createMock(\Anymodule\Agentmodule\Interface\ProcessHandlerInterface::class));
+        
         $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
-        $counter = new TokenCounter();
 
-        $runner->run($conversation, $counter);
-
-        $this->assertSame([1, 2, 3], $counter->get());
+        $runner->run($conversation);
     }
 
     public function testRunnerSkipsActionIfAlreadyPresentInChat(): void
@@ -81,11 +82,8 @@ class ActionRunnerTest extends TestCase
 
         $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
         $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
-        $counter = new TokenCounter();
 
-        $runner->run($conversation, $counter);
-
-        $this->assertSame([0, 0, 0], $counter->get());
+        $runner->run($conversation);
     }
 
     private function createEmptyGenerator(): \Generator
@@ -181,10 +179,19 @@ class ActionRunnerTest extends TestCase
             )));
 
         $subtaskCreator = $this->createMock(SubtaskCreatorInterface::class);
+        $processHandler = $this->createMock(\Anymodule\Agentmodule\Interface\ProcessHandlerInterface::class);
+        $processHandler->expects($this->once())
+            ->method('handle')
+            ->with($this->isInstanceOf(ProcessingResult::class));
+        
+        $subtaskCreator->expects($this->once())
+            ->method('createSubtask')
+            ->with($actionKey)
+            ->willReturn($processHandler);
+        
         $runner = new ActionRunner([$actionKey => $action], $subtaskCreator);
-        $counter = new TokenCounter();
 
-        $runner->run($conversation, $counter);
+        $runner->run($conversation);
 
         $this->assertTrue($conversation->isServiceCompletedByKey($actionKey));
     }

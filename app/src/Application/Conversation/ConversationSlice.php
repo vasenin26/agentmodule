@@ -2,7 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Conversation;
 
-use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Interface\MessageLinkInterface;

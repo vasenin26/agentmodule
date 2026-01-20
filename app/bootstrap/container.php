@@ -3,6 +3,7 @@
 use Anymodule\Agentmodule\Application\AgentMeta;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Interface\OpenAIMessageMapperInterface;
 use Anymodule\Agentmodule\Application\ModelsDirectory\ModelsProvider;
+use Anymodule\Agentmodule\Application\Support\Compressor\BrokenCompressor;
 use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ActionsFactory,
     ChatAgentFactory,
@@ -26,8 +27,8 @@ use Anymodule\Agentmodule\Interface\ProjectApiInterface;
 use Anymodule\Agentmodule\Interface\ProjectSettingsProviderInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Policy\TaskProcessing\TaskProcessorRouter;
 use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     ProjectSettings\SettingProvider,
     RepositoryService\RepositoryProvider,
@@ -36,7 +37,6 @@ use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultMapper;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
-use Anymodule\Agentmodule\Utils\BrokenCompressor;
 use DI\ContainerBuilder;
 use Ramsey\Uuid\Uuid;
 
@@ -78,7 +78,8 @@ $builder->addDefinitions([
     ChatProcessorFactoryInterface::class => DI\autowire(ChatProcessorFactory::class),
     ConversationFactoryInterface::class => DI\autowire(ConversationFactory::class),
     PageContextServiceFactoryInterface::class => DI\autowire(PageContextProviderFactory::class),
-    TaskProcessorFactoryInterface::class => DI\autowire(TaskProcessorFactory::class),
+    TaskProcessorFactory::class => DI\autowire(TaskProcessorFactory::class),
+    TaskProcessorRouter::class => DI\autowire(TaskProcessorRouter::class),
     ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),

@@ -20,13 +20,12 @@
  *   - 1: Ошибка выполнения
  */
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Interface\AgentMetaProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
 use Anymodule\Agentmodule\OrchestratedRunner;
+use Anymodule\Agentmodule\Policy\TaskProcessing\TaskProcessorRouter;
 use Anymodule\Agentmodule\Services\StateStore;
-use Anymodule\Agentmodule\Utils\Log;
-use Ramsey\Uuid\Uuid;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -101,7 +100,7 @@ try {
     (new OrchestratedRunner(
         $container->get(TaskApiInterface::class),
         StateStore::run(),
-        $container->get(TaskProcessorFactoryInterface::class),
+        $container->get(TaskProcessorRouter::class),
     )
     )->run($taskId, $agentMeta->getAgentUuid());
 } catch (\Throwable $e) {

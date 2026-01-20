@@ -2,12 +2,11 @@
 
 namespace Anymodule\Agentmodule\Services\StupidJoe\Service;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ModelMeta;
+use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
 use Anymodule\Agentmodule\Services\OpenAIChat\Exception\ContextOverloadException;
 use Anymodule\Agentmodule\Services\StupidJoe\DTO\StupidResult;
-use Anymodule\Agentmodule\Interface\Tools\ToolsProviderInterface;
-use Anymodule\Agentmodule\Utils\Log;
-use mysql_xdevapi\Result;
 use Vasenin26\Conversation\Chat;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\SystemMessage;

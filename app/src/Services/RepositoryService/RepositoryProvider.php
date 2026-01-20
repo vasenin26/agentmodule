@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Services\RepositoryService;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Utils\Log;
 use CzProject\GitPhp\Git;
 use CzProject\GitPhp\GitException;
 use CzProject\GitPhp\GitRepository;

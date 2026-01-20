@@ -2,8 +2,8 @@
 
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Tools\CatchContent;
-use Anymodule\Agentmodule\Application\Tools\Terminal\Run;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
@@ -15,8 +15,6 @@ use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
 use Anymodule\Agentmodule\Services\RepositoryService\RepositoryProvider;
-use Anymodule\Agentmodule\Utils\Log;
-use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
 
 final readonly class CodeProcessor implements \Anymodule\Agentmodule\Interface\Task\TaskProcessor
@@ -53,7 +51,10 @@ TTT;
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
-        $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context($task->context['tasks'] ?? []));
+        $taskStorage = $this->taskStorageProvider->createStorageFromContext(new Context(
+            tasks: $task->context['tasks'] ?? [],
+            payload: $task->context['payload'] ?? [],
+        ));
         $conversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $workBranch = $this->getTaskBranch($task);
 
@@ -97,7 +98,8 @@ TTT;
         }
 
         $context = new Context(
-            $taskStorage->list()
+            tasks: $taskStorage->list(),
+            payload: $task->context['payload'] ?? [],
         );
 
         $agent = $this->chatFactory->createContextAgent($tools, $repositoryProvider);

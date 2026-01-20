@@ -8,7 +8,6 @@ use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Services\OpenAIChat\DTO\OpenAiResult;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\ContextMapper;
 use Anymodule\Agentmodule\Services\OpenAIChat\Interface\MessageMapper;
-use Anymodule\Agentmodule\Utils\Log;
 
 class ChatContextMapper implements ContextMapper
 {
@@ -42,7 +41,8 @@ class ChatContextMapper implements ContextMapper
     {
         $lastIndex = -1;
         foreach ($messages as $index => $message) {
-            if (isset($message['role']) && $message['role'] === 'user') {
+            $role = $message['role'] ?? $message['type'] ?? null;
+            if ($role === 'user') {
                 $lastIndex = $index;
             }
         }

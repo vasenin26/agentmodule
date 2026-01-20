@@ -2,11 +2,11 @@
 
 namespace Anymodule\Agentmodule;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\ResultHandlers\DocsModule;
 use Anymodule\Agentmodule\Interface\Storage\StateStoreInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskApiInterface;
-use Anymodule\Agentmodule\Interface\Task\TaskProcessorFactoryInterface;
-use Anymodule\Agentmodule\Utils\Log;
+use Anymodule\Agentmodule\Policy\TaskProcessing\TaskProcessorRouter;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -23,7 +23,7 @@ final class OrchestratedRunner
     public function __construct(
         private TaskApiInterface              $api,
         private StateStoreInterface           $stateStore,
-        private TaskProcessorFactoryInterface $processorFactory,
+        private TaskProcessorRouter           $router,
     )
     {
     }
@@ -83,7 +83,7 @@ final class OrchestratedRunner
             $handler = new DocsModule($this->api, $agentUuid, $task->id);
             
             // Обработать задачу через соответствующий процессор
-            $this->processorFactory->createProcessorForTask($task)
+            $this->router->resolve($task)
                 ->process($task, $handler);
 
             Log::info("✅ Task completed successfully", [

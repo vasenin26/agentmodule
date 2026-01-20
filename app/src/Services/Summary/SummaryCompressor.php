@@ -3,9 +3,9 @@
 namespace Anymodule\Agentmodule\Services\Summary;
 
 use Anymodule\Agentmodule\Application\Conversation\ConversationSlice;
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Interface\ChatSummaryGeneratorInterface;
 use Anymodule\Agentmodule\Interface\ConversationCompressorInterface;
-use Anymodule\Agentmodule\Utils\Log;
 use Vasenin26\Conversation\Interface\Conversation;
 use Vasenin26\Conversation\Messages\AssistantMessage;
 use Vasenin26\Conversation\Messages\DisappearingMessage;
