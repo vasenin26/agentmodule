@@ -43,6 +43,34 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         return $payload[self::PAYLOAD_NS];
     }
 
+    /**
+     * Switch state to "development in progress":
+     * - codeFinished=false
+     * - testFinished=false
+     * - testSuccess=null
+     */
+    public function startDevelopment(): void
+    {
+        $code =& $this->getCodePayload();
+        $code['codeFinished'] = false;
+        $code['testFinished'] = false;
+        $code['testSuccess'] = null;
+    }
+
+    /**
+     * Switch state to "ready for testing":
+     * - codeFinished=true
+     * - testFinished=false
+     * - testSuccess=null
+     */
+    public function startTesting(): void
+    {
+        $code =& $this->getCodePayload();
+        $code['codeFinished'] = true;
+        $code['testFinished'] = false;
+        $code['testSuccess'] = null;
+    }
+
     public function setPlane(array $tasks): void
     {
         $code =& $this->getCodePayload();

@@ -28,8 +28,19 @@ final class CodeWorkflow implements TaskProcessor
         $this->workflow = [
             'init' => function (CodeContext $ctx) {
                 if($ctx->hasMessage()) return DoAnswer::class;
-                if($ctx->codeFinished()) return Tester::class;
+                if($ctx->codeFinished() && !$ctx->testFinished()) return Tester::class;
                 return CodePlanner::class;
+            },
+            DoAnswer::class => function(CodeContext $ctx) {
+                if($ctx->hasMessage()) return DoAnswer::class;
+                // Route based on state only (no explicit "next node" stored in context)
+                if ($ctx->codeFinished() && !$ctx->testFinished()) {
+                    return Tester::class;
+                }
+                if (!$ctx->codeFinished()) {
+                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
+                }
+                return WaitMessage::class;
             },
             CodePlanner::class => function(CodeContext $ctx) {
                 if($ctx->hasPlane()) return Developer::class;

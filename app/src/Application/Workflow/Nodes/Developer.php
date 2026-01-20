@@ -28,8 +28,7 @@ class Developer implements NodeProcessorInterface
             ->withGit($this->gitRepoProvider)
             ->withRepoManagement($this->gitRepoProvider)
             ->withEditor($this->gitRepoProvider)
-            ->withTasks( $this->taskStorageProvider->getTaskStorage($ctx->getTask()->id))
-            ->withTerminal();
+            ->withTasks( $this->taskStorageProvider->getTaskStorage($ctx->getTask()->id));
 
         foreach ($this->chatAgentFactory
             ->createContextAgent($toolsBuilder->build(), $this->gitRepoProvider)
