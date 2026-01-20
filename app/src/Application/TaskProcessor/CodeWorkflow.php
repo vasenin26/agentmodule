@@ -26,6 +26,11 @@ final class CodeWorkflow implements TaskProcessor
     )
     {
         $this->workflow = [
+            'init' => function (CodeContext $ctx) {
+                if($ctx->hasMessage()) return DoAnswer::class;
+                if($ctx->codeFinished()) return Tester::class;
+                return CodePlanner::class;
+            },
             CodePlanner::class => function(CodeContext $ctx) {
                 if($ctx->hasPlane()) return Developer::class;
                 return CodePlanner::class;
@@ -62,7 +67,7 @@ final class CodeWorkflow implements TaskProcessor
             payload: $task->context['payload'] ?? [],
         );
         $handledConversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
-        $contextConversation = new ContextConversation($context, $handledConversation->conversation);
+        $contextConversation = new ContextConversation($context, $handledConversation);
         
         $ctx = new CodeContext($task, $contextConversation);
         $this->worker->process($ctx, $this->workflow, $processHandler);

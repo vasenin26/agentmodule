@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
+use Vasenin26\Conversation\Messages\InfoMessage;
 
 class Worker implements WorkflowWorker
 {
@@ -24,11 +25,13 @@ class Worker implements WorkflowWorker
 
         while (!is_null($currentStep)) {
             $stepWorker = $this->getStepWorker($currentStep, $workflow);
-
             $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
+
             if ($stepWorker->getKey() !== $currentStep) {
                 continue;
             }
+
+            $ctx->getContextConversation()->conversation->addMessage(new InfoMessage('Current step: ' . $currentStep));
 
             foreach ($stepWorker->process($ctx) as $stepResult) {
                 $contextConversation = $ctx->getContextConversation();
@@ -47,17 +50,12 @@ class Worker implements WorkflowWorker
 
                 $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
                 if ($stepWorker->getKey() !== $currentStep) {
-                    break;
+                    continue 2;
                 }
             }
 
             $currentStep = null;
         }
-    }
-
-    private function defineStartStep(Context $ctx, array $workflow): string
-    {
-        return array_key_first($workflow);
     }
 
     private function defineCurrentNode(Context $ctx, array $workflow, ?NodeInterface $step): ?string

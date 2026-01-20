@@ -14,5 +14,5 @@ interface ChatAgentFactoryInterface
 
     public function createContextAgent(?ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract;
 
-    public function createModelContextAgent(string $modelName, ?ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextActionContract;
+    public function createModelContextAgent(?string $modelName, ?ToolsProviderInterface $tools, GitRepoProviderInterface $repoProvider): ContextActionContract;
 }

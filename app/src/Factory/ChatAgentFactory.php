@@ -39,7 +39,7 @@ final readonly class ChatAgentFactory implements ChatAgentFactoryInterface, Summ
     public function createContextAgent(?ToolsProviderInterface $tools, GitRepoProviderInterface $repositoryProvider): ContextActionContract
     {
         return new ContextAgent(
-            $this->processorFactory->createContextProcessor($tools, $repositoryProvider),
+            $this->processorFactory->createModelContextProcessor(null, $tools, $repositoryProvider),
             $this->compressor,
             $tools
         );

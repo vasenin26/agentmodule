@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\TaskProcessor\{
+    CodeWorkflow,
     CodeProcessor,
     Actualization,
     TechPlaneGeneration,
@@ -17,6 +18,7 @@ use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Interface\Tools\ToolServiceFactoryInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
 
 final class TaskProcessorFactory
 {
@@ -27,11 +29,17 @@ final class TaskProcessorFactory
         private TaskStorageProviderInterface $taskStorageProvider,
         private ActionRunnerFactoryInterface $actionRunnerFactory,
         private ActionsFactoryInterface      $actionsFactory,
+        private WorkflowWorker               $workflowWorker,
     ) {}
 
     public function create(string $processorClass): TaskProcessor
     {
         return match ($processorClass) {
+
+            CodeWorkflow::class => new CodeWorkflow(
+                $this->workflowWorker,
+                $this->conversationFactory,
+            ),
 
             CodeProcessor::class => new CodeProcessor(
                 $this->toolsFactory,

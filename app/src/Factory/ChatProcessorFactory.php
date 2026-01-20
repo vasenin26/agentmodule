@@ -51,7 +51,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
                 new ChatMapper(
                     $this->openAIMessageMapper,
                     $repositoryProvider,
-                    null
+                    $tools
                 )
             )
         );
@@ -82,7 +82,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
                 new ChatMapper(
                     $this->openAIMessageMapper,
                     $repositoryProvider,
-                    null
+                    $tools
                 )
             )
         );

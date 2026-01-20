@@ -2,8 +2,6 @@
 
 namespace Anymodule\Agentmodule\Policy\TaskProcessing;
 
-use;
-use;
 use Anymodule\Agentmodule\Application\TaskProcessor\Actualization;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeProcessor;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeWorkflow;
@@ -26,8 +24,8 @@ final class TaskProcessorOrder
     public static function ordered(): array
     {
         return [
-            CodeProcessor::class,
             CodeWorkflow::class,
+            CodeProcessor::class,
             Actualization::class,
             TechPlaneGeneration::class,
             TaskGenerationProcessor::class,

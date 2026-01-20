@@ -9,6 +9,7 @@ use Anymodule\Agentmodule\Factory\{ActionRunnerFactory,
     ChatAgentFactory,
     ChatProcessorFactory,
     ConversationFactory,
+    NodeFactory,
     PageContextProviderFactory,
     TaskProcessorFactory,
     ToolServiceFactory};
@@ -37,6 +38,9 @@ use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultMapper;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
+use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
+use Anymodule\Agentmodule\Services\Workflows\Worker;
 use DI\ContainerBuilder;
 use Ramsey\Uuid\Uuid;
 
@@ -81,6 +85,9 @@ $builder->addDefinitions([
     TaskProcessorFactory::class => DI\autowire(TaskProcessorFactory::class),
     TaskProcessorRouter::class => DI\autowire(TaskProcessorRouter::class),
     ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
+
+    NodeFactoryInterface::class => DI\autowire(NodeFactory::class),
+    WorkflowWorker::class => DI\autowire(Worker::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),
     TaskApiInterface::class => fn($c) => $c->get(DocModuleApi::class),

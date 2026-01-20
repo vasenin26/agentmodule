@@ -4,6 +4,7 @@ namespace Anymodule\Agentmodule\Factory;
 
 use Anymodule\Agentmodule\Application\Workflow\ContextRouter;
 use Anymodule\Agentmodule\Application\Workflow\Node;
+use Anymodule\Agentmodule\Application\Workflow\Nodes\NoOp;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
 use DI\FactoryInterface;
@@ -31,6 +32,10 @@ class NodeFactory implements NodeFactoryInterface
 
     private function resolveNode(string $nodeKey): string
     {
-        return $nodeKey;
+        if (class_exists($nodeKey)) {
+            return $nodeKey;
+        }
+
+        return NoOp::class;
     }
 }

@@ -127,11 +127,11 @@ class CodeWorkflowTest extends TestCase
         $this->worker->expects($this->once())
             ->method('process')
             ->with(
-                $this->callback(function (CodeContext $ctx) use ($task, $conversation) {
+                $this->callback(function (CodeContext $ctx) use ($task, $handledConversation) {
                     $contextConversation = $ctx->getContextConversation();
                     return $contextConversation instanceof ContextConversation
                         && $contextConversation->context->tasks === $task->context['tasks']
-                        && $contextConversation->conversation === $conversation;
+                        && $contextConversation->conversation === $handledConversation;
                 }),
                 $this->anything()
             );

@@ -138,7 +138,7 @@ class WorkerTest extends TestCase
         $this->worker->process($this->context, $workflow, $this->handler);
     }
 
-    public function testProcessBreaksLoopWhenNodeChangesDuringProcessing(): void
+    public function testProcessContinuesWhenNodeChangesDuringProcessing(): void
     {
         $workflow = [
             'step1' => ['rule1' => 'value1'],
@@ -154,11 +154,19 @@ class WorkerTest extends TestCase
             new StepResult(finished: false),
         ]));
 
-        // node2 не должен быть создан, так как после break цикл завершается
-        $this->nodeFactory->expects($this->once())
+        $node2 = $this->createMock(NodeInterface::class);
+        $node2->method('getKey')->willReturn('step2');
+        $node2->method('defineCurrentNode')->willReturn('step2');
+        $node2->method('process')->willReturn($this->createStepResultGenerator([
+            new StepResult(finished: true),
+        ]));
+
+        // При смене шага внутри process() worker должен переключиться на новый шаг
+        $this->nodeFactory->expects($this->exactly(2))
             ->method('createRuledNode')
-            ->with('step1', ['rule1' => 'value1'])
-            ->willReturn($node1);
+            ->willReturnCallback(function ($key) use ($node1, $node2) {
+                return $key === 'step1' ? $node1 : $node2;
+            });
 
         $this->worker->process($this->context, $workflow, $this->handler);
     }
