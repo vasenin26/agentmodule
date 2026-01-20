@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\ResultHandlers;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Exception\AgentTaskStopped;
@@ -24,6 +25,8 @@ class DocsModule implements ProcessHandlerInterface
      */
     public function handle(ProcessingResult $result): void
     {
+        Log::info("🌍 DocsModule handle result");
+
         $response = $this->api->sendResult($this->agentId, $this->taskId, $result);
 
         if ($response->status === 'stopped') {

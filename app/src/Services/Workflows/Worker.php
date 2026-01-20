@@ -144,6 +144,19 @@ class Worker implements WorkflowWorker
 
             $currentStep = null;
         }
+        
+        $handler->handle(new ProcessingResult(
+            completed: true,
+            answer: null,
+            conversation: $contextConversation->conversation,
+            context: $contextConversation->context,
+            modelName: null,
+            contextFill: 0,
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+            payload: [],
+        ));
     }
 
     private function defineCurrentNode(Context $ctx, array $workflow, ?NodeInterface $step): ?string

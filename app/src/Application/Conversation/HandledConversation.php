@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Conversation;
 
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Anymodule\Agentmodule\Application\Messages\HandledServiceMessageLink;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
@@ -56,6 +57,8 @@ class HandledConversation implements Conversation
 
     private function fire(): void
     {
+        Log::info("📩 Message fired");
+        
         if ($this->handler) {
             $this->handler->handle(new ProcessingResult(
                 completed: false,
