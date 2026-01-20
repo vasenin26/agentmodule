@@ -33,7 +33,6 @@ final class CodeWorkflow implements TaskProcessor
             },
             DoAnswer::class => function(CodeContext $ctx) {
                 if($ctx->hasMessage()) return DoAnswer::class;
-                // Route based on state only (no explicit "next node" stored in context)
                 if ($ctx->codeFinished() && !$ctx->testFinished()) {
                     return Tester::class;
                 }

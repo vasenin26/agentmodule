@@ -8,6 +8,7 @@ use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
+use Anymodule\Agentmodule\Application\Logger\Log;
 use Vasenin26\Conversation\Messages\InfoMessage;
 
 class Worker implements WorkflowWorker
@@ -20,21 +21,75 @@ class Worker implements WorkflowWorker
 
     public function process(Context $ctx, array $workflow, ProcessHandlerInterface $handler): void
     {
+        $maxTotalStepResults = 1000;
+        $totalStepResults = 0;
+
+        // Detect ping-pong loops like: node1 -> node2 -> node1 -> node2 ...
+        // Count only transitions where the node produced exactly ONE StepResult.
+        $maxPingPongBounces = 10;
+        $pingPongBounces = 0;
+        $lastTransitionFrom = null;
+        $lastTransitionTo = null;
+
+        // Detect router-only ping-pong loops (node changes without executing nodes).
+        $routingPingPongBounces = 0;
+        $lastRoutingFrom = null;
+        $lastRoutingTo = null;
+
         $currentStep = $this->defineCurrentNode($ctx, $workflow, null);
         $stepWorker = null;
 
         while (!is_null($currentStep)) {
+
             $stepWorker = $this->getStepWorker($currentStep, $workflow);
             $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
 
             if ($stepWorker->getKey() !== $currentStep) {
+                Log::info("Node changed, skip node " . $stepWorker->getKey());
+                Log::info("New node: " . $currentStep);
+
+                $fromNode = $stepWorker->getKey();
+                $toNode = $currentStep;
+
+                if (
+                    $lastRoutingFrom !== null
+                    && $lastRoutingTo !== null
+                    && $fromNode === $lastRoutingTo
+                    && $toNode === $lastRoutingFrom
+                ) {
+                    $routingPingPongBounces++;
+                } else {
+                    $routingPingPongBounces = 0;
+                }
+
+                $lastRoutingFrom = $fromNode;
+                $lastRoutingTo = $toNode;
+
+                if ($routingPingPongBounces >= $maxPingPongBounces) {
+                    throw new \RuntimeException(
+                        "Detected router ping-pong loop between nodes: {$lastRoutingFrom} <-> {$lastRoutingTo}"
+                    );
+                }
                 continue;
             }
 
             $ctx->getContextConversation()->conversation->addMessage(new InfoMessage('Current step: ' . $currentStep));
 
+            // Node is actually executing; reset router-only loop detection.
+            $routingPingPongBounces = 0;
+            $lastRoutingFrom = null;
+            $lastRoutingTo = null;
+
+            $nodeStepResultsCount = 0;
             foreach ($stepWorker->process($ctx) as $stepResult) {
+                $nodeStepResultsCount++;
+                $totalStepResults++;
+                if ($totalStepResults > $maxTotalStepResults) {
+                    throw new \RuntimeException("Workflow exceeded {$maxTotalStepResults} step results limit");
+                }
+
                 $contextConversation = $ctx->getContextConversation();
+
                 $handler->handle(new ProcessingResult(
                     completed: false,
                     answer: null,
@@ -50,6 +105,39 @@ class Worker implements WorkflowWorker
 
                 $currentStep = $this->defineCurrentNode($ctx, $workflow, $stepWorker);
                 if ($stepWorker->getKey() !== $currentStep) {
+                    $fromNode = $stepWorker->getKey();
+                    $toNode = $currentStep;
+
+                    // Ping-pong detection only for nodes that yield exactly ONE step result.
+                    if ($nodeStepResultsCount === 1) {
+                        if (
+                            $lastTransitionFrom !== null
+                            && $lastTransitionTo !== null
+                            && $fromNode === $lastTransitionTo
+                            && $toNode === $lastTransitionFrom
+                        ) {
+                            $pingPongBounces++;
+                        } else {
+                            $pingPongBounces = 0;
+                        }
+
+                        $lastTransitionFrom = $fromNode;
+                        $lastTransitionTo = $toNode;
+
+                        if ($pingPongBounces >= $maxPingPongBounces) {
+                            throw new \RuntimeException(
+                                "Detected ping-pong loop between nodes: {$lastTransitionFrom} <-> {$lastTransitionTo}"
+                            );
+                        }
+                    } else {
+                        // Consider transition justified; reset loop detection.
+                        $pingPongBounces = 0;
+                        $lastTransitionFrom = null;
+                        $lastTransitionTo = null;
+                    }
+
+                    Log::info("Node changed, stop workflow processing");
+                    Log::info("New node: " . $currentStep);
                     continue 2;
                 }
             }
