@@ -40,9 +40,16 @@ class Developer implements NodeProcessorInterface
                 }
             }
 
-            yield new StepResult(false);
+            yield new StepResult(
+                finished: false,
+                promptTokens: $processingResult->promptTokens,
+                completionTokens: $processingResult->completionTokens,
+                totalTokens: $processingResult->totalTokens,
+                modelName: $processingResult->modelName,
+                contextFill: $processingResult->contextFill,
+            );
         }
 
-        yield new StepResult(true);
+        yield new StepResult(finished: true);
     }
 }

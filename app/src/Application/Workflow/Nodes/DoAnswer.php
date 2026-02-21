@@ -46,12 +46,19 @@ class DoAnswer implements NodeProcessorInterface
                 if($processingResult->completed) {
                     if ($ctx->codeFinished() !== $initialCodeFinished || $ctx->testFinished() !== $initialTestFinished) {
                         Log::info("Context changed, stop DoAnswer processing");
-                        yield new StepResult(true);
+                        yield new StepResult(finished: true);
                         return;
                     }
                 }
 
-                yield new StepResult(false);
+                yield new StepResult(
+                    finished: false,
+                    promptTokens: $processingResult->promptTokens,
+                    completionTokens: $processingResult->completionTokens,
+                    totalTokens: $processingResult->totalTokens,
+                    modelName: $processingResult->modelName,
+                    contextFill: $processingResult->contextFill,
+                );
             }
         }
 

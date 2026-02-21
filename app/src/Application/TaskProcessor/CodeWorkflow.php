@@ -3,6 +3,7 @@
 namespace Anymodule\Agentmodule\Application\TaskProcessor;
 
 use Anymodule\Agentmodule\Application\Context\CodeContext;
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
@@ -10,9 +11,11 @@ use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
+use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Entity\Task;
 use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Interface\Task\TaskProcessor;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
 
@@ -21,8 +24,9 @@ final class CodeWorkflow implements TaskProcessor
     private array $workflow = [];
 
     public function __construct(
-        readonly private WorkflowWorker $worker,
-        readonly private ConversationFactoryInterface $conversationFactory,
+        readonly private WorkflowWorker               $worker,
+        readonly private ConversationFactoryInterface  $conversationFactory,
+        readonly private TaskStorageProviderInterface  $taskStorageProvider,
     )
     {
         $this->workflow = [
@@ -72,15 +76,31 @@ final class CodeWorkflow implements TaskProcessor
 
     public function process(Task $task, ProcessHandlerInterface $processHandler): void
     {
+        $taskStorage = $this->taskStorageProvider->getTaskStorage($task->id);
+
         $context = new Context(
-            tasks: $task->context['tasks'] ?? [],
+            tasks: $taskStorage->list() ?: ($task->context['tasks'] ?? []),
             payload: $task->context['payload'] ?? [],
         );
 
         $handledConversation = $this->conversationFactory->handledConversation($task->messages, $processHandler);
         $contextConversation = new ContextConversation($context, $handledConversation);
-        
         $ctx = new CodeContext($task, $contextConversation);
-        $this->worker->process($ctx, $this->workflow, $processHandler);
+
+        $syncingHandler = new class($processHandler, $context, $taskStorage) implements ProcessHandlerInterface {
+            public function __construct(
+                private ProcessHandlerInterface $inner,
+                private Context                 $context,
+                private TaskStorageInterface    $storage,
+            ) {}
+
+            public function handle(ProcessingResult $result): void
+            {
+                $this->context->updateTask($this->storage->list());
+                $this->inner->handle($result);
+            }
+        };
+
+        $this->worker->process($ctx, $this->workflow, $syncingHandler);
     }
 }
