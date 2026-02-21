@@ -17,13 +17,10 @@ final class SwitchToDevelopment implements ToolInterface
 
     public function execute(array $args): ?ToolResult
     {
-        $this->ctx->requestDevelopment();
+        $this->ctx->requestTransition('development');
 
         return new ToolResult(true, 'Switched context to development', [
-            'state' => [
-                'codeFinished' => false,
-                'testFinished' => false,
-            ],
+            'state' => ['requestedTransition' => 'development'],
             'instruction' => 'Proceed with code changes (development).',
         ]);
     }
@@ -45,4 +42,3 @@ final class SwitchToDevelopment implements ToolInterface
         return self::NAME;
     }
 }
-

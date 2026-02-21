@@ -4,7 +4,6 @@ namespace Anymodule\Agentmodule\Application\Workflow\Nodes;
 
 use Anymodule\Agentmodule\Application\Context\CodeContext;
 use Anymodule\Agentmodule\Application\Tools\Workflow\SwitchToDevelopment;
-use Anymodule\Agentmodule\Application\Tools\Workflow\SwitchToTesting;
 use Anymodule\Agentmodule\Application\Workflow\Interface\NodeProcessorInterface;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
@@ -25,30 +24,23 @@ class DoAnswer implements NodeProcessorInterface
 
     public function process(CodeContext|Context $ctx): \Generator
     {
-        Log::info("DoAnswer node processing");  
+        Log::info("DoAnswer node processing");
 
         if ($ctx instanceof CodeContext) {
-            $initialCodeFinished = $ctx->codeFinished();
-            $initialTestFinished = $ctx->testFinished();
-
-            // Let the agent explicitly switch context via tools if needed.
             $tools = $this->toolsFactory->createToolsBuilder()
                 ->withGit($this->gitRepoProvider)
                 ->withTools([
                     new SwitchToDevelopment($ctx),
-                    new SwitchToTesting($ctx),
                 ])
                 ->build();
 
             $agent = $this->chatAgentFactory->createContextAgent($tools, $this->gitRepoProvider);
 
             foreach ($agent->execute($ctx->getContextConversation()) as $processingResult) {
-                if($processingResult->completed) {
-                    if ($ctx->codeFinished() !== $initialCodeFinished || $ctx->testFinished() !== $initialTestFinished || $ctx->isDevelopmentRequested()) {
-                        Log::info("Context changed, stop DoAnswer processing");
-                        yield new StepResult(finished: true);
-                        return;
-                    }
+                if ($processingResult->completed && $ctx->getRequestedTransition() !== null) {
+                    Log::info("Context changed (requestedTransition set), stop DoAnswer processing");
+                    yield new StepResult(finished: true);
+                    return;
                 }
 
                 yield new StepResult(

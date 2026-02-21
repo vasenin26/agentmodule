@@ -71,6 +71,7 @@ class Tester implements NodeProcessorInterface
         $runner->run($ctx->getContextConversation()->conversation);
 
         $success = ($session->success === true);
+        $ctx->setTestedRound($ctx->devRound());
         $ctx->setTestResult($success);
 
         $ctx->getContextConversation()->conversation->addMessage(new AssistantMessage(

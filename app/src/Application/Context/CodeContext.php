@@ -30,69 +30,76 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         if (!array_key_exists('plane', $payload[self::PAYLOAD_NS])) {
             $payload[self::PAYLOAD_NS]['plane'] = null;
         }
-        if (!array_key_exists('codeFinished', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['codeFinished'] = false;
+        if (!array_key_exists('devRound', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['devRound'] = 0;
         }
-        if (!array_key_exists('testFinished', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['testFinished'] = false;
+        if (!array_key_exists('testedRound', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['testedRound'] = 0;
         }
-        if (!array_key_exists('testSuccess', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['testSuccess'] = null;
+        if (!array_key_exists('testResult', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['testResult'] = null;
         }
-        if (!array_key_exists('developmentRequested', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['developmentRequested'] = false;
+        if (!array_key_exists('requestedTransition', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['requestedTransition'] = null;
         }
 
         return $payload[self::PAYLOAD_NS];
     }
 
-    /**
-     * Switch state to "development in progress":
-     * - codeFinished=false
-     * - testFinished=false
-     * - testSuccess=null
-     */
-    public function startDevelopment(): void
+    public function incrementDevRound(): void
     {
         $code =& $this->getCodePayload();
-        $code['codeFinished'] = false;
-        $code['testFinished'] = false;
-        $code['testSuccess'] = null;
+        $code['devRound'] = ($code['devRound'] ?? 0) + 1;
     }
 
-    public function requestDevelopment(): void
-    {
-        $code =& $this->getCodePayload();
-        $code['developmentRequested'] = true;
-        $code['codeFinished'] = false;
-        $code['testFinished'] = false;
-        $code['testSuccess'] = null;
-    }
-
-    public function isDevelopmentRequested(): bool
+    public function devRound(): int
     {
         $code = $this->getCodePayload();
-        return $code['developmentRequested'] === true;
+        return (int) ($code['devRound'] ?? 0);
     }
 
-    public function clearDevelopmentRequest(): void
+    public function setTestedRound(int $round): void
     {
         $code =& $this->getCodePayload();
-        $code['developmentRequested'] = false;
+        $code['testedRound'] = $round;
     }
 
-    /**
-     * Switch state to "ready for testing":
-     * - codeFinished=true
-     * - testFinished=false
-     * - testSuccess=null
-     */
-    public function startTesting(): void
+    public function testedRound(): int
+    {
+        $code = $this->getCodePayload();
+        return (int) ($code['testedRound'] ?? 0);
+    }
+
+    public function setTestResult(bool $result): void
     {
         $code =& $this->getCodePayload();
-        $code['codeFinished'] = true;
-        $code['testFinished'] = false;
-        $code['testSuccess'] = null;
+        $code['testResult'] = $result;
+    }
+
+    public function lastTestResult(): ?bool
+    {
+        $code = $this->getCodePayload();
+        $v = $code['testResult'] ?? null;
+        return $v === null ? null : (bool) $v;
+    }
+
+    public function requestTransition(string $to): void
+    {
+        $code =& $this->getCodePayload();
+        $code['requestedTransition'] = $to;
+    }
+
+    public function getRequestedTransition(): ?string
+    {
+        $code = $this->getCodePayload();
+        $v = $code['requestedTransition'] ?? null;
+        return $v === null || $v === '' ? null : (string) $v;
+    }
+
+    public function clearRequestedTransition(): void
+    {
+        $code =& $this->getCodePayload();
+        $code['requestedTransition'] = null;
     }
 
     public function setPlane(array $tasks): void
@@ -105,41 +112,6 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
     {
         $code = $this->getCodePayload();
         return $code['plane'] !== null;
-    }
-
-    public function finishCode(): void
-    {
-        $code =& $this->getCodePayload();
-        $code['codeFinished'] = true;
-    }
-
-    public function codeFinished(): bool
-    {
-        $code = $this->getCodePayload();
-        return $code['codeFinished'] === true;
-    }
-
-    public function setTestResult(bool $testResult): void
-    {
-        $code =& $this->getCodePayload();
-        $code['testFinished'] = true;
-        $code['testSuccess'] = $testResult;
-
-        if ($testResult === false) {
-            $code['codeFinished'] = false;
-        }
-    }
-
-    public function testSucceed(): bool
-    {
-        $code = $this->getCodePayload();
-        return $code['testSuccess'] === true;
-    }
-
-    public function testFinished(): bool
-    {
-        $code = $this->getCodePayload();
-        return $code['testFinished'] === true;
     }
 
     public function hasMessage(): bool

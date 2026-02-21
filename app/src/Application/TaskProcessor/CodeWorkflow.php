@@ -31,45 +31,45 @@ final class CodeWorkflow implements TaskProcessor
     {
         $this->workflow = [
             'init' => function (CodeContext $ctx) {
-                if($ctx->hasMessage()) return DoAnswer::class;
-                if($ctx->codeFinished() && !$ctx->testFinished()) return Tester::class;
-                return CodePlanner::class;
-            },
-            DoAnswer::class => function(CodeContext $ctx) {
-                if($ctx->hasMessage()) return DoAnswer::class;
-
-                if ($ctx->isDevelopmentRequested()) {
-                    $ctx->clearDevelopmentRequest();
-                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
+                if ($ctx->hasMessage()) {
+                    return DoAnswer::class;
                 }
-
-                if ($ctx->codeFinished() && !$ctx->testFinished()) {
+                if ($ctx->testedRound() < $ctx->devRound()) {
                     return Tester::class;
                 }
-
-                return WaitMessage::class;
-            },
-            CodePlanner::class => function(CodeContext $ctx) {
-                if($ctx->hasPlane()) return Developer::class;
                 return CodePlanner::class;
             },
-            Developer::class => function(CodeContext $ctx) {
-                if($ctx->codeFinished()) return Tester::class;
+            DoAnswer::class => function (CodeContext $ctx) {
+                if ($ctx->hasMessage()) {
+                    return DoAnswer::class;
+                }
+                $t = $ctx->getRequestedTransition();
+                if ($t === 'development') {
+                    $ctx->clearRequestedTransition();
+                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
+                }
+                return WaitMessage::class;
+            },
+            CodePlanner::class => function (CodeContext $ctx) {
+                if ($ctx->hasPlane()) {
+                    return Developer::class;
+                }
+                return CodePlanner::class;
+            },
+            Developer::class => function (CodeContext $ctx) {
+                if ($ctx->testedRound() < $ctx->devRound()) {
+                    return Tester::class;
+                }
                 return Developer::class;
             },
-            Tester::class  => function(CodeContext $ctx) {
-                if($ctx->testFinished()) {
-                    if($ctx->testSucceed()) {
-                        return WaitMessage::class;
-                    }
-                    return Developer::class;
+            Tester::class => function (CodeContext $ctx) {
+                if ($ctx->testedRound() === $ctx->devRound()) {
+                    return $ctx->lastTestResult() === true ? WaitMessage::class : Developer::class;
                 }
                 return Tester::class;
             },
-            WaitMessage::class => function (CodeContext $ctx) {
-                if($ctx->hasMessage()) return DoAnswer::class;
-                return WaitMessage::class;
-            },
+            // Dead-end node: no rule, Worker uses createDeadEndNode; workflow stops after WaitMessage runs once.
+            WaitMessage::class => null,
         ];
     }
 

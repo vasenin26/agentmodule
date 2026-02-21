@@ -4,9 +4,9 @@ namespace Anymodule\Agentmodule\Application\Tools\Editor;
 
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\FileModifyingToolInterface;
 
-class DeleteLines implements ToolInterface
+class DeleteLines implements FileModifyingToolInterface
 {
     const NAME = 'editor-delete-lines';
 

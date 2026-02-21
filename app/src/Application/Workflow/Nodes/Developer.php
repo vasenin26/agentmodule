@@ -2,6 +2,7 @@
 
 namespace Anymodule\Agentmodule\Application\Workflow\Nodes;
 
+use Anymodule\Agentmodule\Application\Decorator\Tools\FileChangeTracker;
 use Anymodule\Agentmodule\Application\Workflow\Interface\CodeContextInterface;
 use Anymodule\Agentmodule\Application\Workflow\Interface\NodeProcessorInterface;
 use Anymodule\Agentmodule\Interface\Factory\ChatAgentFactoryInterface;
@@ -24,21 +25,19 @@ class Developer implements NodeProcessorInterface
 
     public function process(CodeContextInterface|Context $ctx): \Generator
     {
+        $tracker = new FileChangeTracker();
+        $tracker->reset();
+
         $toolsBuilder = $this->toolsFactory->createToolsBuilderWithRepository($this->gitRepoProvider)
             ->withGit($this->gitRepoProvider)
             ->withRepoManagement($this->gitRepoProvider)
             ->withEditor($this->gitRepoProvider)
-            ->withTasks( $this->taskStorageProvider->getTaskStorage($ctx->getTask()->id));
+            ->withTasks($this->taskStorageProvider->getTaskStorage($ctx->getTask()->id))
+            ->withFileChangeTracking($tracker);
 
         foreach ($this->chatAgentFactory
             ->createContextAgent($toolsBuilder->build(), $this->gitRepoProvider)
             ->execute($ctx->getContextConversation()) as $processingResult) {
-
-            if($processingResult->completed) {
-                if($ctx instanceof CodeContextInterface) {
-                    $ctx->finishCode();
-                }
-            }
 
             yield new StepResult(
                 finished: false,
@@ -48,6 +47,10 @@ class Developer implements NodeProcessorInterface
                 modelName: $processingResult->modelName,
                 contextFill: $processingResult->contextFill,
             );
+        }
+
+        if ($tracker->hasChanges() && $ctx instanceof CodeContextInterface) {
+            $ctx->incrementDevRound();
         }
 
         yield new StepResult(finished: true);

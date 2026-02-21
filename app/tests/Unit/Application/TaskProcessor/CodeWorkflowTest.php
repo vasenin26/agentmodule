@@ -103,10 +103,10 @@ class CodeWorkflowTest extends TestCase
                         && $ctx->getProjectId() === $task->projectId;
                 }),
                 $this->callback(function (array $workflow) {
-                    return isset($workflow[CodePlanner::class])
-                        && isset($workflow[Developer::class])
-                        && isset($workflow[Tester::class])
-                        && isset($workflow[WaitMessage::class]);
+                    return array_key_exists(CodePlanner::class, $workflow)
+                        && array_key_exists(Developer::class, $workflow)
+                        && array_key_exists(Tester::class, $workflow)
+                        && array_key_exists(WaitMessage::class, $workflow);
                 })
             );
 
@@ -212,11 +212,11 @@ class CodeWorkflowTest extends TestCase
                     $this->assertArrayHasKey(Tester::class, $workflow);
                     $this->assertArrayHasKey(WaitMessage::class, $workflow);
 
-                    // Проверяем, что правила переходов - это callable функции
+                    // Rules are callables; WaitMessage is dead-end (null)
                     $this->assertIsCallable($workflow[CodePlanner::class]);
                     $this->assertIsCallable($workflow[Developer::class]);
                     $this->assertIsCallable($workflow[Tester::class]);
-                    $this->assertIsCallable($workflow[WaitMessage::class]);
+                    $this->assertNull($workflow[WaitMessage::class]);
 
                     return true;
                 })
@@ -304,23 +304,19 @@ class CodeWorkflowTest extends TestCase
         $this->processor->process($task, $processHandler);
 
         $this->assertNotNull($workflowCaptured);
-        
-        // Важно: state хранится в Context->payload, поэтому используем разные Context для разных сценариев
-        $contextFinished = new Context([]);
-        $contextConversationFinished = new ContextConversation($contextFinished, $conversation);
-        
-        // Проверяем переход Developer -> Tester когда код завершен
-        $ctxFinished = new CodeContext($task, $contextConversationFinished);
-        $ctxFinished->finishCode();
-        $nextNode = $workflowCaptured[Developer::class]($ctxFinished);
-        $this->assertEquals(Tester::class, $nextNode);
 
-        // Проверяем, что Developer остается на месте когда код не завершен
-        $contextNotFinished = new Context([]);
-        $contextConversationNotFinished = new ContextConversation($contextNotFinished, $conversation);
-        $ctxNotFinished = new CodeContext($task, $contextConversationNotFinished);
-        $nextNode = $workflowCaptured[Developer::class]($ctxNotFinished);
-        $this->assertEquals(Developer::class, $nextNode);
+        $contextUntestedDev = new Context([]);
+        $contextConversationUntestedDev = new ContextConversation($contextUntestedDev, $conversation);
+        $ctxUntestedDev = new CodeContext($task, $contextConversationUntestedDev);
+        $ctxUntestedDev->incrementDevRound();
+        $nextNode = $workflowCaptured[Developer::class]($ctxUntestedDev);
+        $this->assertEquals(Tester::class, $nextNode, 'Developer → Tester when testedRound < devRound');
+
+        $contextNoUntested = new Context([]);
+        $contextConversationNoUntested = new ContextConversation($contextNoUntested, $conversation);
+        $ctxNoUntested = new CodeContext($task, $contextConversationNoUntested);
+        $nextNode = $workflowCaptured[Developer::class]($ctxNoUntested);
+        $this->assertEquals(Developer::class, $nextNode, 'Developer stays when testedRound >= devRound');
     }
 
     public function testWorkflowTesterToWaitMessageOnSuccess(): void
@@ -347,10 +343,9 @@ class CodeWorkflowTest extends TestCase
                 $this->anything(),
                 $this->callback(function (array $workflow) {
                     $ctx = $this->createMock(CodeContext::class);
-                    
-                    // Проверяем переход Tester -> WaitMessage когда тесты успешны
-                    $ctx->method('testFinished')->willReturn(true);
-                    $ctx->method('testSucceed')->willReturn(true);
+                    $ctx->method('testedRound')->willReturn(1);
+                    $ctx->method('devRound')->willReturn(1);
+                    $ctx->method('lastTestResult')->willReturn(true);
                     $nextNode = $workflow[Tester::class]($ctx);
                     $this->assertEquals(WaitMessage::class, $nextNode);
 
@@ -389,26 +384,25 @@ class CodeWorkflowTest extends TestCase
         $this->processor->process($task, $processHandler);
 
         $this->assertNotNull($workflowCaptured);
-        
-        // Важно: state хранится в Context->payload, поэтому используем разные Context для разных сценариев
+
         $contextFailed = new Context([]);
         $contextConversationFailed = new ContextConversation($contextFailed, $conversation);
-        
-        // Проверяем переход Tester -> Developer когда тесты неудачны
         $ctxFailed = new CodeContext($task, $contextConversationFailed);
+        $ctxFailed->incrementDevRound();
+        $ctxFailed->setTestedRound($ctxFailed->devRound());
         $ctxFailed->setTestResult(false);
         $nextNode = $workflowCaptured[Tester::class]($ctxFailed);
         $this->assertEquals(Developer::class, $nextNode);
 
-        // Проверяем, что Tester остается на месте когда тесты не завершены
         $contextNotFinished = new Context([]);
         $contextConversationNotFinished = new ContextConversation($contextNotFinished, $conversation);
         $ctxNotFinished = new CodeContext($task, $contextConversationNotFinished);
+        $ctxNotFinished->incrementDevRound();
         $nextNode = $workflowCaptured[Tester::class]($ctxNotFinished);
-        $this->assertEquals(Tester::class, $nextNode);
+        $this->assertEquals(Tester::class, $nextNode, 'Tester stays when testedRound !== devRound');
     }
 
-    public function testWorkflowWaitMessageStopsWhenNoMessage(): void
+    public function testWorkflowWaitMessageIsDeadEnd(): void
     {
         $task = new Task(
             id: 1,
@@ -422,12 +416,6 @@ class CodeWorkflowTest extends TestCase
 
         $processHandler = $this->createMock(ProcessHandlerInterface::class);
         $conversation = new Chat();
-        // Пустой чат означает, что нет сообщений от пользователя (hasNoUserAnswer() = true)
-        // hasMessage() возвращает hasNoUserAnswer(), то есть true когда нет ответа пользователя
-        // Но в нашем случае мы хотим проверить остановку, когда hasMessage() = false
-        // Это означает, что hasNoUserAnswer() = false, то есть есть ответ пользователя
-        // Но мы проверяем остановку, когда НЕТ сообщения для обработки
-        // hasMessage() = false означает, что нет сообщения для обработки (не нужно переходить к DoAnswer)
         $handledConversation = new HandledConversation($conversation, $processHandler);
 
         $this->conversationFactory->method('handledConversation')->willReturn($handledConversation);
@@ -442,71 +430,43 @@ class CodeWorkflowTest extends TestCase
         $this->processor->process($task, $processHandler);
 
         $this->assertNotNull($workflowCaptured);
-        
-        $context = new Context([]);
-        // Создаем чат, где hasNoUserAnswer() = false (есть ответ пользователя)
-        // Это означает hasMessage() = false, то есть нет сообщения для обработки
-        $conversationWithAnswer = new Chat();
-        $contextConversation = new ContextConversation($context, $conversationWithAnswer);
-        $ctx = new CodeContext($task, $contextConversation);
-        
-        // hasMessage() проверяет hasNoUserAnswer()
-        // Если hasNoUserAnswer() = false (есть ответ), то hasMessage() = false
-        // В этом случае WaitMessage должен остаться на месте
-        // Но нужно проверить реальное поведение - когда чат пустой, hasNoUserAnswer() = true
-        // Поэтому hasMessage() = true, и мы переходим к DoAnswer
-        // Для остановки нужно, чтобы hasNoUserAnswer() = false (есть ответ пользователя)
-        // Но это означает, что hasMessage() = false, и WaitMessage остается
-        
-        // Создаем мок Conversation, где hasNoUserAnswer() = false
+        $this->assertNull($workflowCaptured[WaitMessage::class], 'WaitMessage is dead-end node (null rule)');
+    }
+
+    public function testWorkflowDoAnswerWithoutRequestedTransitionGoesToWaitMessage(): void
+    {
+        $task = new Task(
+            id: 1,
+            type: 'code',
+            conversationId: 1,
+            messages: [],
+            context: [],
+            projectId: 1,
+            resultRequired: false,
+        );
+
+        $processHandler = $this->createMock(ProcessHandlerInterface::class);
+        $conversation = new Chat();
+        $handledConversation = new HandledConversation($conversation, $processHandler);
+
+        $this->conversationFactory->method('handledConversation')->willReturn($handledConversation);
+
+        $workflowCaptured = null;
+        $this->worker->expects($this->once())
+            ->method('process')
+            ->willReturnCallback(function ($ctx, $workflow) use (&$workflowCaptured) {
+                $workflowCaptured = $workflow;
+            });
+
+        $this->processor->process($task, $processHandler);
+
+        $this->assertNotNull($workflowCaptured);
         $conversationMock = $this->createMock(Conversation::class);
         $conversationMock->method('hasNoUserAnswer')->willReturn(false);
-        $contextConversationMock = new ContextConversation($context, $conversationMock);
-        $ctxNoMessage = new CodeContext($task, $contextConversationMock);
-        
-        $nextNode = $workflowCaptured[WaitMessage::class]($ctxNoMessage);
-        $this->assertEquals(WaitMessage::class, $nextNode, 'WaitMessage should stay when no message to process');
-    }
-
-    public function testWorkflowWaitMessageToDoAnswerWhenMessageExists(): void
-    {
-        $task = new Task(
-            id: 1,
-            type: 'code',
-            conversationId: 1,
-            messages: [],
-            context: [],
-            projectId: 1,
-            resultRequired: false,
-        );
-
-        $processHandler = $this->createMock(ProcessHandlerInterface::class);
-        $conversation = new Chat();
-        $handledConversation = new HandledConversation($conversation, $processHandler);
-
-        $this->conversationFactory->method('handledConversation')->willReturn($handledConversation);
-
-        $workflowCaptured = null;
-        $this->worker->expects($this->once())
-            ->method('process')
-            ->willReturnCallback(function ($ctx, $workflow) use (&$workflowCaptured) {
-                $workflowCaptured = $workflow;
-            });
-
-        $this->processor->process($task, $processHandler);
-
-        $this->assertNotNull($workflowCaptured);
-        
         $context = new Context([]);
-        // hasMessage() возвращает hasNoUserAnswer()
-        // Если hasNoUserAnswer() = true (нет ответа пользователя), то hasMessage() = true
-        // В этом случае нужно перейти к DoAnswer для обработки сообщения
-        $conversationMock = $this->createMock(Conversation::class);
-        $conversationMock->method('hasNoUserAnswer')->willReturn(true);
         $contextConversation = new ContextConversation($context, $conversationMock);
         $ctx = new CodeContext($task, $contextConversation);
-        
-        $nextNode = $workflowCaptured[WaitMessage::class]($ctx);
-        $this->assertEquals(DoAnswer::class, $nextNode);
+        $nextNode = $workflowCaptured[DoAnswer::class]($ctx);
+        $this->assertEquals(WaitMessage::class, $nextNode, 'DoAnswer without requestedTransition goes to WaitMessage');
     }
 }

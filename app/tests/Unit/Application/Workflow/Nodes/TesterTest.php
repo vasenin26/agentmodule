@@ -117,8 +117,8 @@ final class TesterTest extends TestCase
         }
 
         $this->assertSame(['build-test-chat', 'run-tests'], $subtaskCalls);
-        $this->assertTrue($ctx->testFinished());
-        $this->assertTrue($ctx->testSucceed());
+        $this->assertSame($ctx->devRound(), $ctx->testedRound());
+        $this->assertTrue($ctx->lastTestResult());
 
         $assistant = $this->findLastMessageOfType($chat, AssistantMessage::class);
         $this->assertNotNull($assistant);
@@ -219,8 +219,8 @@ final class TesterTest extends TestCase
         }
 
         $this->assertSame(['build-test-chat', 'run-tests'], $subtaskCalls);
-        $this->assertTrue($ctx->testFinished());
-        $this->assertFalse($ctx->testSucceed());
+        $this->assertSame($ctx->devRound(), $ctx->testedRound());
+        $this->assertFalse($ctx->lastTestResult());
 
         $assistant = $this->findLastMessageOfType($chat, AssistantMessage::class);
         $this->assertNotNull($assistant);

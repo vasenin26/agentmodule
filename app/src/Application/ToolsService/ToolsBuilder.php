@@ -2,20 +2,30 @@
 
 namespace Anymodule\Agentmodule\Application\ToolsService;
 
+use Anymodule\Agentmodule\Application\Decorator\Tools\FileChangeTrackingDecorator;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Factory\ToolServiceFactory;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Services\TaskStorage\TasksStorage;
+use Anymodule\Agentmodule\Interface\Tools\FileChangeTrackerInterface;
+use Anymodule\Agentmodule\Interface\Tools\FileModifyingToolInterface;
 
 class ToolsBuilder
 {
     private array $tools = [];
+
+    private ?FileChangeTrackerInterface $fileChangeTracker = null;
 
     public function __construct(
         private ToolServiceFactory $toolServiceFactory,
         private ToolsFactory       $toolsFactory
     )
     {
+    }
+
+    public function withFileChangeTracking(FileChangeTrackerInterface $tracker): self
+    {
+        $this->fileChangeTracker = $tracker;
+        return $this;
     }
 
     public function withProject($projectId, string $prefix = 'page'): ToolsBuilder
@@ -91,7 +101,15 @@ class ToolsBuilder
 
     public function build(): ToolsProviderService
     {
-        return $this->toolServiceFactory->withTools($this->tools);
+        $tools = $this->tools;
+        if ($this->fileChangeTracker !== null) {
+            foreach ($tools as $name => $tool) {
+                if ($tool instanceof FileModifyingToolInterface) {
+                    $tools[$name] = new FileChangeTrackingDecorator($tool, $this->fileChangeTracker);
+                }
+            }
+        }
+        return $this->toolServiceFactory->withTools($tools);
     }
 
     public function withTools(array $tools): ToolsBuilder

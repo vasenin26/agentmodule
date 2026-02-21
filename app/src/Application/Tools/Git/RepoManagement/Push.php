@@ -4,9 +4,9 @@ namespace Anymodule\Agentmodule\Application\Tools\Git\RepoManagement;
 
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\FileModifyingToolInterface;
 
-class Push implements ToolInterface
+class Push implements FileModifyingToolInterface
 {
     const NAME = 'git-push';
 

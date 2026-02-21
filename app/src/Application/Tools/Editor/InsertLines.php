@@ -4,9 +4,9 @@ namespace Anymodule\Agentmodule\Application\Tools\Editor;
 
 use Anymodule\Agentmodule\Entity\ToolResult;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
-use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
+use Anymodule\Agentmodule\Interface\Tools\FileModifyingToolInterface;
 
-class InsertLines implements ToolInterface
+class InsertLines implements FileModifyingToolInterface
 {
     const NAME = 'editor-insert-lines';
 
