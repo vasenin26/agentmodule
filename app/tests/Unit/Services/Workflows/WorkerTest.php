@@ -332,16 +332,21 @@ class WorkerTest extends TestCase
             ->with('step1', ['rule1' => 'value1'])
             ->willReturn($node);
 
-        $this->handler->expects($this->exactly(3))
+        $callCount = 0;
+        $this->handler->expects($this->exactly(4))
             ->method('handle')
-            ->with($this->callback(function (ProcessingResult $result) {
-                $this->assertFalse($result->completed);
+            ->willReturnCallback(function (ProcessingResult $result) use (&$callCount) {
+                $callCount++;
+                if ($callCount <= 3) {
+                    $this->assertFalse($result->completed);
+                } else {
+                    $this->assertTrue($result->completed);
+                }
                 $this->assertNull($result->answer);
                 $this->assertSame($this->conversation, $result->conversation);
                 $this->assertSame($this->taskContext, $result->context);
                 $this->assertSame([], $result->payload);
-                return true;
-            }));
+            });
 
         $this->worker->process($this->context, $workflow, $this->handler);
     }

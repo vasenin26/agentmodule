@@ -13,8 +13,10 @@ use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Context;
 use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\Task;
+use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Interface\Factory\ConversationFactoryInterface;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
+use Anymodule\Agentmodule\Interface\Storage\TaskStorageProviderInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -25,13 +27,21 @@ class CodeWorkflowTest extends TestCase
 {
     private WorkflowWorker|MockObject $worker;
     private ConversationFactoryInterface|MockObject $conversationFactory;
+    private TaskStorageProviderInterface|MockObject $taskStorageProvider;
     private CodeWorkflow $processor;
 
     protected function setUp(): void
     {
         $this->worker = $this->createMock(WorkflowWorker::class);
         $this->conversationFactory = $this->createMock(ConversationFactoryInterface::class);
-        $this->processor = new CodeWorkflow($this->worker, $this->conversationFactory);
+
+        $taskStorage = $this->createMock(TaskStorageInterface::class);
+        $taskStorage->method('list')->willReturn([]);
+
+        $this->taskStorageProvider = $this->createMock(TaskStorageProviderInterface::class);
+        $this->taskStorageProvider->method('getTaskStorage')->willReturn($taskStorage);
+
+        $this->processor = new CodeWorkflow($this->worker, $this->conversationFactory, $this->taskStorageProvider);
     }
 
     public function testSupportsWithCodeTask(): void

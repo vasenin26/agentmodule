@@ -39,6 +39,7 @@ final class TaskProcessorFactory
             CodeWorkflow::class => new CodeWorkflow(
                 $this->workflowWorker,
                 $this->conversationFactory,
+                $this->taskStorageProvider,
             ),
 
             CodeProcessor::class => new CodeProcessor(

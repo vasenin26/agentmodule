@@ -38,6 +38,7 @@ class Worker implements WorkflowWorker
 
         $currentStep = $this->defineCurrentNode($ctx, $workflow, null);
         $stepWorker = null;
+        $contextConversation = $ctx->getContextConversation();
 
         while (!is_null($currentStep)) {
 
@@ -95,11 +96,11 @@ class Worker implements WorkflowWorker
                     answer: null,
                     conversation: $contextConversation->conversation,
                     context: $contextConversation->context,
-                    modelName: null,
-                    contextFill: 0,
-                    promptTokens: 0,
-                    completionTokens: 0,
-                    totalTokens: 0,
+                    modelName: $stepResult->modelName,
+                    contextFill: $stepResult->contextFill ?? 0,
+                    promptTokens: $stepResult->promptTokens ?? 0,
+                    completionTokens: $stepResult->completionTokens ?? 0,
+                    totalTokens: $stepResult->totalTokens ?? 0,
                     payload: [],
                 ));
 
