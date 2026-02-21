@@ -33,12 +33,16 @@ final class CodeWorkflow implements TaskProcessor
             },
             DoAnswer::class => function(CodeContext $ctx) {
                 if($ctx->hasMessage()) return DoAnswer::class;
+
+                if ($ctx->isDevelopmentRequested()) {
+                    $ctx->clearDevelopmentRequest();
+                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
+                }
+
                 if ($ctx->codeFinished() && !$ctx->testFinished()) {
                     return Tester::class;
                 }
-                if (!$ctx->codeFinished()) {
-                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
-                }
+
                 return WaitMessage::class;
             },
             CodePlanner::class => function(CodeContext $ctx) {

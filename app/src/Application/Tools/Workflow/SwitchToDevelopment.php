@@ -17,7 +17,7 @@ final class SwitchToDevelopment implements ToolInterface
 
     public function execute(array $args): ?ToolResult
     {
-        $this->ctx->startDevelopment();
+        $this->ctx->requestDevelopment();
 
         return new ToolResult(true, 'Switched context to development', [
             'state' => [

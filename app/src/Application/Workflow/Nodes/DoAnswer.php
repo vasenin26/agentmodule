@@ -44,7 +44,7 @@ class DoAnswer implements NodeProcessorInterface
 
             foreach ($agent->execute($ctx->getContextConversation()) as $processingResult) {
                 if($processingResult->completed) {
-                    if ($ctx->codeFinished() !== $initialCodeFinished || $ctx->testFinished() !== $initialTestFinished) {
+                    if ($ctx->codeFinished() !== $initialCodeFinished || $ctx->testFinished() !== $initialTestFinished || $ctx->isDevelopmentRequested()) {
                         Log::info("Context changed, stop DoAnswer processing");
                         yield new StepResult(true);
                         return;

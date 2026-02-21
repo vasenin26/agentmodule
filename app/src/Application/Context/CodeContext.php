@@ -39,6 +39,9 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         if (!array_key_exists('testSuccess', $payload[self::PAYLOAD_NS])) {
             $payload[self::PAYLOAD_NS]['testSuccess'] = null;
         }
+        if (!array_key_exists('developmentRequested', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['developmentRequested'] = false;
+        }
 
         return $payload[self::PAYLOAD_NS];
     }
@@ -55,6 +58,27 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         $code['codeFinished'] = false;
         $code['testFinished'] = false;
         $code['testSuccess'] = null;
+    }
+
+    public function requestDevelopment(): void
+    {
+        $code =& $this->getCodePayload();
+        $code['developmentRequested'] = true;
+        $code['codeFinished'] = false;
+        $code['testFinished'] = false;
+        $code['testSuccess'] = null;
+    }
+
+    public function isDevelopmentRequested(): bool
+    {
+        $code = $this->getCodePayload();
+        return $code['developmentRequested'] === true;
+    }
+
+    public function clearDevelopmentRequest(): void
+    {
+        $code =& $this->getCodePayload();
+        $code['developmentRequested'] = false;
     }
 
     /**
