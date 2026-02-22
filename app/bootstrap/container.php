@@ -38,8 +38,20 @@ use Anymodule\Agentmodule\Services\{ApiService\DocModuleApi,
     Summary\SummaryGenerator};
 use Anymodule\Agentmodule\Services\OpenAIChat\Mapper\OpenAiResultMapper;
 use Anymodule\Agentmodule\Services\TaskStorageProvider;
+use Anymodule\Agentmodule\Services\Workflows\Emitter\ProcessingResultEmitter;
+use Anymodule\Agentmodule\Services\Workflows\Guard\ExecutionPingPongGuard;
+use Anymodule\Agentmodule\Services\Workflows\Guard\MaxStepResultsGuard;
+use Anymodule\Agentmodule\Services\Workflows\Guard\RoutingPingPongGuard;
+use Anymodule\Agentmodule\Services\Workflows\Interface\ExecutionLoopGuardInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\ResultEmitterInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\RoutingLoopGuardInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\StepLimitGuardInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\StepNotifierInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowLoggerInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowWorker;
+use Anymodule\Agentmodule\Services\Workflows\Logger\LogWorkflowLogger;
+use Anymodule\Agentmodule\Services\Workflows\Notifier\ConversationStepNotifier;
 use Anymodule\Agentmodule\Services\Workflows\Worker;
 use DI\ContainerBuilder;
 use Ramsey\Uuid\Uuid;
@@ -87,6 +99,12 @@ $builder->addDefinitions([
     ToolServiceFactoryInterface::class => DI\autowire(ToolServiceFactory::class),
 
     NodeFactoryInterface::class => DI\autowire(NodeFactory::class),
+    RoutingLoopGuardInterface::class => DI\autowire(RoutingPingPongGuard::class),
+    ExecutionLoopGuardInterface::class => DI\autowire(ExecutionPingPongGuard::class),
+    StepLimitGuardInterface::class => DI\autowire(MaxStepResultsGuard::class),
+    StepNotifierInterface::class => DI\autowire(ConversationStepNotifier::class),
+    ResultEmitterInterface::class => DI\autowire(ProcessingResultEmitter::class),
+    WorkflowLoggerInterface::class => DI\autowire(LogWorkflowLogger::class),
     WorkflowWorker::class => DI\autowire(Worker::class),
 
     PageApi::class => fn($c) => $c->get(DocModuleApi::class),

@@ -6,9 +6,15 @@ use Anymodule\Agentmodule\Entity\ContextConversation;
 use Anymodule\Agentmodule\Entity\ProcessingResult;
 use Anymodule\Agentmodule\Interface\ProcessHandlerInterface;
 use Anymodule\Agentmodule\Services\Workflows\DTO\StepResult;
+use Anymodule\Agentmodule\Services\Workflows\Emitter\ProcessingResultEmitter;
+use Anymodule\Agentmodule\Services\Workflows\Guard\ExecutionPingPongGuard;
+use Anymodule\Agentmodule\Services\Workflows\Guard\MaxStepResultsGuard;
+use Anymodule\Agentmodule\Services\Workflows\Guard\RoutingPingPongGuard;
 use Anymodule\Agentmodule\Services\Workflows\Interface\Context;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeFactoryInterface;
 use Anymodule\Agentmodule\Services\Workflows\Interface\NodeInterface;
+use Anymodule\Agentmodule\Services\Workflows\Interface\WorkflowLoggerInterface;
+use Anymodule\Agentmodule\Services\Workflows\Notifier\NoOpStepNotifier;
 use Anymodule\Agentmodule\Services\Workflows\Worker;
 use PHPUnit\Framework\TestCase;
 use Vasenin26\Conversation\Interface\Conversation as ConversationInterface;
@@ -21,6 +27,7 @@ class WorkerTest extends TestCase
     private ConversationInterface $conversation;
     private \Anymodule\Agentmodule\Entity\Context $taskContext;
     private ContextConversation $contextConversation;
+    private WorkflowLoggerInterface $workflowLogger;
     private Worker $worker;
 
     protected function setUp(): void
@@ -32,7 +39,17 @@ class WorkerTest extends TestCase
         $this->taskContext = new \Anymodule\Agentmodule\Entity\Context(tasks: [], payload: []);
         $this->contextConversation = new ContextConversation($this->taskContext, $this->conversation);
         $this->context->method('getContextConversation')->willReturn($this->contextConversation);
-        $this->worker = new Worker($this->nodeFactory);
+        $this->workflowLogger = $this->createMock(WorkflowLoggerInterface::class);
+
+        $this->worker = new Worker(
+            $this->nodeFactory,
+            new RoutingPingPongGuard(10),
+            new ExecutionPingPongGuard(10),
+            new MaxStepResultsGuard(1000),
+            new NoOpStepNotifier(),
+            new ProcessingResultEmitter(),
+            $this->workflowLogger,
+        );
     }
 
     public function testProcessWithSingleStepWorkflow(): void
