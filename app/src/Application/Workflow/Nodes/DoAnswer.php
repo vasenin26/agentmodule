@@ -27,6 +27,8 @@ class DoAnswer implements NodeProcessorInterface
         Log::info("DoAnswer node processing");
 
         if ($ctx instanceof CodeContext) {
+            $ctx->setAnswerPrepared(false);
+
             $tools = $this->toolsFactory->createToolsBuilder()
                 ->withGit($this->gitRepoProvider)
                 ->withTools([
@@ -39,6 +41,7 @@ class DoAnswer implements NodeProcessorInterface
             foreach ($agent->execute($ctx->getContextConversation()) as $processingResult) {
                 if ($processingResult->completed && $ctx->getRequestedTransition() !== null) {
                     Log::info("Context changed (requestedTransition set), stop DoAnswer processing");
+                    $ctx->setAnswerPrepared(true);
                     yield new StepResult(finished: true);
                     return;
                 }
@@ -55,6 +58,10 @@ class DoAnswer implements NodeProcessorInterface
         }
 
         Log::info("DoAnswer node finished");
+
+        if ($ctx instanceof CodeContext) {
+            $ctx->setAnswerPrepared(true);
+        }
 
         yield new StepResult(true);
     }

@@ -42,6 +42,9 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         if (!array_key_exists('requestedTransition', $payload[self::PAYLOAD_NS])) {
             $payload[self::PAYLOAD_NS]['requestedTransition'] = null;
         }
+        if (!array_key_exists('answerPrepared', $payload[self::PAYLOAD_NS])) {
+            $payload[self::PAYLOAD_NS]['answerPrepared'] = true;
+        }
 
         return $payload[self::PAYLOAD_NS];
     }
@@ -112,6 +115,18 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
     {
         $code = $this->getCodePayload();
         return $code['plane'] !== null;
+    }
+
+    public function setAnswerPrepared(bool $value): void
+    {
+        $code =& $this->getCodePayload();
+        $code['answerPrepared'] = $value;
+    }
+
+    public function isAnswerPrepared(): bool
+    {
+        $code = $this->getCodePayload();
+        return (bool) ($code['answerPrepared'] ?? true);
     }
 
     public function hasMessage(): bool

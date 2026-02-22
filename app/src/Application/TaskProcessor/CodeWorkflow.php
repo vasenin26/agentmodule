@@ -40,6 +40,9 @@ final class CodeWorkflow implements TaskProcessor
                 return CodePlanner::class;
             },
             DoAnswer::class => function (CodeContext $ctx) {
+                if (!$ctx->isAnswerPrepared()) {
+                    return DoAnswer::class;
+                }
                 if ($ctx->hasMessage()) {
                     return DoAnswer::class;
                 }
