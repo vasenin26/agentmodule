@@ -368,6 +368,96 @@ class WorkerTest extends TestCase
         $this->worker->process($this->context, $workflow, $this->handler);
     }
 
+    public function testProcessThrowsWhenRoutingPingPongsBeforeExecution(): void
+    {
+        $workflow = [
+            'step1' => ['rule1' => 'value1'],
+            'step2' => ['rule2' => 'value2'],
+        ];
+
+        // Neither node's defineCurrentNode ever agrees with its own key, so Worker keeps
+        // bouncing between them via `continue` without ever executing a step.
+        $node1 = $this->createMock(NodeInterface::class);
+        $node1->method('getKey')->willReturn('step1');
+        $node1->method('defineCurrentNode')->willReturn('step2');
+
+        $node2 = $this->createMock(NodeInterface::class);
+        $node2->method('getKey')->willReturn('step2');
+        $node2->method('defineCurrentNode')->willReturn('step1');
+
+        $this->nodeFactory->method('createRuledNode')
+            ->willReturnCallback(fn($key) => $key === 'step1' ? $node1 : $node2);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/router ping-pong loop/i');
+
+        $this->worker->process($this->context, $workflow, $this->handler);
+    }
+
+    public function testProcessThrowsWhenExecutionPingPongsDuringProcessing(): void
+    {
+        $workflow = [
+            'step1' => ['rule1' => 'value1'],
+            'step2' => ['rule2' => 'value2'],
+        ];
+
+        // Each node matches its own key just long enough to yield exactly one step result,
+        // then routes to the other node — the "did nothing useful, then bounced back" pattern
+        // ExecutionPingPongGuard exists to catch.
+        $node1Calls = 0;
+        $node1 = $this->createMock(NodeInterface::class);
+        $node1->method('getKey')->willReturn('step1');
+        $node1->method('defineCurrentNode')->willReturnCallback(function () use (&$node1Calls) {
+            $node1Calls++;
+            return $node1Calls % 2 === 1 ? 'step1' : 'step2';
+        });
+        $node1->method('process')->willReturnCallback(
+            fn() => $this->createStepResultGenerator([new StepResult(finished: false)])
+        );
+
+        $node2Calls = 0;
+        $node2 = $this->createMock(NodeInterface::class);
+        $node2->method('getKey')->willReturn('step2');
+        $node2->method('defineCurrentNode')->willReturnCallback(function () use (&$node2Calls) {
+            $node2Calls++;
+            return $node2Calls % 2 === 1 ? 'step2' : 'step1';
+        });
+        $node2->method('process')->willReturnCallback(
+            fn() => $this->createStepResultGenerator([new StepResult(finished: false)])
+        );
+
+        $this->nodeFactory->method('createRuledNode')
+            ->willReturnCallback(fn($key) => $key === 'step1' ? $node1 : $node2);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/ping-pong loop/i');
+
+        $this->worker->process($this->context, $workflow, $this->handler);
+    }
+
+    public function testProcessThrowsWhenStepResultsExceedMax(): void
+    {
+        $workflow = [
+            'step1' => ['rule1' => 'value1'],
+        ];
+
+        $node = $this->createMock(NodeInterface::class);
+        $node->method('getKey')->willReturn('step1');
+        $node->method('defineCurrentNode')->willReturn('step1');
+        $node->method('process')->willReturnCallback(
+            fn() => $this->createStepResultGenerator(
+                array_fill(0, 1001, new StepResult(finished: false))
+            )
+        );
+
+        $this->nodeFactory->method('createRuledNode')->willReturn($node);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/step results limit/i');
+
+        $this->worker->process($this->context, $workflow, $this->handler);
+    }
+
     private function createStepResultGenerator(array $results): \Generator
     {
         foreach ($results as $result) {
