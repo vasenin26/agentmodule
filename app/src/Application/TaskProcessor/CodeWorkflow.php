@@ -6,7 +6,6 @@ use Anymodule\Agentmodule\Application\Context\CodeContext;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
-use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Context;
@@ -32,26 +31,12 @@ final class CodeWorkflow implements TaskProcessor
         $this->workflow = [
             'init' => function (CodeContext $ctx) {
                 if ($ctx->hasMessage()) {
-                    return DoAnswer::class;
+                    return Developer::class;
                 }
                 if ($ctx->testedRound() < $ctx->devRound()) {
                     return Tester::class;
                 }
                 return CodePlanner::class;
-            },
-            DoAnswer::class => function (CodeContext $ctx) {
-                if (!$ctx->isAnswerPrepared()) {
-                    return DoAnswer::class;
-                }
-                if ($ctx->hasMessage()) {
-                    return DoAnswer::class;
-                }
-                $t = $ctx->getRequestedTransition();
-                if ($t === 'development') {
-                    $ctx->clearRequestedTransition();
-                    return $ctx->hasPlane() ? Developer::class : CodePlanner::class;
-                }
-                return WaitMessage::class;
             },
             CodePlanner::class => function (CodeContext $ctx) {
                 if ($ctx->hasPlane()) {

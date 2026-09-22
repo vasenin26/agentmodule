@@ -39,12 +39,6 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         if (!array_key_exists('testResult', $payload[self::PAYLOAD_NS])) {
             $payload[self::PAYLOAD_NS]['testResult'] = null;
         }
-        if (!array_key_exists('requestedTransition', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['requestedTransition'] = null;
-        }
-        if (!array_key_exists('answerPrepared', $payload[self::PAYLOAD_NS])) {
-            $payload[self::PAYLOAD_NS]['answerPrepared'] = true;
-        }
 
         return $payload[self::PAYLOAD_NS];
     }
@@ -86,25 +80,6 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
         return $v === null ? null : (bool) $v;
     }
 
-    public function requestTransition(string $to): void
-    {
-        $code =& $this->getCodePayload();
-        $code['requestedTransition'] = $to;
-    }
-
-    public function getRequestedTransition(): ?string
-    {
-        $code = $this->getCodePayload();
-        $v = $code['requestedTransition'] ?? null;
-        return $v === null || $v === '' ? null : (string) $v;
-    }
-
-    public function clearRequestedTransition(): void
-    {
-        $code =& $this->getCodePayload();
-        $code['requestedTransition'] = null;
-    }
-
     public function setPlane(array $tasks): void
     {
         $code =& $this->getCodePayload();
@@ -115,18 +90,6 @@ class CodeContext implements Context, PlanableContextInterface, CodeContextInter
     {
         $code = $this->getCodePayload();
         return $code['plane'] !== null;
-    }
-
-    public function setAnswerPrepared(bool $value): void
-    {
-        $code =& $this->getCodePayload();
-        $code['answerPrepared'] = $value;
-    }
-
-    public function isAnswerPrepared(): bool
-    {
-        $code = $this->getCodePayload();
-        return (bool) ($code['answerPrepared'] ?? true);
     }
 
     public function hasMessage(): bool

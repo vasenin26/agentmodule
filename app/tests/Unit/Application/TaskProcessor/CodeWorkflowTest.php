@@ -7,7 +7,6 @@ use Anymodule\Agentmodule\Application\Conversation\HandledConversation;
 use Anymodule\Agentmodule\Application\TaskProcessor\CodeWorkflow;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\CodePlanner;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Developer;
-use Anymodule\Agentmodule\Application\Workflow\Nodes\DoAnswer;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\Tester;
 use Anymodule\Agentmodule\Application\Workflow\Nodes\WaitMessage;
 use Anymodule\Agentmodule\Entity\Context;
@@ -431,80 +430,5 @@ class CodeWorkflowTest extends TestCase
 
         $this->assertNotNull($workflowCaptured);
         $this->assertNull($workflowCaptured[WaitMessage::class], 'WaitMessage is dead-end node (null rule)');
-    }
-
-    public function testWorkflowDoAnswerWithoutRequestedTransitionGoesToWaitMessage(): void
-    {
-        $task = new Task(
-            id: 1,
-            type: 'code',
-            conversationId: 1,
-            messages: [],
-            context: [],
-            projectId: 1,
-            resultRequired: false,
-        );
-
-        $processHandler = $this->createMock(ProcessHandlerInterface::class);
-        $conversation = new Chat();
-        $handledConversation = new HandledConversation($conversation, $processHandler);
-
-        $this->conversationFactory->method('handledConversation')->willReturn($handledConversation);
-
-        $workflowCaptured = null;
-        $this->worker->expects($this->once())
-            ->method('process')
-            ->willReturnCallback(function ($ctx, $workflow) use (&$workflowCaptured) {
-                $workflowCaptured = $workflow;
-            });
-
-        $this->processor->process($task, $processHandler);
-
-        $this->assertNotNull($workflowCaptured);
-        $conversationMock = $this->createMock(Conversation::class);
-        $conversationMock->method('hasNoUserAnswer')->willReturn(false);
-        $context = new Context([]);
-        $contextConversation = new ContextConversation($context, $conversationMock);
-        $ctx = new CodeContext($task, $contextConversation);
-        $nextNode = $workflowCaptured[DoAnswer::class]($ctx);
-        $this->assertEquals(WaitMessage::class, $nextNode, 'DoAnswer without requestedTransition goes to WaitMessage');
-    }
-
-    public function testWorkflowDoAnswerWithAnswerNotPreparedStaysInDoAnswer(): void
-    {
-        $task = new Task(
-            id: 1,
-            type: 'code',
-            conversationId: 1,
-            messages: [],
-            context: [],
-            projectId: 1,
-            resultRequired: false,
-        );
-
-        $processHandler = $this->createMock(ProcessHandlerInterface::class);
-        $conversation = new Chat();
-        $handledConversation = new HandledConversation($conversation, $processHandler);
-
-        $this->conversationFactory->method('handledConversation')->willReturn($handledConversation);
-
-        $workflowCaptured = null;
-        $this->worker->expects($this->once())
-            ->method('process')
-            ->willReturnCallback(function ($ctx, $workflow) use (&$workflowCaptured) {
-                $workflowCaptured = $workflow;
-            });
-
-        $this->processor->process($task, $processHandler);
-
-        $this->assertNotNull($workflowCaptured);
-        $conversationMock = $this->createMock(Conversation::class);
-        $conversationMock->method('hasNoUserAnswer')->willReturn(false);
-        $context = new Context([]);
-        $contextConversation = new ContextConversation($context, $conversationMock);
-        $ctx = new CodeContext($task, $contextConversation);
-        $ctx->setAnswerPrepared(false);
-        $nextNode = $workflowCaptured[DoAnswer::class]($ctx);
-        $this->assertEquals(DoAnswer::class, $nextNode, 'DoAnswer with answer not prepared stays in DoAnswer');
     }
 }
