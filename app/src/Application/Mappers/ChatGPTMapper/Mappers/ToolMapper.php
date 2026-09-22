@@ -41,6 +41,10 @@ use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\P
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Page\GetTaskHistoryToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Tasks\{CompleteTaskToolMapper};
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Tasks\AddTasksToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Terminal\TerminalStartToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Terminal\TerminalWaitToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Terminal\TerminalPeekToolMapper;
+use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Terminal\TerminalKillToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolResult\Utils\{AddFileToListToolMapper};
 use Vasenin26\Conversation\Message;
 use Vasenin26\Conversation\Messages\ToolMessage;
@@ -104,6 +108,10 @@ class ToolMapper implements MessageMapperInterface
             new CommitToolMapper(),
             new AddFileToolMapper(),
             new GetTaskHistoryToolMapper(),
+            new TerminalStartToolMapper(),
+            new TerminalWaitToolMapper(),
+            new TerminalPeekToolMapper(),
+            new TerminalKillToolMapper(),
         ];
     }
 

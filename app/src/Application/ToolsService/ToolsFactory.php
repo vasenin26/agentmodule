@@ -40,7 +40,11 @@ use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
 use Anymodule\Agentmodule\Application\Tools\Tasks\ListTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\TaskStorageInterface;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Kill;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Peek;
 use Anymodule\Agentmodule\Application\Tools\Terminal\Run;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Start;
+use Anymodule\Agentmodule\Application\Tools\Terminal\Wait;
 use Anymodule\Agentmodule\Interface\Git\GitRepoProviderInterface;
 use Anymodule\Agentmodule\Interface\Page\PageContextServiceFactoryInterface;
 use Anymodule\Agentmodule\Interface\Tools\ToolInterface;
@@ -250,5 +254,25 @@ class ToolsFactory
     public function terminalRun(): ToolInterface
     {
         return new Run();
+    }
+
+    public function terminalStart(): ToolInterface
+    {
+        return new Start();
+    }
+
+    public function terminalWait(): ToolInterface
+    {
+        return new Wait();
+    }
+
+    public function terminalPeek(): ToolInterface
+    {
+        return new Peek();
+    }
+
+    public function terminalKill(): ToolInterface
+    {
+        return new Kill();
     }
 }

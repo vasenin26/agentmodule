@@ -96,6 +96,10 @@ class ToolsBuilder
     {
         return $this->withTools([
             $this->toolsFactory->terminalRun(),
+            $this->toolsFactory->terminalStart(),
+            $this->toolsFactory->terminalWait(),
+            $this->toolsFactory->terminalPeek(),
+            $this->toolsFactory->terminalKill(),
         ]);
     }
 
