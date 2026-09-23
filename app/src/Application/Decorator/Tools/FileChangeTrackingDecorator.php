@@ -17,7 +17,7 @@ final class FileChangeTrackingDecorator implements ToolInterface
     public function execute(array $args): ?ToolResult
     {
         $result = $this->tool->execute($args);
-        if ($result !== null && $result->status) {
+        if ($result !== null && $result->status && ($result->payload['changed'] ?? true)) {
             $this->tracker->markChanged();
         }
         return $result;

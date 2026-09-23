@@ -60,12 +60,9 @@ class ToolsBuilder
     public function withEditor(GitRepoProviderInterface $repoProvider, string $prefix = 'editor'): ToolsBuilder
     {
         return $this->withTools([
-            $this->toolsFactory->editorDeleteLines($repoProvider),
-            $this->toolsFactory->editorChangeLine($repoProvider),
-//            $this->toolsFactory->editorEditFile($repoProvider),
-            $this->toolsFactory->editorInsertLines($repoProvider),
-//            $this->toolsFactory->editorReplaceInFile($repoProvider),
-            $this->toolsFactory->editorInsertOrReplace($repoProvider),
+            $this->toolsFactory->editorStrReplace($repoProvider),
+            $this->toolsFactory->editorInsert($repoProvider),
+            $this->toolsFactory->editorWriteFile($repoProvider),
         ]);
     }
 

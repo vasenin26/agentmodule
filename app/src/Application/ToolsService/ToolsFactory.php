@@ -4,12 +4,9 @@ namespace Anymodule\Agentmodule\Application\ToolsService;
 
 
 use Anymodule\Agentmodule\Application\Tools\CurrentTime;
-use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
-use Anymodule\Agentmodule\Application\Tools\Editor\DeleteLines;
-use Anymodule\Agentmodule\Application\Tools\Editor\EditFile;
-use Anymodule\Agentmodule\Application\Tools\Editor\InsertLines;
-use Anymodule\Agentmodule\Application\Tools\Editor\InsertOrReplace;
-use Anymodule\Agentmodule\Application\Tools\Editor\ReplaceInFile;
+use Anymodule\Agentmodule\Application\Tools\Editor\Insert;
+use Anymodule\Agentmodule\Application\Tools\Editor\StrReplace;
+use Anymodule\Agentmodule\Application\Tools\Editor\WriteFile;
 use Anymodule\Agentmodule\Application\Tools\Git\AnalyzeClasses;
 use Anymodule\Agentmodule\Application\Tools\Git\AnalyzeStructure;
 use Anymodule\Agentmodule\Application\Tools\Git\FindConfigFiles;
@@ -164,34 +161,19 @@ class ToolsFactory
     }
 
     // Editor утилиты
-    public function editorEditFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
+    public function editorStrReplace(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new EditFile($repositoryProvider);
+        return new StrReplace($repositoryProvider);
     }
 
-    public function editorReplaceInFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
+    public function editorInsert(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new ReplaceInFile($repositoryProvider);
+        return new Insert($repositoryProvider);
     }
 
-    public function editorInsertOrReplace(GitRepoProviderInterface $repositoryProvider): ToolInterface
+    public function editorWriteFile(GitRepoProviderInterface $repositoryProvider): ToolInterface
     {
-        return new InsertOrReplace($repositoryProvider);
-    }
-
-    public function editorChangeLine(GitRepoProviderInterface $repositoryProvider): ToolInterface
-    {
-        return new ChangeLine($repositoryProvider);
-    }
-
-    public function editorDeleteLines(GitRepoProviderInterface $repositoryProvider): ToolInterface
-    {
-        return new DeleteLines($repositoryProvider);
-    }
-
-    public function editorInsertLines(GitRepoProviderInterface $repositoryProvider): ToolInterface
-    {
-        return new InsertLines($repositoryProvider);
+        return new WriteFile($repositoryProvider);
     }
 
     public function tasksList(TaskStorageInterface $tasksStorage): ToolInterface

@@ -13,7 +13,6 @@ use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\ToolMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\UserMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Mappers\UserTaskMapper;
 use Anymodule\Agentmodule\Application\Mappers\ChatGPTMapper\Optimizators\Editor\ReadFileOptimization;
-use Anymodule\Agentmodule\Application\Tools\Editor\ChangeLine;
 use Anymodule\Agentmodule\Application\Tools\Git\ReadFile;
 use Anymodule\Agentmodule\Application\Tools\Tasks\AddTasks;
 use Anymodule\Agentmodule\Application\Tools\Tasks\CompleteTask;
@@ -36,7 +35,6 @@ class ChatMapper implements MessageMapper
         AddTasks::NAME,
         ListTasks::NAME,
         CompleteTask::NAME,
-        ChangeLine::NAME,
     ];
 
     private $mappers = [];
