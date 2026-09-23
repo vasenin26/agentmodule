@@ -40,7 +40,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
             ->withBaseUri($apiHost)
-            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
+            ->withHttpClient($this->createHttpClient())
             ->make();
 
         return new ContextConversationProcessor(
@@ -69,7 +69,7 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
         $client = OpenAI::factory()
             ->withApiKey($apiKey)
             ->withBaseUri($apiHost)
-            ->withHttpClient(new \GuzzleHttp\Client(['timeout' => 0]))
+            ->withHttpClient($this->createHttpClient())
             ->make();
 
         $modelMeta = $this->modelsProvider->get($modelName);
@@ -86,5 +86,18 @@ class ChatProcessorFactory implements ChatProcessorFactoryInterface
                 )
             )
         );
+    }
+
+    private function createHttpClient(): \GuzzleHttp\Client
+    {
+        $options = ['timeout' => 0];
+
+        // HTTP-прокси только для запросов к OpenAI, передаётся agentmanager'ом
+        $proxy = getenv('OPENAI_PROXY');
+        if ($proxy !== false && $proxy !== '') {
+            $options['proxy'] = $proxy;
+        }
+
+        return new \GuzzleHttp\Client($options);
     }
 }
